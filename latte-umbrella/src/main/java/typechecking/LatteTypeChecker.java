@@ -20,6 +20,7 @@ public class LatteTypeChecker  extends CtScanner {
 	@Override
     public <T> void visitCtClass(CtClass<T> ctClass) {
         System.out.println("CTCLASS:"+ctClass.getSimpleName());
+        context.addClass(ctClass);
         context.enterScope();
         super.visitCtClass(ctClass);
         context.exitScope();

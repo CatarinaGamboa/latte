@@ -1,16 +1,22 @@
 package context;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Stack;
+
+import spoon.reflect.declaration.CtClass;
 
 public class Context {
 	
 	private static Context instance;
 	
     private Stack<Map<String, Variable>> variables;
+    
+    private List<CtClass<?>> classes;
 
 
     // SINGLETON
@@ -23,6 +29,7 @@ public class Context {
 	private Context() {
         variables = new Stack<Map<String, Variable>>();
         variables.push(new HashMap<String,Variable>());
+        classes = new ArrayList<CtClass<?>>();
     }
 
 	public void enterScope() {
@@ -36,6 +43,11 @@ public class Context {
 	public void addInScope(String name, Variable ann) {
 		variables.peek().put(name, ann);
 	}
+	
+	public void addClass(CtClass<?>klass) {
+		classes.add(klass);
+	}
+	
 	
 	/**
 	 * Retrieves an element with name from the context
@@ -66,16 +78,22 @@ public class Context {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
+		sb.append("variables:\n");
 		Iterator<Map<String, Variable>> it = variables.elements().asIterator();
 		while(it.hasNext()) {
-			sb.append("[");
+			sb.append("  [");
 			Map<String, Variable> map = it.next();
 			for(Entry<String,Variable> e : map.entrySet()) {
 				sb.append( e.getValue() + ", ");
 			}
 			sb.append("]");
 		}
-		return "Context: " + sb.toString();
+		
+		sb.append("\n classes:\n");
+		for(CtClass<?> klass : classes)
+			sb.append("  " + klass.getSimpleName()+",");
+		
+		return "Context:{\n " + sb.toString() +"\n}";
 	}
 
 }
