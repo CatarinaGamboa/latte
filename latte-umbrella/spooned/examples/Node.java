@@ -5,7 +5,7 @@ public class Node {
     @specification.Unique
     java.lang.Object value;
 
-    @specification.Shared
+    @specification.Unique
     examples.Node next;
 
     public Node(@specification.Unique

@@ -2,12 +2,13 @@ package context;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class Context {
 	
 	private static Context instance;
 	
-    private Map<String, AnnotationUniqueness> variables;
+    private Map<String, Variable> variables;
 
 
     // SINGLETON
@@ -22,11 +23,13 @@ public class Context {
     }
 
 	
-	public void addToContext(String name, AnnotationUniqueness ann) {
+	public void addToContext(String name, Variable ann) {
 		variables.put(name, ann);
 	}
 	
-	public AnnotationUniqueness get(String name) {
+
+
+	public Variable get(String name) {
 		return variables.get(name);
 	}
 
@@ -35,5 +38,14 @@ public class Context {
 		variables.clear();
 	}
 
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for(Entry<String,Variable> e : variables.entrySet()) {
+			sb.append( e.getValue() + ", ");
+		}
+		return "Context [variables=" + sb.toString() + "]";
+	}
 
 }

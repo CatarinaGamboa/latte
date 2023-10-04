@@ -23,8 +23,8 @@ public class LatteTypeChecker  extends CtScanner {
 	@Override
 	public <T> void visitCtField(CtField<T> f) {
 		Variable v = new Variable(f);
-		System.out.println(v.toString());
-
+		context.addToContext(v.getName(), v);
+		System.out.println(context.toString());
 		super.visitCtField(f);
 	}
 
