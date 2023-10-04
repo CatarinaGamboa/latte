@@ -2,6 +2,7 @@ package context;
 
 import java.lang.annotation.Annotation;
 import java.security.InvalidParameterException;
+import java.util.Optional;
 
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtElement;
@@ -20,17 +21,27 @@ public class AnnotationUniqueness {
 	CtElement path;
 
 	
+	public static Optional<AnnotationUniqueness> uniquenessAnnotation(CtElement element) {
+		Optional<AnnotationUniqueness> au;
+		try {
+			AnnotationUniqueness exist = new AnnotationUniqueness(element);
+			au = Optional.of(exist);
+		} catch (Exception e) {
+			au = Optional.empty();
+		}
+		return au;
+	}
+	
 	public AnnotationUniqueness(CtElement element) {
-		
 		for (CtAnnotation<? extends Annotation> ann : element.getAnnotations()) {
 	        String an = ann.getActualAnnotation().annotationType().getCanonicalName();
-	        if (an.contentEquals("latte-umbrella.specification.Unique")) {
+	        if (an.contentEquals("specification.Unique")) {
 	           this.annotation = AnnotationType.UNIQUE;
 	        } 
-	        else if (an.contentEquals("latte-umbrella.specification.Shared")) {
+	        else if (an.contentEquals("specification.Shared")) {
 		       this.annotation = AnnotationType.SHARED;
 		    } 
-	        else if (an.contentEquals("latte-umbrella.specification.Owned")) {
+	        else if (an.contentEquals("specification.Owned")) {
 			       this.annotation = AnnotationType.OWNED;
 			}
 	        else {
@@ -74,6 +85,14 @@ public class AnnotationUniqueness {
 	
 	public boolean isBottom() {
 		return annotation.equals(AnnotationType.BOTTOM);
+	}
+	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(annotation.name());
+		if(path != null)
+			sb.append(path.toString());
+		return sb.toString();
 	}
 
 

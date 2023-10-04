@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
  *
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.PARAMETER})
+@Target({ ElementType.FIELD, ElementType.PARAMETER})
 public @interface Owned {
 
 }

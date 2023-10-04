@@ -17,7 +17,7 @@ public class App {
 	
     public static void main( String[] args ){
     	
-    	String allPath = "../liquidjava-example/src/main/java/test/project";
+    	String allPath = "../latte-umbrella/src/main/java/examples";
     	launcher(allPath);
     }
     
@@ -36,10 +36,10 @@ public class App {
 	    // "lib1.jar:lib2.jar".split(":"));
 	    launcher.getEnvironment().setComplianceLevel(8);
 	
-	    System.out.println("before run");
+	    System.out.println("Start processing");
 	    launcher.run();
 	
-	    System.out.println("after run");
+//	    System.out.println("after run");
 	
 	    final Factory factory = launcher.getFactory();
         final UniquenessProcessor processor = new UniquenessProcessor(factory);

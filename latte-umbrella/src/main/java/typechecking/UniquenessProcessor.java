@@ -19,14 +19,14 @@ public class UniquenessProcessor extends AbstractProcessor<CtPackage> {
 
     @Override
     public void process(CtPackage pkg) {
-//        if (!visitedPackages.contains(pkg)) {
-//            visitedPackages.add(pkg);
-//            Context c = Context.getInstance();
-//            c.reinitializeAllContext();
-//
-//            pkg.accept(new LatteTypeChecker(c, factory));
-//
-//        }
+        if (!visitedPackages.contains(pkg)) {
+            visitedPackages.add(pkg);
+            Context c = Context.getInstance();
+            c.reinitializeAllContext();
+
+            pkg.accept(new LatteTypeChecker(c));
+
+        }
 
     }
     

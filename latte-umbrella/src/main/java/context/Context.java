@@ -31,4 +31,9 @@ public class Context {
 	}
 
 
+	public void reinitializeAllContext() {
+		variables.clear();
+	}
+
+
 }
