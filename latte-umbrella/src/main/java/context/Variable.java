@@ -1,9 +1,7 @@
 package context;
 
-import java.util.Optional;
-
 import spoon.reflect.declaration.CtElement;
-import spoon.reflect.declaration.CtField;
+import spoon.reflect.declaration.CtVariable;
 import spoon.reflect.reference.CtTypeReference;
 
 public class Variable {
@@ -15,28 +13,27 @@ public class Variable {
 
 	CtElement element;
 	
-	
-	public Variable(CtField<?> field) {
+	/**
+	 * Creates a variable object that saves relevant information for type checking
+	 * @param field variable element with information to save. It can be a CtField or CtParameter, for example
+	 */
+	public Variable(CtVariable<?> field) {
 		
 		String fieldName = field.getSimpleName(); //TODO: change to scale
 		CtTypeReference<?> type =  field.getType();
-		Optional<AnnotationUniqueness> oau = AnnotationUniqueness.uniquenessAnnotation(field);
+		AnnotationUniqueness au = new AnnotationUniqueness(field);
 		
 		name = fieldName;
-		klass = type.getSimpleName(); //TODO: change to scale
-		annotation = oau.orElse(null);
+		klass = type.getSimpleName();  //TODO: change to scale
+		annotation = au;
 		
 		element = field;
 	}
-
+	
+	
 
 	public String getName() {
 		return name;
-	}
-
-
-	public void setName(String name) {
-		this.name = name;
 	}
 
 
@@ -45,28 +42,13 @@ public class Variable {
 	}
 
 
-	public void setKlass(String klass) {
-		this.klass = klass;
-	}
-
-
 	public AnnotationUniqueness getAnnotation() {
 		return annotation;
 	}
 
 
-	public void setAnnotation(AnnotationUniqueness annotation) {
-		this.annotation = annotation;
-	}
-
-
 	public CtElement getElement() {
 		return element;
-	}
-
-
-	public void setElement(CtElement element) {
-		this.element = element;
 	}
 
 

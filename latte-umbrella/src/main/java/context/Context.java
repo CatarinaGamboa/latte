@@ -1,14 +1,16 @@
 package context;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Stack;
 
 public class Context {
 	
 	private static Context instance;
 	
-    private Map<String, Variable> variables;
+    private Stack<Map<String, Variable>> variables;
 
 
     // SINGLETON
@@ -19,18 +21,40 @@ public class Context {
    
 	
 	private Context() {
-        variables = new HashMap<>();
+        variables = new Stack<Map<String, Variable>>();
+        variables.push(new HashMap<String,Variable>());
     }
 
-	
-	public void addToContext(String name, Variable ann) {
-		variables.put(name, ann);
+	public void enterScope() {
+		variables.push(new HashMap<String,Variable>());
 	}
 	
-
-
+	public void exitScope() {
+		variables.pop();
+	}
+	
+	public void addInScope(String name, Variable ann) {
+		variables.peek().put(name, ann);
+	}
+	
+	/**
+	 * Retrieves an element with name from the context
+	 * @param name
+	 * @return Variable with the given name or null if it was not found in the context
+	 */
 	public Variable get(String name) {
-		return variables.get(name);
+		Variable var = null;
+		boolean found = false;
+		int i = 0;
+		int maxCap = variables.capacity(); 
+		while(!found && i < maxCap) {
+			Map<String,Variable> map = variables.get(i);
+			if(map.containsKey(name)) {
+				var = map.get(name);
+				found = true;
+			}
+		}
+		return var;
 	}
 
 
@@ -42,10 +66,16 @@ public class Context {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		for(Entry<String,Variable> e : variables.entrySet()) {
-			sb.append( e.getValue() + ", ");
+		Iterator<Map<String, Variable>> it = variables.elements().asIterator();
+		while(it.hasNext()) {
+			sb.append("[");
+			Map<String, Variable> map = it.next();
+			for(Entry<String,Variable> e : map.entrySet()) {
+				sb.append( e.getValue() + ", ");
+			}
+			sb.append("]");
 		}
-		return "Context [variables=" + sb.toString() + "]";
+		return "Context: " + sb.toString();
 	}
 
 }

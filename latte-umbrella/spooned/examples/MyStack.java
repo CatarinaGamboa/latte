@@ -7,6 +7,7 @@ public class MyStack {
 
     public MyStack(@specification.Unique
     examples.Node root) {
+        this.root = root;
     }
 
     // 

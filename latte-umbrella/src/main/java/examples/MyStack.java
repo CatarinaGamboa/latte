@@ -8,7 +8,7 @@ public class MyStack {
 		
 		
 		public MyStack(@Unique Node root) {
-			
+			this.root = root;
 		}
 //		
 //		void push( @Unique Object value) {

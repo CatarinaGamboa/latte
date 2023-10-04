@@ -1,8 +1,6 @@
 package context;
 
 import java.lang.annotation.Annotation;
-import java.security.InvalidParameterException;
-import java.util.Optional;
 
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtElement;
@@ -21,16 +19,6 @@ public class AnnotationUniqueness {
 	CtElement path;
 
 	
-	public static Optional<AnnotationUniqueness> uniquenessAnnotation(CtElement element) {
-		Optional<AnnotationUniqueness> au;
-		try {
-			AnnotationUniqueness exist = new AnnotationUniqueness(element);
-			au = Optional.of(exist);
-		} catch (Exception e) {
-			au = Optional.empty();
-		}
-		return au;
-	}
 	
 	public AnnotationUniqueness(CtElement element) {
 		for (CtAnnotation<? extends Annotation> ann : element.getAnnotations()) {
@@ -42,12 +30,12 @@ public class AnnotationUniqueness {
 		       this.annotation = AnnotationType.SHARED;
 		    } 
 	        else if (an.contentEquals("specification.Owned")) {
-			       this.annotation = AnnotationType.OWNED;
+			   this.annotation = AnnotationType.OWNED;
 			}
-	        else {
-	        	throw new InvalidParameterException("The given element does not have an annotation");
-	        }
+	        
 	    }
+		
+		if (annotation == null) this.annotation = AnnotationType.SHARED; //Default
 	}
 	
 	public AnnotationUniqueness() {	}
