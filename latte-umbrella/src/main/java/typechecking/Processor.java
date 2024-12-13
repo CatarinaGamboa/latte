@@ -1,19 +1,23 @@
 package typechecking;
 
+import java.security.Permission;
 import java.util.ArrayList;
 import java.util.List;
 
 import context.Context;
+import context.PermissionEnvironment;
+import context.SymbolicEnvironment;
+import context.TypeEnvironment;
 import spoon.processing.AbstractProcessor;
 import spoon.reflect.declaration.CtPackage;
 import spoon.reflect.factory.Factory;
 
-public class UniquenessProcessor extends AbstractProcessor<CtPackage> {
+public class Processor extends AbstractProcessor<CtPackage> {
 
     List<CtPackage> visitedPackages = new ArrayList<>();
     Factory factory;
 
-    public UniquenessProcessor(Factory factory) {
+    public Processor(Factory factory) {
         this.factory = factory;
     }
 
@@ -22,9 +26,13 @@ public class UniquenessProcessor extends AbstractProcessor<CtPackage> {
         if (!visitedPackages.contains(pkg)) {
             visitedPackages.add(pkg);
             Context c = Context.getInstance();
+            TypeEnvironment te = TypeEnvironment.getInstance();
+            SymbolicEnvironment se = SymbolicEnvironment.getInstance();
+            PermissionEnvironment pe = PermissionEnvironment.getInstance();
+            
             c.reinitializeAllContext();
 
-            pkg.accept(new LatteTypeChecker(c));
+            pkg.accept(new LatteTypeChecker(c, te, se, pe));
 
         }
 

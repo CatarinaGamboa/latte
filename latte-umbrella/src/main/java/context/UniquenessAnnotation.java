@@ -5,10 +5,13 @@ import java.lang.annotation.Annotation;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtElement;
 
-public class AnnotationUniqueness {
+/**
+ * Matched the annotation to the uniqueness enum type type
+ */
+public class UniquenessAnnotation {
 	
 	enum AnnotationType {
-		  OWNED,
+		  BORROWED,
 		  SHARED,
 		  UNIQUE,
 		  ALIAS,
@@ -18,9 +21,7 @@ public class AnnotationUniqueness {
 	AnnotationType annotation;
 	CtElement path;
 
-	
-	
-	public AnnotationUniqueness(CtElement element) {
+	public UniquenessAnnotation(CtElement element) {
 		for (CtAnnotation<? extends Annotation> ann : element.getAnnotations()) {
 	        String an = ann.getActualAnnotation().annotationType().getCanonicalName();
 	        if (an.contentEquals("specification.Unique")) {
@@ -30,7 +31,7 @@ public class AnnotationUniqueness {
 		       this.annotation = AnnotationType.SHARED;
 		    } 
 	        else if (an.contentEquals("specification.Owned")) {
-			   this.annotation = AnnotationType.OWNED;
+			   this.annotation = AnnotationType.BORROWED;
 			}
 	        
 	    }
@@ -38,7 +39,7 @@ public class AnnotationUniqueness {
 		if (annotation == null) this.annotation = AnnotationType.SHARED; //Default
 	}
 	
-	public AnnotationUniqueness() {	}
+	public UniquenessAnnotation() {	}
 	
 	public void setToBottom() {
 		annotation = AnnotationType.BOTTOM;
@@ -56,7 +57,7 @@ public class AnnotationUniqueness {
 	
 	
 	public boolean isOwned() {
-		return annotation.equals(AnnotationType.OWNED);
+		return annotation.equals(AnnotationType.BORROWED);
 	}
 	
 	public boolean isShared() {
@@ -82,7 +83,6 @@ public class AnnotationUniqueness {
 			sb.append(path.toString());
 		return sb.toString();
 	}
-
 
 }
 

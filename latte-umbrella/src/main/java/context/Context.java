@@ -10,6 +10,9 @@ import java.util.Stack;
 
 import spoon.reflect.declaration.CtClass;
 
+/**
+ * Context class to store the environments
+ */
 public class Context {
 	
 	private static Context instance;
