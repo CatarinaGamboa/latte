@@ -10,19 +10,24 @@ import spoon.support.QueueProcessingManager;
 import typechecking.UniquenessProcessor;
 
 /**
- * Hello world!
- *
+ * App for Latte Verification
  */
 public class App {
 	
-    public static void main( String[] args ){
-    	
+	/**
+	 * Main method, launches the verification on the project in the filepath (currently the path is hardcoded)
+	 * @param args
+	 */
+	public static void main( String[] args ){
     	String allPath = "../latte-umbrella/src/main/java/examples";
     	launcher(allPath);
     }
     
     
-    
+    /**
+	 * 
+	 * @param filePath
+	 */
     public static void launcher(String filePath) {
     
 	    if (filePath == null) throw new InvalidParameterException("The path to the file is null");
@@ -38,8 +43,7 @@ public class App {
 	
 	    System.out.println("Start processing");
 	    launcher.run();
-	
-//	    System.out.println("after run");
+	    System.out.println("after run");
 	
 	    final Factory factory = launcher.getFactory();
         final UniquenessProcessor processor = new UniquenessProcessor(factory);
