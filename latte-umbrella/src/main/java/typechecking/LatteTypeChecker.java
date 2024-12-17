@@ -43,6 +43,8 @@ public class LatteTypeChecker  extends CtScanner {
 	ClassLevelMaps maps;
 	private static Logger logger = LoggerFactory.getLogger(LatteTypeChecker.class);
 
+	int loggingSpaces = 0;
+
 	 
     public LatteTypeChecker(Context context, TypeEnvironment typeEnv, SymbolicEnvironment symbEnv, PermissionEnvironment permEnv, ClassLevelMaps mtc) {
 		this.context = context; 
@@ -50,37 +52,38 @@ public class LatteTypeChecker  extends CtScanner {
 		this.symbEnv = symbEnv;
 		this.permEnv = permEnv;
 		this.maps = mtc;
-		logger.info("Latte Type checker initialized");
+		logInfo("Latte Type checker initialized");
 	}
 
 	@Override
     public <T> void visitCtClass(CtClass<T> ctClass) {
-		logger.info("Visiting class: {}", ctClass.getSimpleName());
-        context.addClass(ctClass);
-        enterScopes();
+		logInfo("Visiting class: " + ctClass.getSimpleName());
+		context.addClass(ctClass);
+		enterScopes();
 
 		// Add the class to the type reference and class map
 		CtTypeReference<?> typeRef = ctClass.getReference();
 		maps.addTypeClass(typeRef, ctClass);
-        super.visitCtClass(ctClass);
+		super.visitCtClass(ctClass);
 
-        exitScopes();
-    }
-	
+		exitScopes();
+	}
+			
+			
 	@Override
 	public <T> void visitCtField(CtField<T> f) {
-		logger.info("Visiting field: {}", f.getSimpleName());
+		logInfo("Visiting field: " + f.getSimpleName());
 		CtElement k = f.getParent();
 		if (k instanceof CtClass){
 			CtClass<?> klass = (CtClass<?>) k;
 			maps.addFieldClass(f, klass);
-			logger.info("|- Added field {} to class {} in the mappings", f.getSimpleName(), klass.getSimpleName());
+			logInfo(String.format("Added field %s to class %s in the mappings", f.getSimpleName(), klass.getSimpleName()));
 
 			UniquenessAnnotation ua = maps.getFieldAnnotation(f.getSimpleName(), klass.getReference());
-			logger.info("|- Field {} has annotation {} in mapping", f.getSimpleName(), ua);
+			logInfo(String.format("Field %s has annotation %s in mapping", f.getSimpleName(), ua));
 
 		} else {
-			logger.error("|- Field {} is not inside a class", f.getSimpleName());
+			logError(String.format("Field %s is not inside a class", f.getSimpleName()));
 		}
 		// VariableT v = new VariableT(f);
 		// context.addInScope(v.getName(), v);
@@ -91,7 +94,7 @@ public class LatteTypeChecker  extends CtScanner {
 	
 	@Override
 	public <T> void visitCtConstructor(CtConstructor<T> c) {
-		logger.info("Visiting constructor {}", c.getSimpleName());
+		logInfo("Visiting constructor "+ c.getSimpleName());
 		enterScopes();
 		super.visitCtConstructor(c);
 		exitScopes();
@@ -99,7 +102,7 @@ public class LatteTypeChecker  extends CtScanner {
 	
 	@Override
 	public <T> void visitCtMethod(CtMethod<T> m) {
-		logger.info("Visiting method: {}", m.getSimpleName());
+		logInfo("Visiting method: "+ m.getSimpleName());
 		// TODO Auto-generated method stub
 		enterScopes();
 		super.visitCtMethod(m);
@@ -109,7 +112,7 @@ public class LatteTypeChecker  extends CtScanner {
 	
 	@Override
 	public <T> void visitCtParameter(CtParameter<T> parameter) {
-		logger.info("Visiting parameter: {}", parameter.getSimpleName());
+		logInfo("Visiting parameter: "+ parameter.getSimpleName());
 		VariableT v = new VariableT(parameter);
 		// context.addInScope(v.getName(), v);
 		// System.out.println("with param:\n" +context.toString());
@@ -118,7 +121,7 @@ public class LatteTypeChecker  extends CtScanner {
 
 	@Override
 	public <T> void visitCtLocalVariable(CtLocalVariable<T> localVariable) {
-		logger.info("Visiting local variable: {}", localVariable.getSimpleName());
+		logInfo("Visiting local variable: "+ localVariable.getSimpleName());
 		// 1) Add the variable to the typing context
 		CtTypeReference<?> t = localVariable.getType();
 		String name = localVariable.getSimpleName();
@@ -129,22 +132,22 @@ public class LatteTypeChecker  extends CtScanner {
 
 		CtElement element = localVariable.getAssignment();
 		if (element == null){
-			logger.info("|- Local variable {} - No assignment", name);
+			logInfo("Local variable "+name+" - No assignment");
 		} else {
 			Object o = element.getMetadata("symbolic_value");
 			if (o == null) 
-				logger.error("|- Local variable {} = {} has assignment with null symbolic value", name, 
-					localVariable.getAssignment().toString());
+				logError(String.format("Local variable %s = %s has assignment with null symbolic value", name, 
+					localVariable.getAssignment().toString()));
 			else
-				logger.info("|- Local variable {} = {} with symbolic value {}", name, 
-					localVariable.getAssignment().toString(), element.getMetadata("symbolic_value"));
+				logInfo(String.format("Local variable %s = %s with symbolic value %s", name, 
+					localVariable.getAssignment().toString(), element.getMetadata("symbolic_value")));
 			
 		}
 	}
 
 	@Override
 	public <T, A extends T> void visitCtAssignment(CtAssignment<T, A> assignment) {
-		logger.info("Visiting assignment {}", assignment.toStringDebug());
+		logInfo("Visiting assignment "+ assignment.toStringDebug());
 		super.visitCtAssignment(assignment);
 		// TODO Auto-generated method stub
 	}
@@ -154,7 +157,7 @@ public class LatteTypeChecker  extends CtScanner {
 	 */
 	@Override
 	public <T> void visitCtBinaryOperator(CtBinaryOperator<T> operator) {
-		logger.info("Visiting binary operator {}", operator.toStringDebug());
+		logInfo("Visiting binary operator "+ operator.toStringDebug());
 		super.visitCtBinaryOperator(operator);
 
 		// Get a fresh symbolic value and add it to the environment with a shared default value
@@ -173,7 +176,7 @@ public class LatteTypeChecker  extends CtScanner {
 	 */
 	@Override
 	public <T> void visitCtUnaryOperator(CtUnaryOperator<T> operator) {
-		logger.info("Visiting unary operator {}", operator.toStringDebug());
+		logInfo("Visiting unary operator "+ operator.toStringDebug());
 		super.visitCtUnaryOperator(operator);
 
 		// Get a fresh symbolic value and add it to the environment with a shared default value
@@ -192,17 +195,17 @@ public class LatteTypeChecker  extends CtScanner {
 	 */
 	@Override
 	public <T> void visitCtLocalVariableReference(CtLocalVariableReference<T> reference) {
-		logger.info("Visiting local variable reference {}", reference.toString());
+		logInfo("Visiting local variable reference "+ reference.toString());
 		super.visitCtLocalVariableReference(reference);
 		
 		SymbolicValue sv = symbEnv.get(reference.getSimpleName());
 		if (sv == null) {
-			logger.error("|- Symbolic value for local variable {} not found in the symbolic environment", 
+			logger.error("Symbolic value for local variable %s not found in the symbolic environment", 
 				reference.getSimpleName());
 		} else{
 			UniquenessAnnotation ua = permEnv.get(sv);
 			if (ua.isBottom()){
-				logger.error("|- Symbolic value {} has bottom permission", sv);
+				logger.error("Symbolic value %s has bottom permission", sv);
 			} else {
 				reference.putMetadata("symbolic_value", sv);
 			}
@@ -216,7 +219,7 @@ public class LatteTypeChecker  extends CtScanner {
 	 */
 	@Override
 	public <T> void visitCtLiteral(CtLiteral<T> literal) {
-		logger.info("Visiting literal {}", literal.toString());
+		logInfo("Visiting literal"+ literal.toString());
 		
 		super.visitCtLiteral(literal);
 
@@ -231,6 +234,14 @@ public class LatteTypeChecker  extends CtScanner {
 		literal.putMetadata("symbolic_value", sv);
 	}
 
+	private void logInfo(String text) {
+		logger.info(" ".repeat(4*loggingSpaces) + "|- " + text);
+	}
+
+	private void logError(String text) {
+		logger.error(" ".repeat(4*loggingSpaces) + "|- " + text);
+	}
+
 	/**
 	 * Enter scopes from all environments
 	 */
@@ -238,6 +249,7 @@ public class LatteTypeChecker  extends CtScanner {
 		typeEnv.enterScope();
 		symbEnv.enterScope();
 		permEnv.enterScope();
+		loggingSpaces++;
 	}
 
 	/**
@@ -247,5 +259,6 @@ public class LatteTypeChecker  extends CtScanner {
 		typeEnv.exitScope();
 		symbEnv.exitScope();
 		permEnv.exitScope();
+		loggingSpaces--;
 	}
 }
