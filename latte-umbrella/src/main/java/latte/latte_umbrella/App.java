@@ -7,7 +7,7 @@ import spoon.processing.ProcessingManager;
 import spoon.reflect.declaration.CtPackage;
 import spoon.reflect.factory.Factory;
 import spoon.support.QueueProcessingManager;
-import typechecking.UniquenessProcessor;
+import typechecking.Processor;
 
 /**
  * App for Latte Verification
@@ -19,7 +19,7 @@ public class App {
 	 * @param args
 	 */
 	public static void main( String[] args ){
-    	String allPath = "../latte-umbrella/src/main/java/examples";
+    	String allPath = "latte-umbrella/src/main/java/examples/MyStack.java";
     	launcher(allPath);
     }
     
@@ -46,7 +46,7 @@ public class App {
 	    System.out.println("after run");
 	
 	    final Factory factory = launcher.getFactory();
-        final UniquenessProcessor processor = new UniquenessProcessor(factory);
+        final Processor processor = new Processor(factory);
 	    final ProcessingManager processingManager = new QueueProcessingManager(factory);
 
    
@@ -59,7 +59,7 @@ public class App {
 	    if (v != null)
 	        processingManager.process(v);
 	    // To search all previous packages
-	    // processingManager.process(factory.Package().getRootPackage());
+	    processingManager.process(factory.Package().getRootPackage());
 
     
     }

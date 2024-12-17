@@ -8,23 +8,27 @@ import spoon.reflect.reference.CtTypeReference;
 
 public class MapTypeClass {
    
-    MapTypeClass instance;
+    static MapTypeClass instance;
     Map<CtTypeReference<?>, CtClass<?>> map;
 
 	/**
 	 * Singleton instance
 	 * @return
 	 */
-	public MapTypeClass getInstance() {
+	public static MapTypeClass getInstance() {
 		if (instance == null) instance = new MapTypeClass();
 		return instance;
 	}
 
-    public MapTypeClass() {
+    private MapTypeClass() {
         map = new HashMap<CtTypeReference<?>, CtClass<?>>();
     }
 
     public CtClass<?> getClassFrom(CtTypeReference<?> type) {
         return map.get(type);
     }
+
+    public void add(CtTypeReference<?> type, CtClass<?> klass) {
+        map.put(type, klass);
+    } 
 }

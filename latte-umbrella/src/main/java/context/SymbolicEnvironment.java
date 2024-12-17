@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
-import spoon.reflect.declaration.CtClass;
-
 /**
  * Type Environment class to store the classes of the variables in scope
  * \gamma ::= empty | x : C, \gamma
@@ -28,6 +26,48 @@ public class SymbolicEnvironment {
 		return instance;
 	}
 
+	private SymbolicEnvironment() {
+		symbEnv = new Stack<Map<VariableHeapLoc, SymbolicValue>>();
+	}
+
+	public SymbolicValue addVariable(String var) {
+		Variable v = new Variable(var);
+		SymbolicValue symb = new SymbolicValue(symbolic_counter++);
+		symbEnv.peek().put(v, symb);
+		return symb;
+	}
+
+	public SymbolicValue addField(String var, String field) {
+		Variable f = new Variable(field);
+		SymbolicValue symb = get(new Variable(var));
+
+		FieldHeapLoc v = new FieldHeapLoc(symb, f);
+		symbEnv.peek().put(v, new SymbolicValue(symbolic_counter++));
+		return symb;
+	}
+
+	public SymbolicValue getFree(){
+		return new SymbolicValue(symbolic_counter++);
+	}
+
+	public SymbolicValue get(Variable var) {
+		for (int i = symbEnv.size() - 1; i >= 0; i--) {
+			if (symbEnv.get(i).containsKey(var)) {
+				return symbEnv.get(i).get(var);
+			}
+		}
+		return null;
+	}
+
+	public SymbolicValue get(FieldHeapLoc var) {
+		for (int i = symbEnv.size() - 1; i >= 0; i--) {
+			if (symbEnv.get(i).containsKey(var)) {
+				return symbEnv.get(i).get(var);
+			}
+		}
+		return null;
+	}
+
 	/**
 	 * Enter a new scope
 	 */
@@ -40,40 +80,6 @@ public class SymbolicEnvironment {
 	 */
 	public void exitScope() {
 		symbEnv.pop();
-	}
-
-	public SymbolicValue addVariable(String var) {
-		Variable v = new Variable(var);
-		SymbolicValue symb = new SymbolicValue(symbolic_counter++);
-		symbEnv.peek().put(v, symb);
-		return symb;
-	}
-
-	public SymbolicValue addField(String var, String field) {
-		Variable f = new Variable(field);
-		SymbolicValue symb = getHeapLoc(new Variable(var));
-
-		FieldHeapLoc v = new FieldHeapLoc(symb, f);
-		symbEnv.peek().put(v, new SymbolicValue(symbolic_counter++));
-		return symb;
-	}
-
-	public SymbolicValue getHeapLoc(Variable var) {
-		for (int i = symbEnv.size() - 1; i >= 0; i--) {
-			if (symbEnv.get(i).containsKey(var)) {
-				return symbEnv.get(i).get(var);
-			}
-		}
-		return null;
-	}
-
-	public SymbolicValue getHeapLoc(FieldHeapLoc var) {
-		for (int i = symbEnv.size() - 1; i >= 0; i--) {
-			if (symbEnv.get(i).containsKey(var)) {
-				return symbEnv.get(i).get(var);
-			}
-		}
-		return null;
 	}
 
   }

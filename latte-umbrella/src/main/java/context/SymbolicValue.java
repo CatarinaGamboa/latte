@@ -12,4 +12,11 @@ public class SymbolicValue {
     public boolean equals(Object obj) {
         return obj instanceof SymbolicValue && ((SymbolicValue) obj).value == value;
     }
+
+    @Override
+    public String toString() {
+        return "SymbolicValue{" +
+                "value=" + value +
+                '}';
+    }
 }

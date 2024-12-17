@@ -10,70 +10,63 @@ import spoon.reflect.declaration.CtElement;
  */
 public class UniquenessAnnotation {
 	
-	enum AnnotationType {
-		  BORROWED,
-		  SHARED,
-		  UNIQUE,
-		  ALIAS,
-		  BOTTOM
-	}
-	
-	AnnotationType annotation;
+	Uniqueness annotation;
 	CtElement path;
 
 	public UniquenessAnnotation(CtElement element) {
 		for (CtAnnotation<? extends Annotation> ann : element.getAnnotations()) {
 	        String an = ann.getActualAnnotation().annotationType().getCanonicalName();
 	        if (an.contentEquals("specification.Unique")) {
-	           this.annotation = AnnotationType.UNIQUE;
+	           this.annotation = Uniqueness.UNIQUE;
 	        } 
 	        else if (an.contentEquals("specification.Shared")) {
-		       this.annotation = AnnotationType.SHARED;
+		       this.annotation = Uniqueness.SHARED;
 		    } 
 	        else if (an.contentEquals("specification.Owned")) {
-			   this.annotation = AnnotationType.BORROWED;
+			   this.annotation = Uniqueness.BORROWED;
 			}
 	        
 	    }
-		
-		if (annotation == null) this.annotation = AnnotationType.SHARED; //Default
+		if (annotation == null) this.annotation = Uniqueness.SHARED; //Default
 	}
 	
-	public UniquenessAnnotation() {	}
+	public UniquenessAnnotation(Uniqueness at) {	
+		annotation = at;
+	}
 	
 	public void setToBottom() {
-		annotation = AnnotationType.BOTTOM;
+		annotation = Uniqueness.BOTTOM;
 	}
 	
 	public void setToUniquePath(CtElement path) {
-		this.annotation = AnnotationType.UNIQUE;
+		this.annotation = Uniqueness.UNIQUE;
 		this.path = path;
 	}
 	
 	public void setToAlias(CtElement path) {
-		this.annotation = AnnotationType.ALIAS;
+		this.annotation = Uniqueness.ALIAS;
 		this.path = path;
 	}
 	
 	
 	public boolean isOwned() {
-		return annotation.equals(AnnotationType.BORROWED);
+		return annotation.equals(Uniqueness.BORROWED);
 	}
 	
 	public boolean isShared() {
-		return annotation.equals(AnnotationType.SHARED);
+		return annotation.equals(Uniqueness.SHARED);
 	}
 	
 	public boolean isUnique() {
-		return annotation.equals(AnnotationType.UNIQUE);
+		return annotation.equals(Uniqueness.UNIQUE);
 	}
 	
 	public boolean isAlias() {
-		return annotation.equals(AnnotationType.ALIAS);
+		return annotation.equals(Uniqueness.ALIAS);
 	}
 	
 	public boolean isBottom() {
-		return annotation.equals(AnnotationType.BOTTOM);
+		return annotation.equals(Uniqueness.BOTTOM);
 	}
 	
 	public String toString() {

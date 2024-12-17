@@ -24,22 +24,6 @@ public class PermissionEnvironment {
         map = new Stack<Map<SymbolicValue, UniquenessAnnotation>>(); 
     }
 
-    /**
-	 * Enter a new scope
-	 */
-	public void enterScope() {
-		map.push(new HashMap<SymbolicValue, UniquenessAnnotation>());
-	}
-	
-	/**
-	 * Exit the current scope
-	 */
-	public void exitScope() {
-		map.pop();
-	}
-
-
-    
     public void add(SymbolicValue symb, UniquenessAnnotation ann) {
         map.peek().put(symb, ann);
     }
@@ -53,4 +37,17 @@ public class PermissionEnvironment {
         return null;
     }
 
+    /**
+	 * Enter a new scope
+	 */
+	public void enterScope() {
+		map.push(new HashMap<SymbolicValue, UniquenessAnnotation>());
+	}
+	
+	/**
+	 * Exit the current scope
+	 */
+	public void exitScope() {
+		map.pop();
+	}
 }

@@ -34,20 +34,7 @@ public class TypeEnvironment {
 		typeEnv = new Stack<Map<Variable, CtClass<?>>>();
     }
 
-	/**
-	 * Enter a new scope
-	 */
-	public void enterScope() {
-		typeEnv.push(new HashMap<Variable, CtClass<?>>());
-	}
-	
-	/**
-	 * Exit the current scope
-	 */
-	public void exitScope() {
-		typeEnv.pop();
-	}
-	
+
 	/**
 	 * Add a variable to the current scope
 	 * @param name
@@ -84,4 +71,19 @@ public class TypeEnvironment {
 		}
 		return null;
 	}
+
+	/**
+	 * Enter a new scope
+	 */
+	public void enterScope() {
+		typeEnv.push(new HashMap<Variable, CtClass<?>>());
+	}
+	
+	/**
+	 * Exit the current scope
+	 */
+	public void exitScope() {
+		typeEnv.pop();
+	}
+	
 }

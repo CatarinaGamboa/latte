@@ -13,18 +13,22 @@ public class MyStack {
 			this.root = root;
 		}
 
-		
-		void push( @Free Object value) {
-			
-			Node r;
-			Node n;
-			
-			r = this.root; 			// save root in r
-			this.root = null; 		//nullify root
-			n = new Node(value, r); //create new root
-			this.root = n; 			//replace root
-			
+		public void test(){
+			int t = 6;
 		}
+
+		
+		// void push( @Free Object value) {
+			
+		// 	Node r;
+		// 	Node n;
+			
+		// 	r = this.root; 			// save root in r
+		// 	this.root = null; 		//nullify root
+		// 	n = new Node(value, r); //create new root
+		// 	this.root = n; 			//replace root
+			
+		// }
 		
 
 		// @Free Object pop (){
@@ -44,9 +48,9 @@ public class MyStack {
 		// 	return value;
 		// }
 		
-		public static void main(String[] args) {
-			Node n = new Node(7, null);
-			MyStack s = new MyStack(n);
-		}
+		// public static void main(String[] args) {
+		// 	Node n = new Node(7, null);
+		// 	MyStack s = new MyStack(n);
+		// }
 
 }
