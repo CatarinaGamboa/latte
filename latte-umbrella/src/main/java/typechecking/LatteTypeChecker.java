@@ -23,6 +23,7 @@ import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtField;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtParameter;
+import spoon.reflect.reference.CtLocalVariableReference;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.CtScanner;
 
@@ -136,6 +137,9 @@ public class LatteTypeChecker  extends CtScanner {
 		// TODO Auto-generated method stub
 	}
 
+	/**
+	 * Rule EvalBinary
+	 */
 	@Override
 	public <T> void visitCtBinaryOperator(CtBinaryOperator<T> operator) {
 		logger.info("Visiting binary operator {}", operator.toStringDebug());
@@ -152,6 +156,9 @@ public class LatteTypeChecker  extends CtScanner {
 		operator.putMetadata("symbolic_value", sv);
 	}
 
+	/**
+	 * Rule EvalUnary
+	 */
 	@Override
 	public <T> void visitCtUnaryOperator(CtUnaryOperator<T> operator) {
 		logger.info("Visiting unary operator {}", operator.toStringDebug());
@@ -168,8 +175,31 @@ public class LatteTypeChecker  extends CtScanner {
 		operator.putMetadata("symbolic_value", sv);
 	}
 
+	/**
+	 * Rule EvalVar
+	 */
+	@Override
+	public <T> void visitCtLocalVariableReference(CtLocalVariableReference<T> reference) {
+		logger.info("Visiting local variable reference {}", reference.toString());
+		super.visitCtLocalVariableReference(reference);
+		
+		SymbolicValue sv = symbEnv.get(reference.getSimpleName());
+		if (sv == null) {
+			logger.error("Symbolic value for local variable {} not found in the symbolic environment", 
+				reference.getSimpleName());
+		} else{
+			UniquenessAnnotation ua = permEnv.get(sv);
+			if (ua.isBottom()){
+				logger.error("Symbolic value {} has bottom permission", sv);
+			} else {
+				reference.putMetadata("symbolic_value", sv);
+			}
+		}
+	}
+
 
 	/**
+	 * Rule EvalConst
 	 * Visit a literal, add a symbolic value to the environment and a permission of shared
 	 */
 	@Override

@@ -50,6 +50,16 @@ public class SymbolicEnvironment {
 		return new SymbolicValue(symbolic_counter++);
 	}
 
+	public SymbolicValue get(String name) {
+		Variable var = new Variable(name);
+		for (int i = symbEnv.size() - 1; i >= 0; i--) {
+			if (symbEnv.get(i).containsKey(var)) {
+				return symbEnv.get(i).get(var);
+			}
+		}
+		return null;
+	}
+
 	public SymbolicValue get(Variable var) {
 		for (int i = symbEnv.size() - 1; i >= 0; i--) {
 			if (symbEnv.get(i).containsKey(var)) {
