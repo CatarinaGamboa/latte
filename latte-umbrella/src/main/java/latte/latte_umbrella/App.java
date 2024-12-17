@@ -40,10 +40,7 @@ public class App {
 	    // launcher.getEnvironment().setSourceClasspath(
 	    // "lib1.jar:lib2.jar".split(":"));
 	    launcher.getEnvironment().setComplianceLevel(8);
-	
-	    System.out.println("Start processing");
 	    launcher.run();
-	    System.out.println("after run");
 	
 	    final Factory factory = launcher.getFactory();
         final Processor processor = new Processor(factory);
@@ -52,14 +49,12 @@ public class App {
    
 	    processingManager.addProcessor(processor);
 	
-	    System.out.println("before process");
-	
 	    // To only search the last package - less time spent
 	    CtPackage v = factory.Package().getAll().stream().reduce((first, second) -> second).orElse(null);
 	    if (v != null)
 	        processingManager.process(v);
 	    // To search all previous packages
-	    processingManager.process(factory.Package().getRootPackage());
+	    // processingManager.process(factory.Package().getRootPackage());
 
     
     }

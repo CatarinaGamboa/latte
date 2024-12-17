@@ -49,6 +49,7 @@ public class LatteTypeChecker  extends CtScanner {
 		this.symbEnv = symbEnv;
 		this.permEnv = permEnv;
 		this.mapTypeClass = mtc;
+		logger.info("Latte Type checker initialized");
 	}
 
 	@Override
@@ -115,11 +116,16 @@ public class LatteTypeChecker  extends CtScanner {
 
 		CtElement element = localVariable.getAssignment();
 		if (element == null){
-			//TODO nothing
 			logger.info("Local variable {} - No assignment", name);
 		} else {
-			logger.info("Local variable {} = {} with symbolic value {}", name, 
-				localVariable.getAssignment().toString(), element.getMetadata("symbolic_value"));
+			Object o = element.getMetadata("symbolic_value");
+			if (o == null) 
+				logger.error("Local variable {} = {} has assignment with null symbolic value", name, 
+					localVariable.getAssignment().toString());
+			else
+				logger.info("Local variable {} = {} with symbolic value {}", name, 
+					localVariable.getAssignment().toString(), element.getMetadata("symbolic_value"));
+			
 		}
 	}
 

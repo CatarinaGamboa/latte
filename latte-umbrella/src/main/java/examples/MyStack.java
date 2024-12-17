@@ -15,6 +15,8 @@ public class MyStack {
 
 		public void test(){
 			int t = 6;
+
+			Object o = new Object();
 		}
 
 		

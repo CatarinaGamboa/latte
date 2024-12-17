@@ -37,5 +37,6 @@ public class MyStack {
 
     public void test() {
         int t = 6;
+        java.lang.Object o = new java.lang.Object();
     }
 }
