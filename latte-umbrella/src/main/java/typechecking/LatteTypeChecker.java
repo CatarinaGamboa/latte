@@ -12,8 +12,11 @@ import context.TypeEnvironment;
 import context.Uniqueness;
 import context.UniquenessAnnotation;
 import context.VariableT;
+import spoon.reflect.code.CtAssignment;
+import spoon.reflect.code.CtBinaryOperator;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.code.CtLocalVariable;
+import spoon.reflect.code.CtUnaryOperator;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtConstructor;
 import spoon.reflect.declaration.CtElement;
@@ -107,7 +110,7 @@ public class LatteTypeChecker  extends CtScanner {
 		String name = localVariable.getSimpleName();
 		CtClass<?> ctClass = mapTypeClass.getClassFrom(t);
 		typeEnv.add(name, ctClass);
-		
+
 		super.visitCtLocalVariable(localVariable);
 
 		CtElement element = localVariable.getAssignment();
@@ -120,30 +123,78 @@ public class LatteTypeChecker  extends CtScanner {
 		}
 	}
 
+	@Override
+	public <T, A extends T> void visitCtAssignment(CtAssignment<T, A> assignment) {
+		logger.info("Visiting assignment {}", assignment.toStringDebug());
+		super.visitCtAssignment(assignment);
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public <T> void visitCtBinaryOperator(CtBinaryOperator<T> operator) {
+		logger.info("Visiting binary operator {}", operator.toStringDebug());
+		super.visitCtBinaryOperator(operator);
+
+		// Get a fresh symbolic value and add it to the environment with a shared default value
+		SymbolicValue sv = symbEnv.getFresh();
+		UniquenessAnnotation ua = new UniquenessAnnotation(Uniqueness.SHARED);
+
+		// Add the symbolic value to the environment with a shared default value
+		permEnv.add(sv, ua);
+
+		// Store the symbolic value in metadata
+		operator.putMetadata("symbolic_value", sv);
+	}
+
+	@Override
+	public <T> void visitCtUnaryOperator(CtUnaryOperator<T> operator) {
+		logger.info("Visiting unary operator {}", operator.toStringDebug());
+		super.visitCtUnaryOperator(operator);
+
+		// Get a fresh symbolic value and add it to the environment with a shared default value
+		SymbolicValue sv = symbEnv.getFresh();
+		UniquenessAnnotation ua = new UniquenessAnnotation(Uniqueness.SHARED);
+
+		// Add the symbolic value to the environment with a shared default value
+		permEnv.add(sv, ua);
+		
+		// Store the symbolic value in metadata
+		operator.putMetadata("symbolic_value", sv);
+	}
+
 
 	/**
 	 * Visit a literal, add a symbolic value to the environment and a permission of shared
 	 */
 	@Override
 	public <T> void visitCtLiteral(CtLiteral<T> literal) {
-		SymbolicValue sv = symbEnv.getFree();
-		UniquenessAnnotation ua = new UniquenessAnnotation(literal);
+		logger.info("Visiting literal {}", literal.toString());
+		
+		super.visitCtLiteral(literal);
+
+		// Get a fresh symbolic value and add it to the environment with a shared default value
+		SymbolicValue sv = symbEnv.getFresh();
+		UniquenessAnnotation ua = new UniquenessAnnotation(Uniqueness.SHARED);
 
 		// Add the symbolic value to the environment with a shared default value
 		permEnv.add(sv, ua);
 
 		// Store the symbolic value in metadata
 		literal.putMetadata("symbolic_value", sv);
-
-		super.visitCtLiteral(literal);
 	}
 
+	/**
+	 * Enter scopes from all environments
+	 */
 	private void enterScopes(){
 		typeEnv.enterScope();
 		symbEnv.enterScope();
 		permEnv.enterScope();
 	}
 
+	/**
+	 * Exit scopes from all environments
+	 */
 	private void exitScopes(){
 		typeEnv.exitScope();
 		symbEnv.exitScope();

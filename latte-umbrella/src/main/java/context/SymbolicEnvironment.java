@@ -46,7 +46,7 @@ public class SymbolicEnvironment {
 		return symb;
 	}
 
-	public SymbolicValue getFree(){
+	public SymbolicValue getFresh(){
 		return new SymbolicValue(symbolic_counter++);
 	}
 
