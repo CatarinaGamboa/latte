@@ -1,5 +1,8 @@
 package typechecking;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import context.Context;
 import context.MapTypeClass;
 import context.PermissionEnvironment;
@@ -34,6 +37,8 @@ public class LatteTypeChecker  extends CtScanner {
 	SymbolicEnvironment symbEnv;
 	PermissionEnvironment permEnv;
 	MapTypeClass mapTypeClass;
+	private static Logger logger = LoggerFactory.getLogger(LatteTypeChecker.class);
+
 	 
     public LatteTypeChecker(Context context, TypeEnvironment typeEnv, SymbolicEnvironment symbEnv, PermissionEnvironment permEnv, MapTypeClass mtc) {
 		this.context = context; 
@@ -45,7 +50,7 @@ public class LatteTypeChecker  extends CtScanner {
 
 	@Override
     public <T> void visitCtClass(CtClass<T> ctClass) {
-        System.out.println("CTCLASS:"+ctClass.getSimpleName());
+		logger.info("Visiting class: {}", ctClass.getSimpleName());
         context.addClass(ctClass);
         enterScopes();
 
@@ -59,6 +64,7 @@ public class LatteTypeChecker  extends CtScanner {
 	
 	@Override
 	public <T> void visitCtField(CtField<T> f) {
+		logger.info("Visiting field: {}", f.getSimpleName());
 		// VariableT v = new VariableT(f);
 		// context.addInScope(v.getName(), v);
 		// System.out.println("with fields:\n" + context.toString());
@@ -68,6 +74,7 @@ public class LatteTypeChecker  extends CtScanner {
 	
 	@Override
 	public <T> void visitCtConstructor(CtConstructor<T> c) {
+		logger.info("Visiting constructor {}", c.getSimpleName());
 		enterScopes();
 		super.visitCtConstructor(c);
 		exitScopes();
@@ -75,6 +82,7 @@ public class LatteTypeChecker  extends CtScanner {
 	
 	@Override
 	public <T> void visitCtMethod(CtMethod<T> m) {
+		logger.info("Visiting method: {}", m.getSimpleName());
 		// TODO Auto-generated method stub
 		enterScopes();
 		super.visitCtMethod(m);
@@ -84,6 +92,7 @@ public class LatteTypeChecker  extends CtScanner {
 	
 	@Override
 	public <T> void visitCtParameter(CtParameter<T> parameter) {
+		logger.info("Visiting parameter: {}", parameter.getSimpleName());
 		VariableT v = new VariableT(parameter);
 		// context.addInScope(v.getName(), v);
 		// System.out.println("with param:\n" +context.toString());
@@ -92,22 +101,23 @@ public class LatteTypeChecker  extends CtScanner {
 
 	@Override
 	public <T> void visitCtLocalVariable(CtLocalVariable<T> localVariable) {
-		
+		logger.info("Visiting local variable: {}", localVariable.getSimpleName());
 		// 1) Add the variable to the typing context
 		CtTypeReference<?> t = localVariable.getType();
 		String name = localVariable.getSimpleName();
 		CtClass<?> ctClass = mapTypeClass.getClassFrom(t);
 		typeEnv.add(name, ctClass);
+		
+		super.visitCtLocalVariable(localVariable);
+
 		CtElement element = localVariable.getAssignment();
 		if (element == null){
 			//TODO nothing
-			System.out.println("No assignment");
+			logger.info("Local variable {} - No assignment", name);
 		} else {
-			System.out.println("Has assignment");			
-			System.out.println(element.getMetadata("symbolic_value"));
+			logger.info("Local variable {} = {} with symbolic value {}", name, 
+				localVariable.getAssignment().toString(), element.getMetadata("symbolic_value"));
 		}
-
-		super.visitCtLocalVariable(localVariable);
 	}
 
 
