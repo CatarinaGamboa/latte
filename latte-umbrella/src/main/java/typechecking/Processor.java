@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import context.Context;
-import context.MapTypeClass;
+import context.ClassLevelMaps;
 import context.PermissionEnvironment;
 import context.SymbolicEnvironment;
 import context.TypeEnvironment;
@@ -31,7 +31,7 @@ public class Processor extends AbstractProcessor<CtPackage> {
             TypeEnvironment te = TypeEnvironment.getInstance();
             SymbolicEnvironment se = SymbolicEnvironment.getInstance();
             PermissionEnvironment pe = PermissionEnvironment.getInstance();
-            MapTypeClass mtc = MapTypeClass.getInstance();
+            ClassLevelMaps mtc = ClassLevelMaps.getInstance();
             c.reinitializeAllContext();
 
             pkg.accept(new LatteTypeChecker(c, te, se, pe, mtc));

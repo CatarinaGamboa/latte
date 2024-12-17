@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import context.Context;
-import context.MapTypeClass;
+import context.ClassLevelMaps;
 import context.PermissionEnvironment;
 import context.SymbolicEnvironment;
 import context.SymbolicValue;
@@ -40,16 +40,16 @@ public class LatteTypeChecker  extends CtScanner {
 	TypeEnvironment typeEnv;
 	SymbolicEnvironment symbEnv;
 	PermissionEnvironment permEnv;
-	MapTypeClass mapTypeClass;
+	ClassLevelMaps maps;
 	private static Logger logger = LoggerFactory.getLogger(LatteTypeChecker.class);
 
 	 
-    public LatteTypeChecker(Context context, TypeEnvironment typeEnv, SymbolicEnvironment symbEnv, PermissionEnvironment permEnv, MapTypeClass mtc) {
+    public LatteTypeChecker(Context context, TypeEnvironment typeEnv, SymbolicEnvironment symbEnv, PermissionEnvironment permEnv, ClassLevelMaps mtc) {
 		this.context = context; 
 		this.typeEnv = typeEnv;
 		this.symbEnv = symbEnv;
 		this.permEnv = permEnv;
-		this.mapTypeClass = mtc;
+		this.maps = mtc;
 		logger.info("Latte Type checker initialized");
 	}
 
@@ -61,7 +61,7 @@ public class LatteTypeChecker  extends CtScanner {
 
 		// Add the class to the type reference and class map
 		CtTypeReference<?> typeRef = ctClass.getReference();
-		mapTypeClass.add(typeRef, ctClass);
+		maps.addTypeClass(typeRef, ctClass);
         super.visitCtClass(ctClass);
 
         exitScopes();
@@ -70,6 +70,18 @@ public class LatteTypeChecker  extends CtScanner {
 	@Override
 	public <T> void visitCtField(CtField<T> f) {
 		logger.info("Visiting field: {}", f.getSimpleName());
+		CtElement k = f.getParent();
+		if (k instanceof CtClass){
+			CtClass<?> klass = (CtClass<?>) k;
+			maps.addFieldClass(f, klass);
+			logger.info("|- Added field {} to class {} in the mappings", f.getSimpleName(), klass.getSimpleName());
+
+			UniquenessAnnotation ua = maps.getFieldAnnotation(f.getSimpleName(), klass.getReference());
+			logger.info("|- Field {} has annotation {} in mapping", f.getSimpleName(), ua);
+
+		} else {
+			logger.error("|- Field {} is not inside a class", f.getSimpleName());
+		}
 		// VariableT v = new VariableT(f);
 		// context.addInScope(v.getName(), v);
 		// System.out.println("with fields:\n" + context.toString());
@@ -110,21 +122,21 @@ public class LatteTypeChecker  extends CtScanner {
 		// 1) Add the variable to the typing context
 		CtTypeReference<?> t = localVariable.getType();
 		String name = localVariable.getSimpleName();
-		CtClass<?> ctClass = mapTypeClass.getClassFrom(t);
+		CtClass<?> ctClass = maps.getClassFrom(t);
 		typeEnv.add(name, ctClass);
 
 		super.visitCtLocalVariable(localVariable);
 
 		CtElement element = localVariable.getAssignment();
 		if (element == null){
-			logger.info("Local variable {} - No assignment", name);
+			logger.info("|- Local variable {} - No assignment", name);
 		} else {
 			Object o = element.getMetadata("symbolic_value");
 			if (o == null) 
-				logger.error("Local variable {} = {} has assignment with null symbolic value", name, 
+				logger.error("|- Local variable {} = {} has assignment with null symbolic value", name, 
 					localVariable.getAssignment().toString());
 			else
-				logger.info("Local variable {} = {} with symbolic value {}", name, 
+				logger.info("|- Local variable {} = {} with symbolic value {}", name, 
 					localVariable.getAssignment().toString(), element.getMetadata("symbolic_value"));
 			
 		}
@@ -185,12 +197,12 @@ public class LatteTypeChecker  extends CtScanner {
 		
 		SymbolicValue sv = symbEnv.get(reference.getSimpleName());
 		if (sv == null) {
-			logger.error("Symbolic value for local variable {} not found in the symbolic environment", 
+			logger.error("|- Symbolic value for local variable {} not found in the symbolic environment", 
 				reference.getSimpleName());
 		} else{
 			UniquenessAnnotation ua = permEnv.get(sv);
 			if (ua.isBottom()){
-				logger.error("Symbolic value {} has bottom permission", sv);
+				logger.error("|- Symbolic value {} has bottom permission", sv);
 			} else {
 				reference.putMetadata("symbolic_value", sv);
 			}
