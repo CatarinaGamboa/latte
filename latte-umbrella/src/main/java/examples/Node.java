@@ -12,8 +12,8 @@ import specification.Unique;
  */
 public class Node {
 	
-	// @Unique Object value;
-	// @Unique Node next;
+	@Unique Object value;
+	@Unique Node next;
 
 	// /**
 	//  * Constructor for the Node class using @Free value and next nodes

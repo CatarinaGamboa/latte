@@ -39,6 +39,7 @@ public class MyStack {
 
     public void test() {
         int t = 6;
-        java.lang.Object o = new java.lang.Object();
+        examples.Node n = new examples.Node();
+        java.lang.Object o = n.value;
     }
 }

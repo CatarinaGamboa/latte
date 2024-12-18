@@ -48,7 +48,10 @@ public class UniquenessAnnotation {
 		this.path = path;
 	}
 	
-	
+	public boolean isFree(){
+		return annotation.equals(Uniqueness.FREE);
+	}
+
 	public boolean isOwned() {
 		return annotation.equals(Uniqueness.BORROWED);
 	}

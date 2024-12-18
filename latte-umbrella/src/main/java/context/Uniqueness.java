@@ -5,5 +5,6 @@ public enum Uniqueness {
     SHARED,
     UNIQUE,
     ALIAS,
-    BOTTOM
+    BOTTOM,
+    FREE
 }

@@ -3,17 +3,18 @@ package typechecking;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import context.Context;
 import context.ClassLevelMaps;
+import context.Context;
 import context.PermissionEnvironment;
 import context.SymbolicEnvironment;
 import context.SymbolicValue;
 import context.TypeEnvironment;
 import context.Uniqueness;
 import context.UniquenessAnnotation;
-import context.VariableT;
 import spoon.reflect.code.CtAssignment;
 import spoon.reflect.code.CtBinaryOperator;
+import spoon.reflect.code.CtExpression;
+import spoon.reflect.code.CtFieldRead;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.code.CtUnaryOperator;
@@ -23,9 +24,11 @@ import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtField;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtParameter;
+import spoon.reflect.reference.CtFieldReference;
 import spoon.reflect.reference.CtLocalVariableReference;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.CtScanner;
+import spoon.support.reflect.code.CtVariableReadImpl;
 
 /**
  * In the type checker we go through the code, add metadata regarding the types and their permissions
@@ -152,6 +155,27 @@ public class LatteTypeChecker  extends CtScanner {
 	}
 
 	@Override
+	public <T> void visitCtFieldRead(CtFieldRead<T> fieldRead) {
+		logInfo("Visiting field read "+ fieldRead.toStringDebug());
+		loggingSpaces++;
+
+		super.visitCtFieldRead(fieldRead);
+		CtExpression<?> target = fieldRead.getTarget();
+		CtFieldReference<?> variable = fieldRead.getVariable();
+
+		if ( target instanceof CtVariableReadImpl){
+			// logInfo("is a variablereadimpl " + fieldRead.getVariable().prettyprint());
+			CtVariableReadImpl<?> vri = (CtVariableReadImpl<?>) target;
+			SymbolicValue sv = symbEnv.get(vri.getVariable().getSimpleName());
+
+		}
+
+		logInfo("getVariable() results " + fieldRead.getVariable().prettyprint());
+		logInfo("fieldRead target " + fieldRead.getTarget().prettyprint());
+		loggingSpaces--;
+	}
+
+	@Override
 	public <T, A extends T> void visitCtAssignment(CtAssignment<T, A> assignment) {
 		logInfo("Visiting assignment "+ assignment.toStringDebug());
 		loggingSpaces++;
@@ -213,12 +237,12 @@ public class LatteTypeChecker  extends CtScanner {
 		
 		SymbolicValue sv = symbEnv.get(reference.getSimpleName());
 		if (sv == null) {
-			logger.error("Symbolic value for local variable %s not found in the symbolic environment", 
+			logError("Symbolic value for local variable %s not found in the symbolic environment"+ 
 				reference.getSimpleName());
 		} else{
 			UniquenessAnnotation ua = permEnv.get(sv);
 			if (ua.isBottom()){
-				logger.error("Symbolic value %s has bottom permission", sv);
+				logError(String.format("Symbolic value %s has bottom permission", sv));
 			} else {
 				reference.putMetadata("symbolic_value", sv);
 			}
