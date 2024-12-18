@@ -8,6 +8,8 @@
         </encoder>
     </appender>
 
+    <!-- %d{yyyy-MM-dd HH:mm:ss}  %highlight(%-5level) %logger{36} - %msg%n -->
+    
     <!-- File Appender (Uncolored) -->
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <file>logs/myapp.log</file>

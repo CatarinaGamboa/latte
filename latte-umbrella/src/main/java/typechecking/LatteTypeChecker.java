@@ -73,6 +73,7 @@ public class LatteTypeChecker  extends CtScanner {
 	@Override
 	public <T> void visitCtField(CtField<T> f) {
 		logInfo("Visiting field: " + f.getSimpleName());
+		loggingSpaces++;
 		CtElement k = f.getParent();
 		if (k instanceof CtClass){
 			CtClass<?> klass = (CtClass<?>) k;
@@ -89,6 +90,7 @@ public class LatteTypeChecker  extends CtScanner {
 		// context.addInScope(v.getName(), v);
 		// System.out.println("with fields:\n" + context.toString());
 		super.visitCtField(f);
+		loggingSpaces--;
 	}
 	
 	
@@ -113,23 +115,26 @@ public class LatteTypeChecker  extends CtScanner {
 	@Override
 	public <T> void visitCtParameter(CtParameter<T> parameter) {
 		logInfo("Visiting parameter: "+ parameter.getSimpleName());
-		VariableT v = new VariableT(parameter);
-		// context.addInScope(v.getName(), v);
-		// System.out.println("with param:\n" +context.toString());
+		loggingSpaces++;
 		super.visitCtParameter(parameter);
+		// TODO Auto-generated method stub
+		loggingSpaces--;
 	}
 
 	@Override
 	public <T> void visitCtLocalVariable(CtLocalVariable<T> localVariable) {
 		logInfo("Visiting local variable: "+ localVariable.getSimpleName());
+		loggingSpaces++;
 		// 1) Add the variable to the typing context
 		CtTypeReference<?> t = localVariable.getType();
 		String name = localVariable.getSimpleName();
 		CtClass<?> ctClass = maps.getClassFrom(t);
 		typeEnv.add(name, ctClass);
 
+		// 2) Visit
 		super.visitCtLocalVariable(localVariable);
 
+		// 3) Handle assignment
 		CtElement element = localVariable.getAssignment();
 		if (element == null){
 			logInfo("Local variable "+name+" - No assignment");
@@ -141,15 +146,18 @@ public class LatteTypeChecker  extends CtScanner {
 			else
 				logInfo(String.format("Local variable %s = %s with symbolic value %s", name, 
 					localVariable.getAssignment().toString(), element.getMetadata("symbolic_value")));
-			
+			// TODO: what to do with the assignment
 		}
+		loggingSpaces--;
 	}
 
 	@Override
 	public <T, A extends T> void visitCtAssignment(CtAssignment<T, A> assignment) {
 		logInfo("Visiting assignment "+ assignment.toStringDebug());
+		loggingSpaces++;
 		super.visitCtAssignment(assignment);
 		// TODO Auto-generated method stub
+		loggingSpaces--;
 	}
 
 	/**
@@ -158,6 +166,7 @@ public class LatteTypeChecker  extends CtScanner {
 	@Override
 	public <T> void visitCtBinaryOperator(CtBinaryOperator<T> operator) {
 		logInfo("Visiting binary operator "+ operator.toStringDebug());
+		loggingSpaces++;
 		super.visitCtBinaryOperator(operator);
 
 		// Get a fresh symbolic value and add it to the environment with a shared default value
@@ -169,6 +178,7 @@ public class LatteTypeChecker  extends CtScanner {
 
 		// Store the symbolic value in metadata
 		operator.putMetadata("symbolic_value", sv);
+		loggingSpaces--;
 	}
 
 	/**
@@ -177,6 +187,7 @@ public class LatteTypeChecker  extends CtScanner {
 	@Override
 	public <T> void visitCtUnaryOperator(CtUnaryOperator<T> operator) {
 		logInfo("Visiting unary operator "+ operator.toStringDebug());
+		loggingSpaces++;
 		super.visitCtUnaryOperator(operator);
 
 		// Get a fresh symbolic value and add it to the environment with a shared default value
@@ -188,6 +199,7 @@ public class LatteTypeChecker  extends CtScanner {
 		
 		// Store the symbolic value in metadata
 		operator.putMetadata("symbolic_value", sv);
+		loggingSpaces--;
 	}
 
 	/**
@@ -196,6 +208,7 @@ public class LatteTypeChecker  extends CtScanner {
 	@Override
 	public <T> void visitCtLocalVariableReference(CtLocalVariableReference<T> reference) {
 		logInfo("Visiting local variable reference "+ reference.toString());
+		loggingSpaces++;
 		super.visitCtLocalVariableReference(reference);
 		
 		SymbolicValue sv = symbEnv.get(reference.getSimpleName());
@@ -210,6 +223,7 @@ public class LatteTypeChecker  extends CtScanner {
 				reference.putMetadata("symbolic_value", sv);
 			}
 		}
+		loggingSpaces--;
 	}
 
 
@@ -234,10 +248,18 @@ public class LatteTypeChecker  extends CtScanner {
 		literal.putMetadata("symbolic_value", sv);
 	}
 
+	/**
+	 * Log info with indentation
+	 * @param text
+	 */
 	private void logInfo(String text) {
 		logger.info(" ".repeat(4*loggingSpaces) + "|- " + text);
 	}
 
+	/**
+	 * Log error with indentation
+	 * @param text
+	 */
 	private void logError(String text) {
 		logger.error(" ".repeat(4*loggingSpaces) + "|- " + text);
 	}

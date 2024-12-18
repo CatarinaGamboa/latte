@@ -7,6 +7,8 @@ import specification.Unique;
 public class MyStack {
 
 		@Unique Node root;
+
+		Node shared_node;
 		
 		
 		public MyStack(@Free Node root) {

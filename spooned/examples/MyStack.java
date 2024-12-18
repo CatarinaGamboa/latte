@@ -30,6 +30,8 @@ public class MyStack {
     @specification.Unique
     examples.Node root;
 
+    examples.Node shared_node;
+
     public MyStack(@specification.Free
     examples.Node root) {
         this.root = root;
