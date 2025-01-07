@@ -124,6 +124,7 @@ public class LatteTypeChecker  extends CtScanner {
 		loggingSpaces--;
 	}
 
+
 	@Override
 	public <T> void visitCtLocalVariable(CtLocalVariable<T> localVariable) {
 		logInfo("Visiting local variable: "+ localVariable.getSimpleName());
@@ -133,6 +134,8 @@ public class LatteTypeChecker  extends CtScanner {
 		String name = localVariable.getSimpleName();
 		CtClass<?> ctClass = maps.getClassFrom(t);
 		typeEnv.add(name, ctClass);
+		SymbolicValue v = symbEnv.addVariable(name);
+		permEnv.add(v, new UniquenessAnnotation(Uniqueness.BOTTOM));
 
 		// 2) Visit
 		super.visitCtLocalVariable(localVariable);
@@ -154,6 +157,12 @@ public class LatteTypeChecker  extends CtScanner {
 		loggingSpaces--;
 	}
 
+	/**
+	 * EvalField
+		Δ(𝑥) = 𝜈   Δ(𝜈.𝑓 ) = 𝜈′   Σ(𝜈) ≠ ⊥   Σ(𝜈′) ≠ ⊥
+		----------------------------------------------
+		Γ; Δ; Σ ⊢ 𝑥 .𝑓 ⇓ 𝜈′ ⊣ Γ; Δ; Σ
+	 */
 	@Override
 	public <T> void visitCtFieldRead(CtFieldRead<T> fieldRead) {
 		logInfo("Visiting field read "+ fieldRead.toStringDebug());
@@ -161,12 +170,57 @@ public class LatteTypeChecker  extends CtScanner {
 
 		super.visitCtFieldRead(fieldRead);
 		CtExpression<?> target = fieldRead.getTarget();
-		CtFieldReference<?> variable = fieldRead.getVariable();
+		CtFieldReference<?> f = fieldRead.getVariable();
 
 		if ( target instanceof CtVariableReadImpl){
-			// logInfo("is a variablereadimpl " + fieldRead.getVariable().prettyprint());
-			CtVariableReadImpl<?> vri = (CtVariableReadImpl<?>) target;
-			SymbolicValue sv = symbEnv.get(vri.getVariable().getSimpleName());
+			// Δ(𝑥) = 𝜈 
+			CtVariableReadImpl<?> x = (CtVariableReadImpl<?>) target;
+			SymbolicValue sv = symbEnv.get(x.getVariable().getSimpleName());
+			
+			UniquenessAnnotation ua = permEnv.get(sv);
+			// EVAL UNIQUE FIELD
+			if ( ua.isGreaterEqualThan(Uniqueness.UNIQUE)) {
+				logInfo("Eval Unique Field");
+				SymbolicValue vp = symbEnv.get(sv, f.getSimpleName());
+				// 𝜈.𝑓 ∉ Δ
+				if (vp == null){
+					//field(Γ(𝑥), 𝑓 ) = 𝛼 𝐶
+					UniquenessAnnotation fieldUA = maps.getFieldAnnotation(f.getSimpleName(), x.getType());
+
+					//fresh 𝜈
+					SymbolicValue vv = symbEnv.getFresh();
+
+					//----------------
+					//𝜈.𝑓 : 𝜈′, Δ; 𝜈′: 𝛼, Σ
+					symbEnv.addField(vp, f.getSimpleName());
+					permEnv.add(vv, fieldUA);
+
+					// 𝑥 .𝑓 ⇓ 𝜈′
+					fieldRead.putMetadata("symbolic_value", vv);
+					logInfo(String.format("UniqueField read %s.%s has symbolic value %s", x.getVariable().getSimpleName(), f.getSimpleName(), vv));
+				}
+
+
+			} else {
+				// EVAL FIELD
+				// // Σ(𝜈) ≠ ⊥ 
+
+				// if (ua.isBottom()){
+				// 	logError(String.format("Symbolic value %s has bottom permission", sv));
+				// }
+				
+				// // Δ(𝜈.𝑓 ) = 𝜈′, if not present, add it 
+				// SymbolicValue vp = symbEnv.get(sv, f.getSimpleName());
+				// if (vp == null){
+				// 	symbEnv.addField(vp, f.getSimpleName());
+				// }
+
+				// // Σ(𝜈′) ≠ ⊥
+				// if (permEnv.get(vp).isBottom()){
+				// 	logError(String.format("Symbolic value %s has bottom permission", vp));
+				// }
+			}
+
 
 		}
 
@@ -237,8 +291,8 @@ public class LatteTypeChecker  extends CtScanner {
 		
 		SymbolicValue sv = symbEnv.get(reference.getSimpleName());
 		if (sv == null) {
-			logError("Symbolic value for local variable %s not found in the symbolic environment"+ 
-				reference.getSimpleName());
+			logError(String.format("Symbolic value for local variable %s not found in the symbolic environment",
+				reference.getSimpleName()));
 		} else{
 			UniquenessAnnotation ua = permEnv.get(sv);
 			if (ua.isBottom()){

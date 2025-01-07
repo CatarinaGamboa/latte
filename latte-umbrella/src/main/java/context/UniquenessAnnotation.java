@@ -33,18 +33,13 @@ public class UniquenessAnnotation {
 	public UniquenessAnnotation(Uniqueness at) {	
 		annotation = at;
 	}
-	
+
 	public void setToBottom() {
 		annotation = Uniqueness.BOTTOM;
 	}
 	
 	public void setToUniquePath(CtElement path) {
 		this.annotation = Uniqueness.UNIQUE;
-		this.path = path;
-	}
-	
-	public void setToAlias(CtElement path) {
-		this.annotation = Uniqueness.ALIAS;
 		this.path = path;
 	}
 	
@@ -64,12 +59,16 @@ public class UniquenessAnnotation {
 		return annotation.equals(Uniqueness.UNIQUE);
 	}
 	
-	public boolean isAlias() {
-		return annotation.equals(Uniqueness.ALIAS);
-	}
 	
 	public boolean isBottom() {
 		return annotation.equals(Uniqueness.BOTTOM);
+	}
+
+	public boolean isLessThan(Uniqueness other) {
+		return annotation.isLessThan(other);
+	}
+	public boolean isGreaterEqualThan(Uniqueness other) {
+		return !annotation.isLessThan(other);
 	}
 	
 	public String toString() {

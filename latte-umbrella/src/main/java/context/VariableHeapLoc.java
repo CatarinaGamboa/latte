@@ -12,6 +12,11 @@ class FieldHeapLoc extends VariableHeapLoc{
 		this.field = field;
     }
 
+	public FieldHeapLoc(SymbolicValue heapLoc, String field) {
+        this.heapLoc = heapLoc;
+		this.field = new Variable(field);
+    }
+
 	@Override
 	public boolean equals(Object obj) {
 		return obj instanceof FieldHeapLoc && 

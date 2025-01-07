@@ -46,6 +46,14 @@ public class SymbolicEnvironment {
 		return symb;
 	}
 
+	public SymbolicValue addField(SymbolicValue symb, String field) {
+		Variable f = new Variable(field);
+
+		FieldHeapLoc v = new FieldHeapLoc(symb, f);
+		symbEnv.peek().put(v, new SymbolicValue(symbolic_counter++));
+		return symb;
+	}
+
 	public SymbolicValue getFresh(){
 		return new SymbolicValue(symbolic_counter++);
 	}
@@ -61,6 +69,16 @@ public class SymbolicEnvironment {
 	}
 
 	public SymbolicValue get(Variable var) {
+		for (int i = symbEnv.size() - 1; i >= 0; i--) {
+			if (symbEnv.get(i).containsKey(var)) {
+				return symbEnv.get(i).get(var);
+			}
+		}
+		return null;
+	}
+
+	public SymbolicValue get(SymbolicValue symbolicValue, String field) {
+		FieldHeapLoc var = new FieldHeapLoc(symbolicValue, field);
 		for (int i = symbEnv.size() - 1; i >= 0; i--) {
 			if (symbEnv.get(i).containsKey(var)) {
 				return symbEnv.get(i).get(var);

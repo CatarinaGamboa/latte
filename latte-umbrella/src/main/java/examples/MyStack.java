@@ -16,9 +16,9 @@ public class MyStack {
 		}
 
 		public void test(){
-			int t = 6;
 
-			Node n = new Node();
+			Node n; 
+			n = new Node();
 
 			Object o = n.value;
 
