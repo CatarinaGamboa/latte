@@ -1,6 +1,7 @@
 package context;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
@@ -15,7 +16,7 @@ public class SymbolicEnvironment {
 
 	int symbolic_counter = 0;
 
-    private Stack<Map<VariableHeapLoc, SymbolicValue>> symbEnv;
+    private List<Map<VariableHeapLoc, SymbolicValue>> symbEnv;
 
 	/**
 	 * Singleton instance
@@ -33,7 +34,7 @@ public class SymbolicEnvironment {
 	public SymbolicValue addVariable(String var) {
 		Variable v = new Variable(var);
 		SymbolicValue symb = new SymbolicValue(symbolic_counter++);
-		symbEnv.peek().put(v, symb);
+		symbEnv.getLast().put(v, symb);
 		return symb;
 	}
 
@@ -42,7 +43,7 @@ public class SymbolicEnvironment {
 		SymbolicValue symb = get(new Variable(var));
 
 		FieldHeapLoc v = new FieldHeapLoc(symb, f);
-		symbEnv.peek().put(v, new SymbolicValue(symbolic_counter++));
+		symbEnv.getLast().put(v, new SymbolicValue(symbolic_counter++));
 		return symb;
 	}
 
@@ -50,7 +51,7 @@ public class SymbolicEnvironment {
 		Variable f = new Variable(field);
 
 		FieldHeapLoc v = new FieldHeapLoc(symb, f);
-		symbEnv.peek().put(v, new SymbolicValue(symbolic_counter++));
+		symbEnv.getLast().put(v, new SymbolicValue(symbolic_counter++));
 		return symb;
 	}
 
@@ -100,16 +101,43 @@ public class SymbolicEnvironment {
 	 * Enter a new scope
 	 */
 	public void enterScope() {
-		symbEnv.push(new HashMap<VariableHeapLoc, SymbolicValue>());
+		symbEnv.addLast(new HashMap<VariableHeapLoc, SymbolicValue>());
 	}
 	
 	/**
 	 * Exit the current scope
 	 */
 	public void exitScope() {
-		symbEnv.pop();
+		symbEnv.removeLast();
 	}
 
+	public boolean hasValue(SymbolicValue v) {
+		return symbEnv.stream()
+				.map(innerMap -> innerMap.containsValue(v))
+				.reduce(false, (a, b) -> a || b);
+	}
+
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Symbolic Environment:\n");
+	
+		for (int i = 0; i < symbEnv.size(); i++) {
+			Map<VariableHeapLoc, SymbolicValue> map = symbEnv.get(i);
+			sb.append("  Map ").append(i + 1).append(":\n");
+	
+			for (Map.Entry<VariableHeapLoc, SymbolicValue> entry : map.entrySet()) {
+				sb.append("    ")
+				  .append(entry.getKey().toString()) // Key
+				  .append(" -> ")
+				  .append(entry.getValue().toString()) // Value
+				  .append("\n");
+			}
+		}
+	
+		return sb.toString();
+	}
   }
 
 

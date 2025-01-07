@@ -19,7 +19,7 @@ class FieldHeapLoc extends VariableHeapLoc{
 
 	@Override
 	public int hashCode() {
-		return heapLoc.hashCode() + field.hashCode();
+		return heapLoc.value + field.hashCode();
 	}
 
 	@Override

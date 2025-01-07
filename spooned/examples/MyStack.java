@@ -38,8 +38,8 @@ public class MyStack {
     }
 
     public void test() {
-        int t = 6;
-        examples.Node n = new examples.Node();
+        examples.Node n;
+        n = new examples.Node();
         java.lang.Object o = n.value;
     }
 }

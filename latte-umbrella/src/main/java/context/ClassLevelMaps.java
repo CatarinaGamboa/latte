@@ -1,6 +1,7 @@
 package context;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import spoon.reflect.declaration.CtClass;
@@ -36,7 +37,7 @@ public class ClassLevelMaps {
         typeClassMap.put(type, klass);
     } 
 
-    
+
     public void addFieldClass(CtField<?> field, CtClass<?> klass) {
         if (classFields.containsKey(klass)){
             Map<String, CtField<?>> m = classFields.get(klass);
@@ -59,6 +60,19 @@ public class ClassLevelMaps {
             }
         }
         return null;
+    }
+
+    public static void simplify(SymbolicEnvironment symbEnv, PermissionEnvironment permEnv) {
+        // 1) get all the symbolic values v that are unique in permEnv
+        List<SymbolicValue> lsv = permEnv.getUniqueValues();
+
+        // 2) for each of lsv, check if any of the values in symbEnv are equal to v
+       for (SymbolicValue v : lsv) {
+            if (!symbEnv.hasValue(v)){
+                // 3) if no, v can be free in permEnv
+                permEnv.add(v, new UniquenessAnnotation(Uniqueness.FREE));
+            }
+       }
     }
 
 }

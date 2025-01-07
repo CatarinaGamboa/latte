@@ -1,6 +1,8 @@
 package context;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
@@ -8,7 +10,7 @@ public class PermissionEnvironment {
     
     private static PermissionEnvironment instance;
 
-    private Stack<Map<SymbolicValue, UniquenessAnnotation>> map;
+    private List<Map<SymbolicValue, UniquenessAnnotation>> map;
 
 
     /**
@@ -25,7 +27,7 @@ public class PermissionEnvironment {
     }
 
     public void add(SymbolicValue symb, UniquenessAnnotation ann) {
-        map.peek().put(symb, ann);
+        map.getLast().put(symb, ann);
     }
 
     public UniquenessAnnotation get(SymbolicValue symb) {
@@ -41,13 +43,51 @@ public class PermissionEnvironment {
 	 * Enter a new scope
 	 */
 	public void enterScope() {
-		map.push(new HashMap<SymbolicValue, UniquenessAnnotation>());
+		map.add(new HashMap<SymbolicValue, UniquenessAnnotation>());
 	}
 	
 	/**
 	 * Exit the current scope
 	 */
 	public void exitScope() {
-		map.pop();
+		map.removeLast();
 	}
+
+
+    /**
+     * Get all unique values 
+     * @return
+     */
+    public List<SymbolicValue> getUniqueValues() {
+        List<SymbolicValue> values = new ArrayList<SymbolicValue>();
+        map.forEach( innerMap -> {
+            innerMap.keySet().forEach(key -> {
+                if (innerMap.get(key).isUnique()) {
+                    values.add(key);
+                }
+            });
+        });
+        return values;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Symbolic Value to Uniqueness Annotations:\n");
+
+        for (int i = 0; i < map.size(); i++) {
+            Map<SymbolicValue, UniquenessAnnotation> currentMap = map.get(i);
+            sb.append("  Map ").append(i + 1).append(":\n");
+
+            for (Map.Entry<SymbolicValue, UniquenessAnnotation> entry : currentMap.entrySet()) {
+                sb.append("    ")
+                .append(entry.getKey().toString()) // Key
+                .append(" -> ")
+                .append(entry.getValue().toString()) // Value
+                .append("\n");
+            }
+        }
+
+        return sb.toString();
+    }
 }

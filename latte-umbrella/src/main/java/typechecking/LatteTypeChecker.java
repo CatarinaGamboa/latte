@@ -28,7 +28,9 @@ import spoon.reflect.reference.CtFieldReference;
 import spoon.reflect.reference.CtLocalVariableReference;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.CtScanner;
+import spoon.support.reflect.code.CtConstructorCallImpl;
 import spoon.support.reflect.code.CtVariableReadImpl;
+import spoon.support.reflect.code.CtVariableWriteImpl;
 
 /**
  * In the type checker we go through the code, add metadata regarding the types and their permissions
@@ -192,7 +194,7 @@ public class LatteTypeChecker  extends CtScanner {
 
 					//----------------
 					//𝜈.𝑓 : 𝜈′, Δ; 𝜈′: 𝛼, Σ
-					symbEnv.addField(vp, f.getSimpleName());
+					symbEnv.addField(sv, f.getSimpleName());
 					permEnv.add(vv, fieldUA);
 
 					// 𝑥 .𝑓 ⇓ 𝜈′
@@ -234,9 +236,29 @@ public class LatteTypeChecker  extends CtScanner {
 		logInfo("Visiting assignment "+ assignment.toStringDebug());
 		loggingSpaces++;
 		super.visitCtAssignment(assignment);
+
+		CtExpression<?> target = assignment.getAssigned();
+		CtExpression<?> value = assignment.getAssignment();
+
+		if (value instanceof CtConstructorCallImpl && target instanceof CtVariableWriteImpl){
+			CtVariableWriteImpl<?> y = (CtVariableWriteImpl<?>) target;
+			CtConstructorCallImpl<?> constCall = (CtConstructorCallImpl<?>) value;
+
+			if (constCall.getArguments().size() == 0){
+				SymbolicValue vv = symbEnv.addVariable(y.getVariable().getSimpleName());
+				permEnv.add(vv, new UniquenessAnnotation(Uniqueness.FREE));
+				ClassLevelMaps.simplify(symbEnv, permEnv);
+			} else {
+				logError("TODO: Handle constructor call with arguments");
+			}
+			
+
+		}
+
 		// TODO Auto-generated method stub
 		loggingSpaces--;
 	}
+
 
 	/**
 	 * Rule EvalBinary
@@ -303,7 +325,6 @@ public class LatteTypeChecker  extends CtScanner {
 		}
 		loggingSpaces--;
 	}
-
 
 	/**
 	 * Rule EvalConst
