@@ -1,5 +1,6 @@
 package context;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -118,6 +119,32 @@ public class SymbolicEnvironment {
 	}
 
 
+	/**
+	 * Remove unreachable values
+	 * TODO: Test this
+	 */
+	public void removeUnreachableValues() {
+		// get all symbolic values in the keys
+		List<FieldHeapLoc> keys = new ArrayList<>();
+		for (Map<VariableHeapLoc, SymbolicValue> map : symbEnv) {
+			map.keySet().forEach(k -> {
+				if (k instanceof FieldHeapLoc) {
+					keys.add((FieldHeapLoc)k);
+				}
+			});
+		}
+
+		for (FieldHeapLoc key : keys) {
+			SymbolicValue v = key.heapLoc;
+			if (!hasValue(v)) {
+				for (Map<VariableHeapLoc, SymbolicValue> map : symbEnv) {
+					map.remove(key);
+				}
+			}
+		}
+	}
+
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -138,6 +165,7 @@ public class SymbolicEnvironment {
 	
 		return sb.toString();
 	}
+
   }
 
 
