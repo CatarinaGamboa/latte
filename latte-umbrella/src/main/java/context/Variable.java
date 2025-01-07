@@ -9,6 +9,18 @@ public class Variable extends VariableHeapLoc{
     }
 
     @Override
+    public String toString() {
+        return "Variable{" +
+                "name='" + name + '\'' +
+                '}';
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return obj instanceof Variable && ((Variable) obj).name.equals(name);
     }

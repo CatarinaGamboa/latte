@@ -18,6 +18,11 @@ class FieldHeapLoc extends VariableHeapLoc{
     }
 
 	@Override
+	public int hashCode() {
+		return heapLoc.hashCode() + field.hashCode();
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		return obj instanceof FieldHeapLoc && 
 			((FieldHeapLoc) obj).field.equals(field) && 
