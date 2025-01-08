@@ -12,13 +12,15 @@ public class MyStack {
 		
 		
 		public MyStack(@Free Node root) {
-			this.root = root;
+			
 		}
 
 		public void test(){
 
 			Node n; 
-			n = new Node();
+			n = this.root;
+
+			this.root = null;
 
 			Object o = n.value;
 

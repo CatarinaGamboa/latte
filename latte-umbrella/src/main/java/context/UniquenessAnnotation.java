@@ -70,7 +70,15 @@ public class UniquenessAnnotation {
 	public boolean isGreaterEqualThan(Uniqueness other) {
 		return !annotation.isLessThan(other);
 	}
-	
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof UniquenessAnnotation) {
+			UniquenessAnnotation other = (UniquenessAnnotation) obj;
+			return annotation.equals(other.annotation);
+		}
+		return false;
+	}
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(annotation.name());

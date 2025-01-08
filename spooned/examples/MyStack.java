@@ -34,12 +34,12 @@ public class MyStack {
 
     public MyStack(@specification.Free
     examples.Node root) {
-        this.root = root;
     }
 
     public void test() {
         examples.Node n;
-        n = new examples.Node();
+        n = this.root;
+        this.root = null;
         java.lang.Object o = n.value;
     }
 }

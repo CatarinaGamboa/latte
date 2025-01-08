@@ -63,6 +63,18 @@ public class SymbolicEnvironment {
 		symbEnv.getFirst().put(v, symb);
 	}
 
+	/**
+	 * Add a new field to the environment with a given symbolic value
+	 * @param v
+	 * @param simpleName
+	 * @param vv
+	 */
+	public void addFieldSymbolicValue(SymbolicValue v, String simpleName, SymbolicValue vv) {
+		FieldHeapLoc f = new FieldHeapLoc(v, simpleName);
+		symbEnv.getFirst().put(f, vv);
+	}
+
+
 
 
 	/**
@@ -179,6 +191,7 @@ public class SymbolicEnvironment {
 	
 		return sb.toString();
 	}
+
 
   }
 
