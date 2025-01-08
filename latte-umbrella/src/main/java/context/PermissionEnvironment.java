@@ -6,6 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+/**
+ * Permission Environment class to store the permissions of the variables in scope
+ * Σ ::= ∅ | 𝜈: 𝛼 | 𝜈: ⊥
+ */
 public class PermissionEnvironment {
     
     private static PermissionEnvironment instance;

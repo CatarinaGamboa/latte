@@ -240,6 +240,10 @@ public class LatteTypeChecker  extends CtScanner {
 		CtExpression<?> target = assignment.getAssigned();
 		CtExpression<?> value = assignment.getAssignment();
 
+
+		//TODO: CheckCall
+
+		//CheckNew
 		if (value instanceof CtConstructorCallImpl && target instanceof CtVariableWriteImpl){
 			CtVariableWriteImpl<?> y = (CtVariableWriteImpl<?>) target;
 			CtConstructorCallImpl<?> constCall = (CtConstructorCallImpl<?>) value;
@@ -253,6 +257,12 @@ public class LatteTypeChecker  extends CtScanner {
 			}
 			
 
+		} else if (target instanceof CtVariableWriteImpl){
+			SymbolicValue v = (SymbolicValue) value.getMetadata("symbolic_value");
+			if (v == null)
+				logError("Symbolic value for assignment not found");
+			symbEnv.addVariable(target.toString(), v);
+			ClassLevelMaps.simplify(symbEnv, permEnv);
 		}
 
 		// TODO Auto-generated method stub
@@ -318,7 +328,7 @@ public class LatteTypeChecker  extends CtScanner {
 		} else{
 			UniquenessAnnotation ua = permEnv.get(sv);
 			if (ua.isBottom()){
-				logError(String.format("Symbolic value %s has bottom permission", sv));
+				logInfo(String.format("Symbolic value %s has bottom permission", sv));
 			} else {
 				reference.putMetadata("symbolic_value", sv);
 			}

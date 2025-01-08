@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.Stack;
 
 /**
- * Type Environment class to store the classes of the variables in scope
- * \gamma ::= empty | x : C, \gamma
+ * Symbolic Environment class to store the variables to their symbolic values
+ * Δ ::= ∅ | 𝑥: 𝜈, Δ | 𝜈.𝑓 : 𝜈, Δ
  */
 public class SymbolicEnvironment {
 	
@@ -37,6 +37,11 @@ public class SymbolicEnvironment {
 		SymbolicValue symb = new SymbolicValue(symbolic_counter++);
 		symbEnv.getLast().put(v, symb);
 		return symb;
+	}
+
+	public void addVariable(String var, SymbolicValue symb) {
+		Variable v = new Variable(var);
+		symbEnv.getLast().put(v, symb);
 	}
 
 	public SymbolicValue addField(String var, String field) {
