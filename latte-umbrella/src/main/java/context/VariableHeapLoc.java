@@ -28,4 +28,9 @@ class FieldHeapLoc extends VariableHeapLoc{
 			((FieldHeapLoc) obj).field.equals(field) && 
 			((FieldHeapLoc) obj).heapLoc.equals(heapLoc);
 	}
+
+	@Override
+	public String toString() {
+		return heapLoc.toString() + "." + field.toString();
+	}
 }

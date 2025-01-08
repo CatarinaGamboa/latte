@@ -103,9 +103,13 @@ public class LatteTypeChecker  extends LatteProcessor {
 			if (o == null) 
 				logError(String.format("Local variable %s = %s has assignment with null symbolic value", name, 
 					localVariable.getAssignment().toString()));
-			else
+			else{
+				symbEnv.addVarSymbolicValue(name, (SymbolicValue) o);
+				ClassLevelMaps.simplify(symbEnv, permEnv);
 				logInfo(String.format("Local variable %s = %s with symbolic value %s", name, 
-					localVariable.getAssignment().toString(), element.getMetadata("symbolic_value")));
+				localVariable.getAssignment().toString(), element.getMetadata("symbolic_value")));
+			}
+				
 			// TODO: what to do with the assignment
 		}
 		loggingSpaces--;
