@@ -34,6 +34,11 @@ public class PermissionEnvironment {
         map.getLast().put(symb, ann);
     }
 
+    public void remove(SymbolicValue symb) {
+        //removes the symbolic value with the key symb
+        map.getLast().remove(symb);
+    }
+
     public UniquenessAnnotation get(SymbolicValue symb) {
         for (int i = map.size() - 1; i >= 0; i--) {
             if (map.get(i).containsKey(symb)) {
@@ -42,20 +47,6 @@ public class PermissionEnvironment {
         }
         return null;
     }
-
-    /**
-	 * Enter a new scope
-	 */
-	public void enterScope() {
-		map.add(new HashMap<SymbolicValue, UniquenessAnnotation>());
-	}
-	
-	/**
-	 * Exit the current scope
-	 */
-	public void exitScope() {
-		map.removeLast();
-	}
 
 
     /**
@@ -73,6 +64,25 @@ public class PermissionEnvironment {
         });
         return values;
     }
+
+    public void removeValues(List<SymbolicValue> removed) {
+        for (SymbolicValue symbolicValue : removed) 
+            remove(symbolicValue);
+    }
+
+    /**
+	 * Enter a new scope
+	 */
+	public void enterScope() {
+		map.add(new HashMap<SymbolicValue, UniquenessAnnotation>());
+	}
+	
+	/**
+	 * Exit the current scope
+	 */
+	public void exitScope() {
+		map.removeLast();
+	}
 
     @Override
     public String toString() {
@@ -94,4 +104,6 @@ public class PermissionEnvironment {
 
         return sb.toString();
     }
+
+
 }

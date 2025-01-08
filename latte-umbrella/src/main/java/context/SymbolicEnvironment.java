@@ -127,10 +127,12 @@ public class SymbolicEnvironment {
 	/**
 	 * Remove unreachable values
 	 * TODO: Test this
+	 * @return	List of removed symbolic values
 	 */
-	public void removeUnreachableValues() {
-		// get all symbolic values in the keys
+	public List<SymbolicValue> removeUnreachableValues() {
+		// 1) get all symbolic values in the keys that are part of fields in the heap
 		List<FieldHeapLoc> keys = new ArrayList<>();
+		List<SymbolicValue> returns = new ArrayList<>();
 		for (Map<VariableHeapLoc, SymbolicValue> map : symbEnv) {
 			map.keySet().forEach(k -> {
 				if (k instanceof FieldHeapLoc) {
@@ -139,14 +141,19 @@ public class SymbolicEnvironment {
 			});
 		}
 
+		// 2) for each key, check if the symbolic value is still reachable, if it isn't, remove it
+		// and add it to the list of removed values, as well as its symbolic value in the map
 		for (FieldHeapLoc key : keys) {
 			SymbolicValue v = key.heapLoc;
 			if (!hasValue(v)) {
 				for (Map<VariableHeapLoc, SymbolicValue> map : symbEnv) {
+					returns.add(v);
+					returns.add(map.get(key));
 					map.remove(key);
 				}
 			}
 		}
+		return returns;
 	}
 
 

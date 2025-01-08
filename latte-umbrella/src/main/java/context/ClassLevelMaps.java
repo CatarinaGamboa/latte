@@ -63,8 +63,11 @@ public class ClassLevelMaps {
     }
 
     public static void simplify(SymbolicEnvironment symbEnv, PermissionEnvironment permEnv) {
-        // Remove unreachable values
-        symbEnv.removeUnreachableValues();
+        // 1) Remove unreachable values
+        List<SymbolicValue> removed = symbEnv.removeUnreachableValues();
+
+        // 2) Remove the values from permEnv
+        permEnv.removeValues(removed);
 
         // Unique Values
         // 1) get all the symbolic values v that are unique in permEnv
