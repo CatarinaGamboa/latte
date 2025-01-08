@@ -1,8 +1,5 @@
 package typechecking;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import context.ClassLevelMaps;
 import context.Context;
 import context.PermissionEnvironment;
@@ -21,13 +18,11 @@ import spoon.reflect.code.CtUnaryOperator;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtConstructor;
 import spoon.reflect.declaration.CtElement;
-import spoon.reflect.declaration.CtField;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtParameter;
 import spoon.reflect.reference.CtFieldReference;
 import spoon.reflect.reference.CtLocalVariableReference;
 import spoon.reflect.reference.CtTypeReference;
-import spoon.reflect.visitor.CtScanner;
 import spoon.support.reflect.code.CtConstructorCallImpl;
 import spoon.support.reflect.code.CtVariableReadImpl;
 import spoon.support.reflect.code.CtVariableWriteImpl;
@@ -39,65 +34,22 @@ import spoon.support.reflect.code.CtVariableWriteImpl;
  * Metadata added:
  * "symbolic_value" -> SymbolicValue
  */
-public class LatteTypeChecker  extends CtScanner {
-	
-	Context context;
-	TypeEnvironment typeEnv;
-	SymbolicEnvironment symbEnv;
-	PermissionEnvironment permEnv;
-	ClassLevelMaps maps;
-	private static Logger logger = LoggerFactory.getLogger(LatteTypeChecker.class);
+public class LatteTypeChecker  extends LatteProcessor {
 
-	int loggingSpaces = 0;
-
-	 
-    public LatteTypeChecker(Context context, TypeEnvironment typeEnv, SymbolicEnvironment symbEnv, PermissionEnvironment permEnv, ClassLevelMaps mtc) {
-		this.context = context; 
-		this.typeEnv = typeEnv;
-		this.symbEnv = symbEnv;
-		this.permEnv = permEnv;
-		this.maps = mtc;
-		logInfo("Latte Type checker initialized");
+    public LatteTypeChecker(Context context, TypeEnvironment typeEnv, SymbolicEnvironment symbEnv, 
+							PermissionEnvironment permEnv, ClassLevelMaps mtc) {
+		super(context, typeEnv, symbEnv, permEnv, mtc);
+		logInfo("[ Latte Type checker initialized ]");
 	}
 
 	@Override
     public <T> void visitCtClass(CtClass<T> ctClass) {
 		logInfo("Visiting class: " + ctClass.getSimpleName());
-		context.addClass(ctClass);
 		enterScopes();
-
-		// Add the class to the type reference and class map
-		CtTypeReference<?> typeRef = ctClass.getReference();
-		maps.addTypeClass(typeRef, ctClass);
 		super.visitCtClass(ctClass);
-
 		exitScopes();
 	}
 			
-			
-	@Override
-	public <T> void visitCtField(CtField<T> f) {
-		logInfo("Visiting field: " + f.getSimpleName());
-		loggingSpaces++;
-		CtElement k = f.getParent();
-		if (k instanceof CtClass){
-			CtClass<?> klass = (CtClass<?>) k;
-			maps.addFieldClass(f, klass);
-			logInfo(String.format("Added field %s to class %s in the mappings", f.getSimpleName(), klass.getSimpleName()));
-
-			UniquenessAnnotation ua = maps.getFieldAnnotation(f.getSimpleName(), klass.getReference());
-			logInfo(String.format("Field %s has annotation %s in mapping", f.getSimpleName(), ua));
-
-		} else {
-			logError(String.format("Field %s is not inside a class", f.getSimpleName()));
-		}
-		// VariableT v = new VariableT(f);
-		// context.addInScope(v.getName(), v);
-		// System.out.println("with fields:\n" + context.toString());
-		super.visitCtField(f);
-		loggingSpaces--;
-	}
-	
 	
 	@Override
 	public <T> void visitCtConstructor(CtConstructor<T> c) {
@@ -188,7 +140,7 @@ public class LatteTypeChecker  extends CtScanner {
 				if (vp == null){
 					//field(Γ(𝑥), 𝑓 ) = 𝛼 𝐶
 					UniquenessAnnotation fieldUA = maps.getFieldAnnotation(f.getSimpleName(), x.getType());
-
+					if (fieldUA == null) logError(String.format("field annotation not found for %s", f.getSimpleName()));
 					//----------------
 					//𝜈.𝑓 : 𝜈′, Δ; 𝜈′: 𝛼, Σ   fresh 𝜈
 					SymbolicValue vv = symbEnv.addField(sv, f.getSimpleName());
@@ -262,7 +214,6 @@ public class LatteTypeChecker  extends CtScanner {
 			ClassLevelMaps.simplify(symbEnv, permEnv);
 		}
 
-		// TODO Auto-generated method stub
 		loggingSpaces--;
 	}
 
@@ -354,39 +305,4 @@ public class LatteTypeChecker  extends CtScanner {
 		literal.putMetadata("symbolic_value", sv);
 	}
 
-	/**
-	 * Log info with indentation
-	 * @param text
-	 */
-	private void logInfo(String text) {
-		logger.info(" ".repeat(4*loggingSpaces) + "|- " + text);
-	}
-
-	/**
-	 * Log error with indentation
-	 * @param text
-	 */
-	private void logError(String text) {
-		logger.error(" ".repeat(4*loggingSpaces) + "|- " + text);
-	}
-
-	/**
-	 * Enter scopes from all environments
-	 */
-	private void enterScopes(){
-		typeEnv.enterScope();
-		symbEnv.enterScope();
-		permEnv.enterScope();
-		loggingSpaces++;
-	}
-
-	/**
-	 * Exit scopes from all environments
-	 */
-	private void exitScopes(){
-		typeEnv.exitScope();
-		symbEnv.exitScope();
-		permEnv.exitScope();
-		loggingSpaces--;
-	}
 }

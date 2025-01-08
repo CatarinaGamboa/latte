@@ -34,6 +34,7 @@ public class Processor extends AbstractProcessor<CtPackage> {
             ClassLevelMaps mtc = ClassLevelMaps.getInstance();
             c.reinitializeAllContext();
 
+            pkg.accept(new LatteClassFirstPass(c, te, se, pe, mtc));
             pkg.accept(new LatteTypeChecker(c, te, se, pe, mtc));
 
         }
