@@ -30,19 +30,37 @@ public class PermissionEnvironment {
         map = new Stack<Map<SymbolicValue, UniquenessAnnotation>>(); 
     }
 
+    /**
+     * Add a new symbolic value to the environment
+     * @param symb
+     * @param ann
+     */
     public void add(SymbolicValue symb, UniquenessAnnotation ann) {
-        map.getLast().put(symb, ann);
+        map.getFirst().put(symb, ann);
     }
 
+    /**
+     * Removes the symbolic value in the key from the environment
+     * @param symb
+     */
     public void remove(SymbolicValue symb) {
-        //removes the symbolic value with the key symb
-        map.getLast().remove(symb);
+        for (Map<SymbolicValue, UniquenessAnnotation> innerMap : map) {
+            if (innerMap.containsKey(symb)) {
+                innerMap.remove(symb);
+                return;
+            }
+        }
     }
 
+    /**
+     * Get the permission of the symbolic value
+     * @param symb
+     * @return the permission of the symbolic value or null if it does not exist
+     */
     public UniquenessAnnotation get(SymbolicValue symb) {
-        for (int i = map.size() - 1; i >= 0; i--) {
-            if (map.get(i).containsKey(symb)) {
-                return map.get(i).get(symb);
+        for (Map<SymbolicValue, UniquenessAnnotation> innerMap : map) {
+            if (innerMap.containsKey(symb)) {
+                return innerMap.get(symb);
             }
         }
         return null;
@@ -50,7 +68,7 @@ public class PermissionEnvironment {
 
 
     /**
-     * Get all unique values 
+     * Get all symbolic values with Unique as the permission
      * @return
      */
     public List<SymbolicValue> getUniqueValues() {
@@ -65,6 +83,10 @@ public class PermissionEnvironment {
         return values;
     }
 
+    /**
+     * Remove the values of the given list from the environment
+     * @param removed
+     */
     public void removeValues(List<SymbolicValue> removed) {
         for (SymbolicValue symbolicValue : removed) 
             remove(symbolicValue);
@@ -74,16 +96,19 @@ public class PermissionEnvironment {
 	 * Enter a new scope
 	 */
 	public void enterScope() {
-		map.add(new HashMap<SymbolicValue, UniquenessAnnotation>());
+		map.addFirst(new HashMap<SymbolicValue, UniquenessAnnotation>());
 	}
 	
 	/**
 	 * Exit the current scope
 	 */
 	public void exitScope() {
-		map.removeLast();
+		map.removeFirst();
 	}
 
+    /**
+     * String representation of the Permission Environment
+     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -104,6 +129,5 @@ public class PermissionEnvironment {
 
         return sb.toString();
     }
-
 
 }

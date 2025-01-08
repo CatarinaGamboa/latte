@@ -189,12 +189,9 @@ public class LatteTypeChecker  extends CtScanner {
 					//field(Γ(𝑥), 𝑓 ) = 𝛼 𝐶
 					UniquenessAnnotation fieldUA = maps.getFieldAnnotation(f.getSimpleName(), x.getType());
 
-					//fresh 𝜈
-					SymbolicValue vv = symbEnv.getFresh();
-
 					//----------------
-					//𝜈.𝑓 : 𝜈′, Δ; 𝜈′: 𝛼, Σ
-					symbEnv.addField(sv, f.getSimpleName());
+					//𝜈.𝑓 : 𝜈′, Δ; 𝜈′: 𝛼, Σ   fresh 𝜈
+					SymbolicValue vv = symbEnv.addField(sv, f.getSimpleName());
 					permEnv.add(vv, fieldUA);
 
 					// 𝑥 .𝑓 ⇓ 𝜈′
@@ -261,7 +258,7 @@ public class LatteTypeChecker  extends CtScanner {
 			SymbolicValue v = (SymbolicValue) value.getMetadata("symbolic_value");
 			if (v == null)
 				logError("Symbolic value for assignment not found");
-			symbEnv.addVariable(target.toString(), v);
+			symbEnv.addVarSymbolicValue(target.toString(), v);
 			ClassLevelMaps.simplify(symbEnv, permEnv);
 		}
 

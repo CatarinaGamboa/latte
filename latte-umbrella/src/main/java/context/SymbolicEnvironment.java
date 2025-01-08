@@ -34,87 +34,76 @@ public class SymbolicEnvironment {
 
 	public SymbolicValue addVariable(String var) {
 		Variable v = new Variable(var);
-		SymbolicValue symb = new SymbolicValue(symbolic_counter++);
-		symbEnv.getLast().put(v, symb);
-		return symb;
-	}
-
-	public void addVariable(String var, SymbolicValue symb) {
-		Variable v = new Variable(var);
-		symbEnv.getLast().put(v, symb);
-	}
-
-	public SymbolicValue addField(String var, String field) {
-		Variable f = new Variable(field);
-		SymbolicValue symb = get(new Variable(var));
-
-		FieldHeapLoc v = new FieldHeapLoc(symb, f);
-		symbEnv.getLast().put(v, new SymbolicValue(symbolic_counter++));
-		return symb;
+		return add(v);
 	}
 
 	public SymbolicValue addField(SymbolicValue symb, String field) {
-		Variable f = new Variable(field);
+		return add(new FieldHeapLoc(symb, new Variable(field)));
+	}
 
-		FieldHeapLoc v = new FieldHeapLoc(symb, f);
-		symbEnv.getLast().put(v, new SymbolicValue(symbolic_counter++));
+
+	/**
+	 * Add a new variable or heap location to the environment
+	 * @param var
+	 * @return
+	 */
+	private SymbolicValue add(VariableHeapLoc var) {
+		SymbolicValue symb = getFresh();
+		symbEnv.getFirst().put(var, symb);
 		return symb;
 	}
 
+	/**
+	 * Add a new variable to the environment with a given symbolic value
+	 * @param var
+	 * @param symb
+	 */
+	public void addVarSymbolicValue(String var, SymbolicValue symb) {
+		Variable v = new Variable(var);
+		symbEnv.getFirst().put(v, symb);
+	}
+
+
+
+	/**
+	 * Returns a fresh symbolic value
+	 * @return
+	 */
 	public SymbolicValue getFresh(){
 		return new SymbolicValue(symbolic_counter++);
 	}
 
+	/**
+	 * Get the symbolic value of the variable with a given name
+	 * @param name
+	 * @return
+	 */
 	public SymbolicValue get(String name) {
-		Variable var = new Variable(name);
-		for (int i = symbEnv.size() - 1; i >= 0; i--) {
-			if (symbEnv.get(i).containsKey(var)) {
-				return symbEnv.get(i).get(var);
-			}
-		}
-		return null;
+		return get(new Variable(name));
 	}
 
-	public SymbolicValue get(Variable var) {
-		for (int i = symbEnv.size() - 1; i >= 0; i--) {
-			if (symbEnv.get(i).containsKey(var)) {
-				return symbEnv.get(i).get(var);
-			}
-		}
-		return null;
-	}
-
+	/**
+	 * Get the symbolic value of the field
+	 * @param symbolicValue
+	 * @param field
+	 * @return
+	 */
 	public SymbolicValue get(SymbolicValue symbolicValue, String field) {
-		FieldHeapLoc var = new FieldHeapLoc(symbolicValue, field);
-		for (int i = symbEnv.size() - 1; i >= 0; i--) {
-			if (symbEnv.get(i).containsKey(var)) {
-				return symbEnv.get(i).get(var);
-			}
-		}
-		return null;
-	}
-
-	public SymbolicValue get(FieldHeapLoc var) {
-		for (int i = symbEnv.size() - 1; i >= 0; i--) {
-			if (symbEnv.get(i).containsKey(var)) {
-				return symbEnv.get(i).get(var);
-			}
-		}
-		return null;
+		return get(new FieldHeapLoc(symbolicValue, field));
 	}
 
 	/**
-	 * Enter a new scope
+	 * Returns the symbolic value of the variable or symbolic value and field
+	 * @param var
+	 * @return
 	 */
-	public void enterScope() {
-		symbEnv.addLast(new HashMap<VariableHeapLoc, SymbolicValue>());
-	}
-	
-	/**
-	 * Exit the current scope
-	 */
-	public void exitScope() {
-		symbEnv.removeLast();
+	private SymbolicValue get(VariableHeapLoc var) {
+		for(Map<VariableHeapLoc, SymbolicValue> map : symbEnv) {
+			if (map.containsKey(var)) {
+				return map.get(var);
+			}
+		}
+		return null;
 	}
 
 	public boolean hasValue(SymbolicValue v) {
@@ -156,6 +145,19 @@ public class SymbolicEnvironment {
 		return returns;
 	}
 
+	/**
+	 * Enter a new scope
+	 */
+	public void enterScope() {
+		symbEnv.addFirst(new HashMap<VariableHeapLoc, SymbolicValue>());
+	}
+	
+	/**
+	 * Exit the current scope
+	 */
+	public void exitScope() {
+		symbEnv.removeFirst();
+	}
 
 	@Override
 	public String toString() {
