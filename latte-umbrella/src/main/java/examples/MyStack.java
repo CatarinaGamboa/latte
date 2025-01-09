@@ -16,13 +16,11 @@ public class MyStack {
 
 		public void test(){
 
-			// Node n; 
-			// n = this.root;
-
-			// this.root = null;
+			Node n; 
+			n = this.root;
 
 
-			// Object o = n.value;
+			Object o = this.root;
 
 		}
 

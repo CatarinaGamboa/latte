@@ -116,22 +116,28 @@ public class LatteTypeChecker  extends LatteProcessor {
 		super.visitCtLocalVariable(localVariable);
 
 		// 3) Handle assignment
-		CtElement element = localVariable.getAssignment();
-		if (element == null){
-			logInfo("Local variable "+name+" - No assignment");
-		} else {
-			Object o = element.getMetadata("symbolic_value");
-			if (o == null) 
-			logWarning(String.format("Local variable %s = %s has assignment with null symbolic value", name, 
+		CtElement value = localVariable.getAssignment();
+		if (value != null){
+			SymbolicValue vValue = (SymbolicValue) value.getMetadata("symbolic_value");
+			if (vValue == null) 
+				logWarning(String.format("Local variable %s = %s has assignment with null symbolic value", name, 
 					localVariable.getAssignment().toString()));
 			else{
-				symbEnv.addVarSymbolicValue(name, (SymbolicValue) o);
-				ClassLevelMaps.simplify(symbEnv, permEnv);
-				logInfo(String.format("Local variable %s = %s with symbolic value %s", name, 
-				localVariable.getAssignment().toString(), element.getMetadata("symbolic_value")));
+				if (value instanceof CtConstructorCallImpl ){
+					CtConstructorCallImpl<?> constCall = (CtConstructorCallImpl<?>) value;
+					if (constCall.getArguments().size() == 0){
+						SymbolicValue vv = symbEnv.addVariable(localVariable.getSimpleName());
+						permEnv.add(vv, new UniquenessAnnotation(Uniqueness.FREE));
+						ClassLevelMaps.simplify(symbEnv, permEnv);
+					} else {
+						logWarning("TODO: Handle constructor call with arguments");
+					}	
+				} else {
+					symbEnv.addVarSymbolicValue(localVariable.getSimpleName(), vValue);
+
+					ClassLevelMaps.simplify(symbEnv, permEnv);
+				}
 			}
-				
-			// TODO: what to do with the assignment
 		}
 		loggingSpaces--;
 	}

@@ -15,8 +15,6 @@ public class SymbolicValue {
 
     @Override
     public String toString() {
-        return "SymbolicValue{" +
-                "value=" + value +
-                '}';
+        return "𝜈" + value ;
     }
 }
