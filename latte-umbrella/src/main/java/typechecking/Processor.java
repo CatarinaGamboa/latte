@@ -1,12 +1,10 @@
 package typechecking;
 
-import java.security.Permission;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import context.Context;
 import context.ClassLevelMaps;
+import context.Context;
 import context.PermissionEnvironment;
 import context.SymbolicEnvironment;
 import context.TypeEnvironment;

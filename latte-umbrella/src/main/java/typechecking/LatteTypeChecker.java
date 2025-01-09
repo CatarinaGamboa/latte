@@ -18,6 +18,7 @@ import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.code.CtThisAccess;
 import spoon.reflect.code.CtTypeAccess;
 import spoon.reflect.code.CtUnaryOperator;
+import spoon.reflect.code.CtVariableRead;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtConstructor;
 import spoon.reflect.declaration.CtElement;
@@ -83,7 +84,13 @@ public class LatteTypeChecker  extends LatteProcessor {
 		logInfo("Visiting parameter: "+ parameter.getSimpleName());
 		loggingSpaces++;
 		super.visitCtParameter(parameter);
-		// TODO Auto-generated method stub
+		
+		SymbolicValue sv = symbEnv.addVariable(parameter.getSimpleName());
+		UniquenessAnnotation ua = new UniquenessAnnotation(parameter);
+		permEnv.add(sv, ua);
+		logInfo(parameter.getSimpleName() + ": "+ sv);
+		logInfo(sv + ": "+ ua);
+
 		loggingSpaces--;
 	}
 
@@ -110,7 +117,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 		} else {
 			Object o = element.getMetadata("symbolic_value");
 			if (o == null) 
-				logError(String.format("Local variable %s = %s has assignment with null symbolic value", name, 
+			logWarning(String.format("Local variable %s = %s has assignment with null symbolic value", name, 
 					localVariable.getAssignment().toString()));
 			else{
 				symbEnv.addVarSymbolicValue(name, (SymbolicValue) o);
@@ -165,7 +172,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 				if (vp == null){
 					//field(Γ(𝑥), 𝑓 ) = 𝛼 𝐶
 					UniquenessAnnotation fieldUA = maps.getFieldAnnotation(f.getSimpleName(), type);
-					if (fieldUA == null) logError(String.format("field annotation not found for %s", f.getSimpleName()));
+					if (fieldUA == null) logWarning(String.format("field annotation not found for %s", f.getSimpleName()));
 					//----------------
 					//𝜈.𝑓 : 𝜈′, Δ; 𝜈′: 𝛼, Σ   fresh 𝜈
 					SymbolicValue vv = symbEnv.addField(sv, f.getSimpleName());
@@ -220,17 +227,9 @@ public class LatteTypeChecker  extends LatteProcessor {
 			ce.putMetadata("symbolic_value", v);
 			logInfo("Field write target this: "+ v);
 		} else {
-			logError("Field write target not found");
+			logWarning("Field write target not found");
 		}
 	}
-
-	// @Override
-	// public <T> void visitCtThisAccess(CtThisAccess<T> thisAccess) {
-	// 	logInfo("Visiting this access "+ thisAccess.toStringDebug());
-	// 	super.visitCtThisAccess(thisAccess);
-	// 	SymbolicValue sv = symbEnv.get(THIS);
-	// 	thisAccess.putMetadata("symbolic_value", sv);
-	// }
 
 	@Override
 	public <T, A extends T> void visitCtAssignment(CtAssignment<T, A> assignment) {
@@ -254,14 +253,14 @@ public class LatteTypeChecker  extends LatteProcessor {
 				permEnv.add(vv, new UniquenessAnnotation(Uniqueness.FREE));
 				ClassLevelMaps.simplify(symbEnv, permEnv);
 			} else {
-				logError("TODO: Handle constructor call with arguments");
+				logWarning("TODO: Handle constructor call with arguments");
 			}
 			
 
 		} else if (target instanceof CtVariableWriteImpl){
 			SymbolicValue v = (SymbolicValue) value.getMetadata("symbolic_value");
 			if (v == null)
-				logError("Symbolic value for assignment not found");
+				logWarning("Symbolic value for assignment not found");
 			symbEnv.addVarSymbolicValue(target.toString(), v);
 			ClassLevelMaps.simplify(symbEnv, permEnv);
 
@@ -283,7 +282,8 @@ public class LatteTypeChecker  extends LatteProcessor {
 			UniquenessAnnotation ua = permEnv.get(vv);
 			// Σ′′ ⊢ 𝜈′ : 𝛼 ⊣ Σ′′′
 			if (!fieldUA.equals(ua)){
-				logError(String.format("Field %s has permission %s but value %s has permission %s", f.getSimpleName(), fieldUA, vv, permEnv.get(vv)));
+				logError(String.format("Field %s has permission %s but value %s has permission %s", 
+					f.getSimpleName(), fieldUA, vv, permEnv.get(vv)), assignment);
 			}
 		
 			// Δ′′ [𝜈.𝑓 ↦ → 𝜈′]; Σ′′′ ⪰ Δ′′′; Σ′′′′
@@ -350,7 +350,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 		
 		SymbolicValue sv = symbEnv.get(reference.getSimpleName());
 		if (sv == null) {
-			logError(String.format("Symbolic value for local variable %s not found in the symbolic environment",
+			logWarning(String.format("Symbolic value for local variable %s not found in the symbolic environment",
 				reference.getSimpleName()));
 		} else{
 			UniquenessAnnotation ua = permEnv.get(sv);
@@ -361,6 +361,18 @@ public class LatteTypeChecker  extends LatteProcessor {
 				logInfo(String.format("Local variable reference %s: %s", reference.getSimpleName(), sv));
 			}
 		}
+		loggingSpaces--;
+	}
+
+	@Override
+	public <T> void visitCtVariableRead(CtVariableRead<T> variableRead) {
+		loggingSpaces++;
+		logInfo("Visiting variable read "+ variableRead.toString());
+		super.visitCtVariableRead(variableRead);
+
+		SymbolicValue sv = symbEnv.get(variableRead.getVariable().getSimpleName());
+		variableRead.putMetadata("symbolic_value", sv);
+		logInfo(variableRead.toString() + ": "+ sv);
 		loggingSpaces--;
 	}
 

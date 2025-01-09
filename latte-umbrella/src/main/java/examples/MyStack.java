@@ -16,12 +16,11 @@ public class MyStack {
 
 		public void test(){
 
-			Node n; 
-			n = this.root;
+			// Node n; 
+			// n = this.root;
 
-			this.root = null;
+			// this.root = null;
 
-			n.value = null;
 
 			// Object o = n.value;
 
@@ -77,13 +76,13 @@ class Node {
 	@Unique Object value;
 	@Unique Node next;
 
-	// /**
-	//  * Constructor for the Node class using @Free value and next nodes
-	//  * @param value
-	//  * @param next
-	//  */
-	// public Node (@Free Object value, @Free Node next) {
-	// 	this.value = value;
-	// 	this.next = next;
-	// }
+	/**
+	 * Constructor for the Node class using @Free value and next nodes
+	 * @param value
+	 * @param next
+	 */
+	public Node (@Free Object value, @Free Node next) {
+		this.value = value;
+		this.next = next;
+	}
 }

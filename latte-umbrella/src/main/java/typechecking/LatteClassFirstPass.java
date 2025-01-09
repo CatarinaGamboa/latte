@@ -49,7 +49,7 @@ public class LatteClassFirstPass extends LatteProcessor{
 			logInfo(String.format("Field %s has annotation %s in mapping", f.getSimpleName(), ua));
 
 		} else {
-			logError(String.format("Field %s is not inside a class", f.getSimpleName()));
+			logError(String.format("Field %s is not inside a class", f.getSimpleName()), f);
 		}
 
 		super.visitCtField(f);

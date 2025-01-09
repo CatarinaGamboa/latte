@@ -37,10 +37,9 @@ public class MyStack {
     }
 
     public void test() {
-        examples.Node n;
-        n = this.root;
-        this.root = null;
-        n.value = null;
+        // Node n;
+        // n = this.root;
+        // this.root = null;
         // Object o = n.value;
     }
 }

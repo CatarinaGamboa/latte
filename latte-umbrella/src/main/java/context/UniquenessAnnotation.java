@@ -25,6 +25,9 @@ public class UniquenessAnnotation {
 	        else if (an.contentEquals("specification.Owned")) {
 			   this.annotation = Uniqueness.BORROWED;
 			}
+			else if (an.contentEquals("specification.Free")) {
+				this.annotation = Uniqueness.FREE;
+			 }
 	        
 	    }
 		if (annotation == null) this.annotation = Uniqueness.SHARED; //Default

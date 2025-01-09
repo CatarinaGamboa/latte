@@ -8,6 +8,7 @@ import context.Context;
 import context.PermissionEnvironment;
 import context.SymbolicEnvironment;
 import context.TypeEnvironment;
+import spoon.reflect.declaration.CtElement;
 import spoon.reflect.visitor.CtScanner;
 
 abstract class LatteProcessor extends CtScanner{
@@ -43,8 +44,34 @@ abstract class LatteProcessor extends CtScanner{
 	 * Log error with indentation
 	 * @param text
 	 */
-	protected void logError(String text) {
+	protected void logWarning(String text) {
+		logger.warn(" ".repeat(4*loggingSpaces) + "|- " + text);
+	}
+
+	/**
+	 * Log error with indentation
+	 * @param text
+     * @throws LatteException 
+     */
+    protected void logError(String text, CtElement ce) {
 		logger.error(" ".repeat(4*loggingSpaces) + "|- " + text);
+        // use string builder
+
+        StringBuilder sb = new StringBuilder();
+
+        String filePath = ce.getPosition().getFile().getAbsolutePath();
+        int line = ce.getPosition().getLine();
+        int column = ce.getPosition().getColumn();
+        
+        sb.append("------- Latte Error: -------\n")
+          .append(text)
+          .append("\n\tCode: ")
+          .append(ce.toStringDebug()).append("\n")
+          .append("\tFile: ")
+          .append(filePath).append(":").append(line).append(":").append(column).append("\n"); // Clickable format
+        
+        System.err.println(sb.toString());
+        System.exit(1);
 	}
 
     	/**
