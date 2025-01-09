@@ -60,14 +60,19 @@ public class LatteTypeChecker  extends LatteProcessor {
 	public <T> void visitCtConstructor(CtConstructor<T> c) {
 		logInfo("Visiting constructor "+ c.getSimpleName());
 		enterScopes();
+
+		// Assume 'this' is a parameter always borrowed
+		SymbolicValue thv = symbEnv.addVariable(THIS);
+		permEnv.add(thv, new UniquenessAnnotation(Uniqueness.BORROWED));
+
 		super.visitCtConstructor(c);
+
 		exitScopes();
 	}
 	
 	@Override
 	public <T> void visitCtMethod(CtMethod<T> m) {
 		logInfo("Visiting method: "+ m.getSimpleName());
-		// TODO Auto-generated method stub
 		enterScopes();
 
 		// Assume 'this' is a parameter always borrowed
@@ -264,7 +269,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 			symbEnv.addVarSymbolicValue(target.toString(), v);
 			ClassLevelMaps.simplify(symbEnv, permEnv);
 
-		} else if (target instanceof CtFieldWrite){
+		} else if (target instanceof CtFieldWrite){ // CheckFieldAssign
 			CtFieldWrite<?> fieldWrite = (CtFieldWrite<?>) target;
 			logInfo("Visiting field write "+ fieldWrite.toStringDebug());
 	
@@ -272,21 +277,22 @@ public class LatteTypeChecker  extends LatteProcessor {
 			CtFieldReference<?> f = fieldWrite.getVariable();
 			CtTypeReference<?> ct = x.getType();
 			// field(Γ(𝑥), 𝑓 ) = 𝛼 𝐶
-			UniquenessAnnotation fieldUA = maps.getFieldAnnotation(f.getSimpleName(), ct);
+			UniquenessAnnotation fieldPerm = maps.getFieldAnnotation(f.getSimpleName(), ct);
 	
 			// Γ; Δ; Σ ⊢ 𝑒 ⇓ 𝜈′ ⊣ Δ′; Σ′
 			SymbolicValue vv = (SymbolicValue) value.getMetadata("symbolic_value");
 			// Γ; Δ′; Σ′ ⊢ 𝑥 ⇓ 𝜈 ⊣ Δ′′; Σ′′
 			SymbolicValue v = (SymbolicValue) x.getMetadata("symbolic_value"); 
 
-			UniquenessAnnotation ua = permEnv.get(vv);
 			// Σ′′ ⊢ 𝜈′ : 𝛼 ⊣ Σ′′′
-			if (!fieldUA.equals(ua)){
+			UniquenessAnnotation vvPerm = permEnv.get(vv);
+			// Check if we can use the permission of vv as
+
+			if (!permEnv.usePermissionAs(v, vvPerm, fieldPerm))
 				logError(String.format("Field %s has permission %s but value %s has permission %s", 
-					f.getSimpleName(), fieldUA, vv, permEnv.get(vv)), assignment);
-			}
-		
-			// Δ′′ [𝜈.𝑓 ↦ → 𝜈′]; Σ′′′ ⪰ Δ′′′; Σ′′′′
+					f.getSimpleName(), fieldPerm, vv, vvPerm, assignment), assignment);
+			
+			// Δ′′ [𝜈.𝑓 → 𝜈′]; Σ′′′ ⪰ Δ′′′; Σ′′′′
 			symbEnv.addFieldSymbolicValue(v, f.getSimpleName(), vv);
 			ClassLevelMaps.simplify(symbEnv, permEnv);
 		}

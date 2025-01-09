@@ -22,7 +22,7 @@ public class UniquenessAnnotation {
 	        else if (an.contentEquals("specification.Shared")) {
 		       this.annotation = Uniqueness.SHARED;
 		    } 
-	        else if (an.contentEquals("specification.Owned")) {
+	        else if (an.contentEquals("specification.Borrowed")) {
 			   this.annotation = Uniqueness.BORROWED;
 			}
 			else if (an.contentEquals("specification.Free")) {
@@ -62,17 +62,21 @@ public class UniquenessAnnotation {
 		return annotation.equals(Uniqueness.UNIQUE);
 	}
 	
-	
 	public boolean isBottom() {
 		return annotation.equals(Uniqueness.BOTTOM);
 	}
 
-	public boolean isLessThan(Uniqueness other) {
-		return annotation.isLessThan(other);
+	public boolean isLessEqualThan(Uniqueness other) {
+		return annotation.isLessEqualThan(other);
 	}
+
 	public boolean isGreaterEqualThan(Uniqueness other) {
-		return !annotation.isLessThan(other);
+		return annotation.isGreaterEqualThan(other);
 	}
+
+	public boolean annotationEquals(Uniqueness un) {
+        return annotation.equals(un);
+    }
 
 	@Override
 	public boolean equals(Object obj) {
@@ -82,6 +86,7 @@ public class UniquenessAnnotation {
 		}
 		return false;
 	}
+
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(annotation.name());
@@ -89,6 +94,8 @@ public class UniquenessAnnotation {
 			sb.append(path.toString());
 		return sb.toString();
 	}
+
+
 
 }
 

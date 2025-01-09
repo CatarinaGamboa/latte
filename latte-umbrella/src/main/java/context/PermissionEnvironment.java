@@ -130,4 +130,36 @@ public class PermissionEnvironment {
         return sb.toString();
     }
 
+    /**
+     * Uses the current permission of a symbolic value as another permission
+     * @return returns true if the permission of vvPerm can be used as fieldPerm
+     */
+    public boolean usePermissionAs(SymbolicValue v, UniquenessAnnotation vPerm, UniquenessAnnotation expectedPerm) {
+        switch (expectedPerm.annotation) {
+            case FREE:
+                if (vPerm.isLessEqualThan(Uniqueness.FREE)) {
+                    add(v, new UniquenessAnnotation(Uniqueness.BOTTOM));
+                    return true;
+                }                
+                break;
+            case BORROWED:
+                if (vPerm.isLessEqualThan(Uniqueness.BORROWED))
+                    return true;
+            case UNIQUE:
+                if (vPerm.isLessEqualThan(Uniqueness.FREE)){
+                    add(v, new UniquenessAnnotation(Uniqueness.UNIQUE));
+                    return true;
+                }
+                break;
+            case SHARED:
+                if (vPerm.annotationEquals(Uniqueness.SHARED) || vPerm.annotationEquals(Uniqueness.FREE)){
+                    add(v, new UniquenessAnnotation(Uniqueness.SHARED));
+                    return true;
+                }
+            case BOTTOM:
+                return false;
+        }
+        return false;
+    }
+
 }

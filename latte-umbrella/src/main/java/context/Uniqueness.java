@@ -20,8 +20,12 @@ public enum Uniqueness {
     }
 
     // Custom comparison method
-    public boolean isLessThan(Uniqueness other) {
-        return this.order < other.order;
+    public boolean isLessEqualThan(Uniqueness other) {
+        return this.order <= other.order;
+    }
+    // Custom comparison method
+    public boolean isGreaterEqualThan(Uniqueness other) {
+        return this.order >= other.order;
     }
 
 
