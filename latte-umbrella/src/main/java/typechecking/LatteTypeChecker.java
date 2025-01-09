@@ -15,6 +15,8 @@ import spoon.reflect.code.CtFieldRead;
 import spoon.reflect.code.CtFieldWrite;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.code.CtLocalVariable;
+import spoon.reflect.code.CtThisAccess;
+import spoon.reflect.code.CtTypeAccess;
 import spoon.reflect.code.CtUnaryOperator;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtConstructor;
@@ -68,7 +70,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 		enterScopes();
 
 		// Assume 'this' is a parameter always borrowed
-		SymbolicValue thv = symbEnv.addVariable("this");
+		SymbolicValue thv = symbEnv.addVariable(THIS);
 		permEnv.add(thv, new UniquenessAnnotation(Uniqueness.BORROWED));
 
 		super.visitCtMethod(m);
@@ -148,8 +150,8 @@ public class LatteTypeChecker  extends LatteProcessor {
 				sv = symbEnv.get(x.getVariable().getSimpleName());
 			} else {
 				type = target.getType();
-				sv = symbEnv.get("this");
-				name = "this";
+				sv = symbEnv.get(THIS);
+				name = THIS;
 			}
 
 			// Δ(𝑥) = 𝜈 
@@ -171,7 +173,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 
 					// 𝑥 .𝑓 ⇓ 𝜈′
 					fieldRead.putMetadata("symbolic_value", vv);
-					logInfo(String.format("UniqueField read %s.%s has symbolic value %s", name, f.getSimpleName(), vv));
+					logInfo(String.format("UniqueField read %s.%s: %s", name, f.getSimpleName(), vv));
 				}
 
 
@@ -203,7 +205,32 @@ public class LatteTypeChecker  extends LatteProcessor {
 		loggingSpaces--;
 	}
 
+	@Override
+	public <T> void visitCtFieldWrite(CtFieldWrite<T> fieldWrite) {
+		logInfo("Visiting field write "+ fieldWrite.toStringDebug());
+		super.visitCtFieldWrite(fieldWrite);
+		CtExpression<?> ce = fieldWrite.getTarget();
+		if (ce instanceof CtVariableReadImpl){
+			CtVariableReadImpl<?> x = (CtVariableReadImpl<?>) ce;
+			SymbolicValue v = symbEnv.get(x.getVariable().getSimpleName());
+			ce.putMetadata("symbolic_value", v);
+			logInfo("Field write target "+ x.getVariable().getSimpleName() + ": "+ v);
+		} else if (ce instanceof CtThisAccessImpl){
+			SymbolicValue v = symbEnv.get(THIS);
+			ce.putMetadata("symbolic_value", v);
+			logInfo("Field write target this: "+ v);
+		} else {
+			logError("Field write target not found");
+		}
+	}
 
+	// @Override
+	// public <T> void visitCtThisAccess(CtThisAccess<T> thisAccess) {
+	// 	logInfo("Visiting this access "+ thisAccess.toStringDebug());
+	// 	super.visitCtThisAccess(thisAccess);
+	// 	SymbolicValue sv = symbEnv.get(THIS);
+	// 	thisAccess.putMetadata("symbolic_value", sv);
+	// }
 
 	@Override
 	public <T, A extends T> void visitCtAssignment(CtAssignment<T, A> assignment) {
@@ -286,6 +313,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 
 		// Store the symbolic value in metadata
 		operator.putMetadata("symbolic_value", sv);
+		logInfo("Binary operator "+ operator.toStringDebug() + ": "+ sv);
 		loggingSpaces--;
 	}
 
@@ -307,6 +335,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 		
 		// Store the symbolic value in metadata
 		operator.putMetadata("symbolic_value", sv);
+		logInfo("Unary operator "+ operator.toStringDebug() + ": "+ sv);
 		loggingSpaces--;
 	}
 
@@ -329,6 +358,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 				logInfo(String.format("Symbolic value %s has bottom permission", sv));
 			} else {
 				reference.putMetadata("symbolic_value", sv);
+				logInfo(String.format("Local variable reference %s: %s", reference.getSimpleName(), sv));
 			}
 		}
 		loggingSpaces--;
@@ -340,7 +370,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 	 */
 	@Override
 	public <T> void visitCtLiteral(CtLiteral<T> literal) {
-		logInfo("Visiting literal"+ literal.toString());
+		logInfo("Visiting literal "+ literal.toString());
 		
 		super.visitCtLiteral(literal);
 
@@ -357,6 +387,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 
 		// Store the symbolic value in metadata
 		literal.putMetadata("symbolic_value", sv);
+		logInfo("Literal "+ literal.toString() + ": "+ sv);
 	}
 
 }

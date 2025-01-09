@@ -40,6 +40,7 @@ public class MyStack {
         examples.Node n;
         n = this.root;
         this.root = null;
-        java.lang.Object o = n.value;
+        n.value = null;
+        // Object o = n.value;
     }
 }

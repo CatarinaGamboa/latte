@@ -1,6 +1,5 @@
 package examples;
 
-import specification.Borrowed;
 import specification.Free;
 import specification.Unique;
 
@@ -22,7 +21,9 @@ public class MyStack {
 
 			this.root = null;
 
-			Object o = n.value;
+			n.value = null;
+
+			// Object o = n.value;
 
 		}
 

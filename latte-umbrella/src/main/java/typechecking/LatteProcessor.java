@@ -18,6 +18,8 @@ abstract class LatteProcessor extends CtScanner{
 	ClassLevelMaps maps;
     private static Logger logger = LoggerFactory.getLogger(LatteProcessor.class);
 
+    final String THIS = "this";
+
     int loggingSpaces = 0;
 
     public LatteProcessor(Context context, TypeEnvironment typeEnv, SymbolicEnvironment symbEnv, 
