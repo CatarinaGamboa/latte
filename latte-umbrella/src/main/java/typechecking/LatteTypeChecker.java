@@ -177,7 +177,6 @@ public class LatteTypeChecker  extends LatteProcessor {
 			UniquenessAnnotation ua = permEnv.get(sv);
 			// EVAL UNIQUE FIELD
 			if ( ua.isGreaterEqualThan(Uniqueness.UNIQUE)) {
-				logInfo("Eval Unique Field");
 				SymbolicValue vp = symbEnv.get(sv, f.getSimpleName());
 				// 𝜈.𝑓 ∉ Δ
 				if (vp == null){
@@ -191,7 +190,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 
 					// 𝑥 .𝑓 ⇓ 𝜈′
 					fieldRead.putMetadata("symbolic_value", vv);
-					logInfo(String.format("UniqueField read %s.%s: %s", name, f.getSimpleName(), vv));
+					logInfo(String.format("%s.%s: %s", sv, f.getSimpleName(), vv));
 				}
 
 
@@ -217,9 +216,6 @@ public class LatteTypeChecker  extends LatteProcessor {
 
 
 		} 
-
-		logInfo("getVariable() results " + fieldRead.getVariable().prettyprint());
-		logInfo("fieldRead target " + fieldRead.getTarget().prettyprint());
 		loggingSpaces--;
 	}
 
@@ -232,11 +228,11 @@ public class LatteTypeChecker  extends LatteProcessor {
 			CtVariableReadImpl<?> x = (CtVariableReadImpl<?>) ce;
 			SymbolicValue v = symbEnv.get(x.getVariable().getSimpleName());
 			ce.putMetadata("symbolic_value", v);
-			logInfo("Field write target "+ x.getVariable().getSimpleName() + ": "+ v);
+			logInfo(x.getVariable().getSimpleName() + ": "+ v);
 		} else if (ce instanceof CtThisAccessImpl){
 			SymbolicValue v = symbEnv.get(THIS);
 			ce.putMetadata("symbolic_value", v);
-			logInfo("Field write target this: "+ v);
+			logInfo("this: "+ v);
 		} else {
 			logWarning("Field write target not found");
 		}
@@ -325,7 +321,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 
 		// Store the symbolic value in metadata
 		operator.putMetadata("symbolic_value", sv);
-		logInfo("Binary operator "+ operator.toStringDebug() + ": "+ sv);
+		logInfo(operator.toStringDebug() + ": "+ sv);
 		loggingSpaces--;
 	}
 
@@ -347,7 +343,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 		
 		// Store the symbolic value in metadata
 		operator.putMetadata("symbolic_value", sv);
-		logInfo("Unary operator "+ operator.toStringDebug() + ": "+ sv);
+		logInfo(operator.toStringDebug() + ": "+ sv);
 		loggingSpaces--;
 	}
 
@@ -367,10 +363,10 @@ public class LatteTypeChecker  extends LatteProcessor {
 		} else{
 			UniquenessAnnotation ua = permEnv.get(sv);
 			if (ua.isBottom()){
-				logInfo(String.format("Symbolic value %s has bottom permission", sv));
+				logInfo(String.format("%s: %s", sv, ua));
 			} else {
 				reference.putMetadata("symbolic_value", sv);
-				logInfo(String.format("Local variable reference %s: %s", reference.getSimpleName(), sv));
+				logInfo(String.format("%s: %s", reference.getSimpleName(), sv));
 			}
 		}
 		loggingSpaces--;
