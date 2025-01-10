@@ -1,0 +1,42 @@
+name: Maven Tests
+
+# Trigger the workflow on push and pull requests
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+# Define the workflow jobs
+jobs:
+  test:
+    # Specify the OS to run the tests (Ubuntu in this case)
+    runs-on: ubuntu-latest
+
+    # Steps for the job
+    steps:
+      # Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Set up Java
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin' # Use Eclipse Temurin JDK
+          java-version: '17'     # Specify the Java version you're using
+
+      # Cache Maven dependencies
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      # Run Maven tests
+      - name: Run tests
+        run: mvn test
