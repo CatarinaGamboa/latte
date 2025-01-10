@@ -158,60 +158,63 @@ public class LatteTypeChecker  extends LatteProcessor {
 		CtFieldReference<?> f = fieldRead.getVariable();
 
 		if ( target instanceof CtVariableReadImpl || target instanceof CtThisAccessImpl){
-			SymbolicValue sv;
+			SymbolicValue v;
 			CtTypeReference<?> type;
 			String name;
 			if(target instanceof CtVariableReadImpl){
 				CtVariableReadImpl<?> x = (CtVariableReadImpl<?>) target;
 				type = x.getType();
 				name = x.getVariable().getSimpleName();
-				sv = symbEnv.get(x.getVariable().getSimpleName());
+				v = symbEnv.get(x.getVariable().getSimpleName());
 			} else {
 				type = target.getType();
-				sv = symbEnv.get(THIS);
+				v = symbEnv.get(THIS);
 				name = THIS;
 			}
 
 			// Δ(𝑥) = 𝜈 
-			
-			UniquenessAnnotation ua = permEnv.get(sv);
+			UniquenessAnnotation permV = permEnv.get(v);
+			SymbolicValue vv = symbEnv.get(v, f.getSimpleName());
 			// EVAL UNIQUE FIELD
-			if ( ua.isGreaterEqualThan(Uniqueness.UNIQUE)) {
-				SymbolicValue vp = symbEnv.get(sv, f.getSimpleName());
-				// 𝜈.𝑓 ∉ Δ
-				if (vp == null){
-					//field(Γ(𝑥), 𝑓 ) = 𝛼 𝐶
-					UniquenessAnnotation fieldUA = maps.getFieldAnnotation(f.getSimpleName(), type);
-					if (fieldUA == null) logWarning(String.format("field annotation not found for %s", f.getSimpleName()));
-					//----------------
-					//𝜈.𝑓 : 𝜈′, Δ; 𝜈′: 𝛼, Σ   fresh 𝜈
-					SymbolicValue vv = symbEnv.addField(sv, f.getSimpleName());
-					permEnv.add(vv, fieldUA);
+			// 𝜈.𝑓 ∉ Δ
+			if ( permV.isGreaterEqualThan(Uniqueness.UNIQUE) && vv == null) {
+				//field(Γ(𝑥), 𝑓 ) = 𝛼 𝐶
+				UniquenessAnnotation fieldUA = maps.getFieldAnnotation(f.getSimpleName(), type);
+				if (fieldUA == null) logWarning(String.format("field annotation not found for %s", f.getSimpleName()));
+				//----------------
+				//𝜈.𝑓 : 𝜈′, Δ; 𝜈′: 𝛼, Σ   fresh 𝜈
+				vv = symbEnv.addField(v, f.getSimpleName());
+				permEnv.add(vv, fieldUA);
 
-					// 𝑥 .𝑓 ⇓ 𝜈′
-					fieldRead.putMetadata("symbolic_value", vv);
-					logInfo(String.format("%s.%s: %s", sv, f.getSimpleName(), vv));
+				// 𝑥 .𝑓 ⇓ 𝜈′
+				fieldRead.putMetadata("symbolic_value", vv);
+				logInfo(String.format("%s.%s: %s", v, f.getSimpleName(), vv));
+			} else if ( permV.isGreaterEqualThan(Uniqueness.SHARED) && vv == null){
+				// TODO: complete
+			} else {
+				//EVAL FIELD
+				// Σ(𝜈) ≠ ⊥ 
+				if (permV.isBottom()){
+					logError(
+						String.format("Symbolic value %s has bottom permission which is not accepted in field evaluation", v)
+						, fieldRead);
+				}
+				
+				// Δ(𝜈.𝑓 ) = 𝜈′, if not present, add it 
+				if (vv == null){
+					symbEnv.addField(vv, f.getSimpleName());
+					logError(String.format("Could not find symbolic value for %s.%s", v, f.getSimpleName())
+						, fieldRead);
 				}
 
-
-			} else {
-				// EVAL FIELD
-				// // Σ(𝜈) ≠ ⊥ 
-
-				// if (ua.isBottom()){
-				// 	logError(String.format("Symbolic value %s has bottom permission", sv));
-				// }
-				
-				// // Δ(𝜈.𝑓 ) = 𝜈′, if not present, add it 
-				// SymbolicValue vp = symbEnv.get(sv, f.getSimpleName());
-				// if (vp == null){
-				// 	symbEnv.addField(vp, f.getSimpleName());
-				// }
-
-				// // Σ(𝜈′) ≠ ⊥
-				// if (permEnv.get(vp).isBottom()){
-				// 	logError(String.format("Symbolic value %s has bottom permission", vp));
-				// }
+				// Σ(𝜈′) ≠ ⊥
+				if (permEnv.get(vv).isBottom()){
+					logError(
+						String.format("Symbolic value %s has bottom permission which is not accepted in field evaluation", vv)
+						, fieldRead);
+				}
+				fieldRead.putMetadata("symbolic_value", vv);
+				logInfo(String.format("%s.%s: %s", v, f.getSimpleName(), vv));
 			}
 
 
