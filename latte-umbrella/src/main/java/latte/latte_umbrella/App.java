@@ -53,15 +53,10 @@ public class App {
 	    // To only search the last package - less time spent
 	    CtPackage v = factory.Package().getAll().stream().reduce((first, second) -> second).orElse(null);
 	    if (v != null)
-			try{
-				processingManager.process(v);
-			} catch(LatteException e){
-				System.err.println(e.getMessage());
-			}
+			processingManager.process(v);
+			
 	        
 	    // To search all previous packages
 	    // processingManager.process(factory.Package().getRootPackage());
-
-    
     }
 }

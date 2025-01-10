@@ -345,8 +345,8 @@ public class LatteTypeChecker  extends LatteProcessor {
 
 			// Check if we can use the permission of vv as the permission of the field
 			if (!permEnv.usePermissionAs(v, vvPerm, fieldPerm))
-				logError(String.format("Field %s has permission %s but value %s has permission %s", 
-					f.getSimpleName(), fieldPerm, vv, vvPerm, assignment), assignment);
+				logError(String.format("Field %s expected an assignment with permission %s but got %s from %s", 
+					f.getSimpleName(), fieldPerm, vvPerm, vv, assignment), assignment);
 			
 			// Δ′′ [𝜈.𝑓 → 𝜈′]; Σ′′′ ⪰ Δ′′′; Σ′′′′
 			symbEnv.addFieldSymbolicValue(v, f.getSimpleName(), vv);
