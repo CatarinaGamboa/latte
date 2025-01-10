@@ -49,7 +49,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 
 	@Override
     public <T> void visitCtClass(CtClass<T> ctClass) {
-		logInfo("Visiting class: " + ctClass.getSimpleName());
+		logInfo("Visiting class: <" + ctClass.getSimpleName()+">");
 		enterScopes();
 		super.visitCtClass(ctClass);
 		exitScopes();
@@ -58,7 +58,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 	
 	@Override
 	public <T> void visitCtConstructor(CtConstructor<T> c) {
-		logInfo("Visiting constructor "+ c.getSimpleName());
+		logInfo("Visiting constructor <"+ c.getSimpleName()+">");
 		enterScopes();
 
 		// Assume 'this' is a parameter always borrowed
@@ -72,7 +72,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 	
 	@Override
 	public <T> void visitCtMethod(CtMethod<T> m) {
-		logInfo("Visiting method: "+ m.getSimpleName());
+		logInfo("Visiting method <"+ m.getSimpleName()+">");
 		enterScopes();
 
 		// Assume 'this' is a parameter always borrowed
@@ -86,7 +86,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 	
 	@Override
 	public <T> void visitCtParameter(CtParameter<T> parameter) {
-		logInfo("Visiting parameter: "+ parameter.getSimpleName());
+		logInfo("Visiting parameter <"+ parameter.getSimpleName()+">");
 		loggingSpaces++;
 		super.visitCtParameter(parameter);
 		
@@ -102,7 +102,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 
 	@Override
 	public <T> void visitCtLocalVariable(CtLocalVariable<T> localVariable) {
-		logInfo("Visiting local variable: "+ localVariable.getSimpleName());
+		logInfo("Visiting local variable <"+ localVariable.getSimpleName() +">");
 		loggingSpaces++;
 		// 1) Add the variable to the typing context
 		CtTypeReference<?> t = localVariable.getType();
@@ -150,7 +150,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 	 */
 	@Override
 	public <T> void visitCtFieldRead(CtFieldRead<T> fieldRead) {
-		logInfo("Visiting field read "+ fieldRead.toStringDebug());
+		logInfo("Visiting field read <"+ fieldRead.toStringDebug()+">");
 		loggingSpaces++;
 
 		super.visitCtFieldRead(fieldRead);
@@ -159,18 +159,10 @@ public class LatteTypeChecker  extends LatteProcessor {
 
 		if ( target instanceof CtVariableReadImpl || target instanceof CtThisAccessImpl){
 			SymbolicValue v;
-			CtTypeReference<?> type;
-			String name;
-			if(target instanceof CtVariableReadImpl){
-				CtVariableReadImpl<?> x = (CtVariableReadImpl<?>) target;
-				type = x.getType();
-				name = x.getVariable().getSimpleName();
-				v = symbEnv.get(x.getVariable().getSimpleName());
-			} else {
-				type = target.getType();
-				v = symbEnv.get(THIS);
-				name = THIS;
-			}
+			CtTypeReference<?> type = target.getType();
+			v = (target instanceof CtVariableReadImpl) ? 
+				symbEnv.get(((CtVariableReadImpl<?>)target).getVariable().getSimpleName()) : 
+				symbEnv.get(THIS);
 
 			// Δ(𝑥) = 𝜈 
 			UniquenessAnnotation permV = permEnv.get(v);
@@ -196,7 +188,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 				// Σ(𝜈) ≠ ⊥ 
 				if (permV.isBottom()){
 					logError(
-						String.format("Symbolic value %s has bottom permission which is not accepted in field evaluation", v)
+						String.format("%s:%s is not accepted in field evaluation", v, permV)
 						, fieldRead);
 				}
 				
@@ -208,9 +200,10 @@ public class LatteTypeChecker  extends LatteProcessor {
 				}
 
 				// Σ(𝜈′) ≠ ⊥
-				if (permEnv.get(vv).isBottom()){
+				UniquenessAnnotation permVV = permEnv.get(vv);
+				if (permVV.isBottom()){
 					logError(
-						String.format("Symbolic value %s has bottom permission which is not accepted in field evaluation", vv)
+						String.format("%s:%s is not accepted in field evaluation", vv, permVV)
 						, fieldRead);
 				}
 				fieldRead.putMetadata("symbolic_value", vv);
@@ -224,7 +217,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 
 	@Override
 	public <T> void visitCtFieldWrite(CtFieldWrite<T> fieldWrite) {
-		logInfo("Visiting field write "+ fieldWrite.toStringDebug());
+		logInfo("Visiting field write <"+ fieldWrite.toStringDebug()+">");
 		super.visitCtFieldWrite(fieldWrite);
 		CtExpression<?> ce = fieldWrite.getTarget();
 		if (ce instanceof CtVariableReadImpl){
@@ -243,7 +236,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 
 	@Override
 	public <T, A extends T> void visitCtAssignment(CtAssignment<T, A> assignment) {
-		logInfo("Visiting assignment "+ assignment.toStringDebug());
+		logInfo("Visiting assignment <"+ assignment.toStringDebug()+">");
 		loggingSpaces++;
 		super.visitCtAssignment(assignment);
 
@@ -276,7 +269,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 
 		} else if (target instanceof CtFieldWrite){ // CheckFieldAssign
 			CtFieldWrite<?> fieldWrite = (CtFieldWrite<?>) target;
-			logInfo("Visiting field write "+ fieldWrite.toStringDebug());
+			logInfo("Visiting field write <"+ fieldWrite.toStringDebug()+">");
 	
 			CtExpression<?> x = fieldWrite.getTarget();
 			CtFieldReference<?> f = fieldWrite.getVariable();
@@ -311,7 +304,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 	 */
 	@Override
 	public <T> void visitCtBinaryOperator(CtBinaryOperator<T> operator) {
-		logInfo("Visiting binary operator "+ operator.toStringDebug());
+		logInfo("Visiting binary operator <"+ operator.toStringDebug()+">");
 		loggingSpaces++;
 		super.visitCtBinaryOperator(operator);
 
@@ -333,7 +326,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 	 */
 	@Override
 	public <T> void visitCtUnaryOperator(CtUnaryOperator<T> operator) {
-		logInfo("Visiting unary operator "+ operator.toStringDebug());
+		logInfo("Visiting unary operator <"+ operator.toStringDebug()+">");
 		loggingSpaces++;
 		super.visitCtUnaryOperator(operator);
 
@@ -355,7 +348,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 	 */
 	@Override
 	public <T> void visitCtLocalVariableReference(CtLocalVariableReference<T> reference) {
-		logInfo("Visiting local variable reference "+ reference.toString());
+		logInfo("Visiting local variable reference <"+ reference.toString()+">");
 		loggingSpaces++;
 		super.visitCtLocalVariableReference(reference);
 		
@@ -378,7 +371,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 	@Override
 	public <T> void visitCtVariableRead(CtVariableRead<T> variableRead) {
 		loggingSpaces++;
-		logInfo("Visiting variable read "+ variableRead.toString());
+		logInfo("Visiting variable read <"+ variableRead.toString()+">");
 		super.visitCtVariableRead(variableRead);
 
 		SymbolicValue sv = symbEnv.get(variableRead.getVariable().getSimpleName());
@@ -393,7 +386,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 	 */
 	@Override
 	public <T> void visitCtLiteral(CtLiteral<T> literal) {
-		logInfo("Visiting literal "+ literal.toString());
+		logInfo("Visiting literal <"+ literal.toString()+">");
 		
 		super.visitCtLiteral(literal);
 
