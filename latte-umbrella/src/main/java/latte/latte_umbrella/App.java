@@ -7,6 +7,7 @@ import spoon.processing.ProcessingManager;
 import spoon.reflect.declaration.CtPackage;
 import spoon.reflect.factory.Factory;
 import spoon.support.QueueProcessingManager;
+import typechecking.LatteException;
 import typechecking.Processor;
 
 /**
@@ -52,7 +53,12 @@ public class App {
 	    // To only search the last package - less time spent
 	    CtPackage v = factory.Package().getAll().stream().reduce((first, second) -> second).orElse(null);
 	    if (v != null)
-	        processingManager.process(v);
+			try{
+				processingManager.process(v);
+			} catch(LatteException e){
+				System.err.println(e.getMessage());
+			}
+	        
 	    // To search all previous packages
 	    // processingManager.process(factory.Package().getRootPackage());
 

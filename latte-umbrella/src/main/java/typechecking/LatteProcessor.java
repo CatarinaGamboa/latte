@@ -53,7 +53,7 @@ abstract class LatteProcessor extends CtScanner{
 	 * @param text
      * @throws LatteException 
      */
-    protected void logError(String text, CtElement ce) {
+    protected void logError(String text, CtElement ce) throws LatteException {
 		logger.error(" ".repeat(4*loggingSpaces) + "|- " + text);
         // use string builder
 
@@ -63,15 +63,15 @@ abstract class LatteProcessor extends CtScanner{
         int line = ce.getPosition().getLine();
         int column = ce.getPosition().getColumn();
         
-        sb.append("------- Latte Error: -------\n")
+        sb.append("\n------- Latte Error: -------\n")
           .append(text)
           .append("\n\tCode: ")
           .append(ce.toStringDebug()).append("\n")
           .append("\tFile: ")
           .append(filePath).append(":").append(line).append(":").append(column).append("\n"); // Clickable format
         
-        System.err.println(sb.toString());
-        System.exit(1);
+        throw new LatteException(sb.toString());
+        
 	}
 
     	/**

@@ -1,5 +1,6 @@
 package examples;
 
+import specification.Borrowed;
 import specification.Free;
 import specification.Unique;
 
@@ -79,7 +80,7 @@ class Node {
 	 * @param value
 	 * @param next
 	 */
-	public Node (@Free Object value, @Free Node next) {
+	public Node (@Free Object value, @Borrowed Node next) {
 		this.value = value;
 		this.next = next;
 	}

@@ -100,10 +100,36 @@ public class LatteTypeChecker  extends LatteProcessor {
 	}
 
 
+	/**
+	 * Visit Local Variable that can have only the variable declaration, or also an assignment
+	 * Rules: CheckVarDecl + CheckVarAssign + CheckNew
+	 * CheckVarDecl
+	 *                     fresh 𝜈
+	 * -----------------------------------------------
+	 * Γ; Δ; Σ ⊢ 𝐶 𝑥; ⊣ Γ[𝑥 ↦ → 𝐶]; 𝑥 : 𝜈, Δ; 𝑥 : ⊥, Σ
+	 * 
+	 * CheckVarAssign
+	 * Γ(𝑥) = 𝐶 Γ ⊢ 𝑒 : 𝐶 Γ; Δ; Σ ⊢ 𝑒 ⇓ 𝜈 ⊣ Δ′; Σ′ Δ′ [𝑥 ↦ → 𝜈]; Σ′ ⪰ Δ′′; Σ′′
+	 * ------------------------------------------------------------------------
+	 *             Γ; Δ; Σ ⊢ 𝑥 = 𝑒; ⊣ Γ; Δ′′; Σ′′
+	 * 
+	 * 
+	 * CheckNew
+	 * ctor(𝐶) = 𝐶 (𝛼1 𝐶1 𝑥1, ..., 𝛼𝑛 𝐶𝑛 𝑥𝑛 )
+	 * Γ ⊢ 𝑦 : 𝐶 Γ ⊢ 𝑒1, ..., 𝑒𝑛 : 𝐶1, ... , 𝐶𝑛
+	 * Γ; Δ; Σ ⊢ 𝑒1, ... , 𝑒𝑛 ⇓ 𝜈1, ... , 𝜈𝑛 ⊣ Γ′; Δ′; Σ′ Σ′ ⊢ 𝑒1, ... , 𝑒𝑛 : 𝛼1, ... , 𝛼𝑛 ⊣ Σ′′
+	 * distinct(Δ′, {𝜈𝑖 : borrowed ≤ 𝛼𝑖 }) fresh 𝜈′
+	 * Δ′ [𝑦 ↦ → 𝜈′]; Σ′′ [𝜈 ↦ → free] ⪰ Δ′′; Σ′′′
+	 * ------------------------------------------------------
+	 * Γ; Δ; Σ ⊢ 𝑦 = new 𝐶 (𝑒1, ..., 𝑒𝑛 ); ⊣ Γ; Δ′′; Σ′′′
+	 * 
+	 * TODO: CheckCall
+	 */
 	@Override
 	public <T> void visitCtLocalVariable(CtLocalVariable<T> localVariable) {
 		logInfo("Visiting local variable <"+ localVariable.getSimpleName() +">");
 		loggingSpaces++;
+		// CheckVarDecl
 		// 1) Add the variable to the typing context
 		CtTypeReference<?> t = localVariable.getType();
 		String name = localVariable.getSimpleName();
@@ -115,6 +141,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 		// 2) Visit
 		super.visitCtLocalVariable(localVariable);
 
+		// CheckVarAssign
 		// 3) Handle assignment
 		CtElement value = localVariable.getAssignment();
 		if (value != null){
@@ -123,6 +150,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 				logWarning(String.format("Local variable %s = %s has assignment with null symbolic value", name, 
 					localVariable.getAssignment().toString()));
 			else{
+				// CheckNew
 				if (value instanceof CtConstructorCallImpl ){
 					CtConstructorCallImpl<?> constCall = (CtConstructorCallImpl<?>) value;
 					if (constCall.getArguments().size() == 0){
@@ -134,7 +162,6 @@ public class LatteTypeChecker  extends LatteProcessor {
 					}	
 				} else {
 					symbEnv.addVarSymbolicValue(localVariable.getSimpleName(), vValue);
-
 					ClassLevelMaps.simplify(symbEnv, permEnv);
 				}
 			}
@@ -215,6 +242,15 @@ public class LatteTypeChecker  extends LatteProcessor {
 		loggingSpaces--;
 	}
 
+	/**
+	 * Visit a field write as a field assignment
+	 * 
+	 * CheckFieldAssign
+	 * field(Γ(𝑥), 𝑓 ) = 𝛼 𝐶 Γ ⊢ 𝑒 : 𝐶 Γ; Δ; Σ ⊢ 𝑒 ⇓ 𝜈′ ⊣ Δ′; Σ′
+	 * Γ; Δ′; Σ′ ⊢ 𝑥 ⇓ 𝜈 ⊣ Δ′′; Σ′′ Σ′′ ⊢ 𝜈′ : 𝛼 ⊣ Σ′′′ Δ′′ [𝜈.𝑓 ↦ → 𝜈′]; Σ′′′ ⪰ Δ′′′; Σ′′′′
+	 * --------------------------------------------------------------------------------------
+	 * Γ; Δ; Σ ⊢ 𝑥 .𝑓 = 𝑒; ⊣ Γ; Δ′′′; Σ′′′′
+	 */
 	@Override
 	public <T> void visitCtFieldWrite(CtFieldWrite<T> fieldWrite) {
 		logInfo("Visiting field write <"+ fieldWrite.toStringDebug()+">");
@@ -234,6 +270,27 @@ public class LatteTypeChecker  extends LatteProcessor {
 		}
 	}
 
+	/**
+	 * Visit CTAssignment that can have a call, a new object, or an expression assignment
+	 * Rules: CheckVarAssign + CheckNew + CheckCall
+	 * 
+	 * CheckVarAssign
+	 * Γ(𝑥) = 𝐶 Γ ⊢ 𝑒 : 𝐶 Γ; Δ; Σ ⊢ 𝑒 ⇓ 𝜈 ⊣ Δ′; Σ′ Δ′ [𝑥 ↦ → 𝜈]; Σ′ ⪰ Δ′′; Σ′′
+	 * ------------------------------------------------------------------------
+	 *             Γ; Δ; Σ ⊢ 𝑥 = 𝑒; ⊣ Γ; Δ′′; Σ′′
+	 * 
+	 * 
+	 * CheckNew
+	 * ctor(𝐶) = 𝐶 (𝛼1 𝐶1 𝑥1, ..., 𝛼𝑛 𝐶𝑛 𝑥𝑛 )
+	 * Γ ⊢ 𝑦 : 𝐶 Γ ⊢ 𝑒1, ..., 𝑒𝑛 : 𝐶1, ... , 𝐶𝑛
+	 * Γ; Δ; Σ ⊢ 𝑒1, ... , 𝑒𝑛 ⇓ 𝜈1, ... , 𝜈𝑛 ⊣ Γ′; Δ′; Σ′ Σ′ ⊢ 𝑒1, ... , 𝑒𝑛 : 𝛼1, ... , 𝛼𝑛 ⊣ Σ′′
+	 * distinct(Δ′, {𝜈𝑖 : borrowed ≤ 𝛼𝑖 }) fresh 𝜈′
+	 * Δ′ [𝑦 ↦ → 𝜈′]; Σ′′ [𝜈 ↦ → free] ⪰ Δ′′; Σ′′′
+	 * ------------------------------------------------------
+	 * Γ; Δ; Σ ⊢ 𝑦 = new 𝐶 (𝑒1, ..., 𝑒𝑛 ); ⊣ Γ; Δ′′; Σ′′′
+	 * 
+	 * TODO: CheckCall
+	 */
 	@Override
 	public <T, A extends T> void visitCtAssignment(CtAssignment<T, A> assignment) {
 		logInfo("Visiting assignment <"+ assignment.toStringDebug()+">");
@@ -256,6 +313,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 				permEnv.add(vv, new UniquenessAnnotation(Uniqueness.FREE));
 				ClassLevelMaps.simplify(symbEnv, permEnv);
 			} else {
+				// TODO handle constructor call with arguments
 				logWarning("TODO: Handle constructor call with arguments");
 			}
 			
@@ -284,8 +342,8 @@ public class LatteTypeChecker  extends LatteProcessor {
 
 			// Σ′′ ⊢ 𝜈′ : 𝛼 ⊣ Σ′′′
 			UniquenessAnnotation vvPerm = permEnv.get(vv);
-			// Check if we can use the permission of vv as
 
+			// Check if we can use the permission of vv as the permission of the field
 			if (!permEnv.usePermissionAs(v, vvPerm, fieldPerm))
 				logError(String.format("Field %s has permission %s but value %s has permission %s", 
 					f.getSimpleName(), fieldPerm, vv, vvPerm, assignment), assignment);

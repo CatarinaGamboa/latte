@@ -137,16 +137,16 @@ public class PermissionEnvironment {
     public boolean usePermissionAs(SymbolicValue v, UniquenessAnnotation vPerm, UniquenessAnnotation expectedPerm) {
         switch (expectedPerm.annotation) {
             case FREE:
-                if (vPerm.isLessEqualThan(Uniqueness.FREE)) {
+                if (vPerm.isGreaterEqualThan(Uniqueness.FREE)) {
                     add(v, new UniquenessAnnotation(Uniqueness.BOTTOM));
                     return true;
                 }                
                 break;
             case BORROWED:
-                if (vPerm.isLessEqualThan(Uniqueness.BORROWED))
+                if (vPerm.isGreaterEqualThan(Uniqueness.BORROWED))
                     return true;
             case UNIQUE:
-                if (vPerm.isLessEqualThan(Uniqueness.FREE)){
+                if (vPerm.isGreaterEqualThan(Uniqueness.FREE)){
                     add(v, new UniquenessAnnotation(Uniqueness.UNIQUE));
                     return true;
                 }
