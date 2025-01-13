@@ -9,6 +9,7 @@ import context.UniquenessAnnotation;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtField;
+import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.reference.CtTypeReference;
 
 public class LatteClassFirstPass extends LatteProcessor{
@@ -56,6 +57,17 @@ public class LatteClassFirstPass extends LatteProcessor{
 		loggingSpaces--;
 	}
 
+
+	@Override
+	public <T> void visitCtMethod(CtMethod<T> m) {
+		logInfo("Visiting method: " + m.getSimpleName());
+		m.getParameters().forEach(p -> {
+			logInfo("Visiting parameter: " + p.getSimpleName());
+			UniquenessAnnotation u = new UniquenessAnnotation(p);
+			
+		});
+		// super.visitCtMethod(m);
+	}
 
 
 }

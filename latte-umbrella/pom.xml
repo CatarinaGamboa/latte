@@ -23,6 +23,13 @@
   <dependencies>
 
     <dependency>
+      <groupId>org.javatuples</groupId>
+      <artifactId>javatuples</artifactId>
+      <version>1.2</version>
+    </dependency>
+
+
+    <dependency>
       <groupId>org.jboss.maven.surefire.modular</groupId>
       <artifactId>maven-surefire-plugin</artifactId>
       <version>1.0.0.Alpha3</version>

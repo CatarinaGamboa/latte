@@ -1,6 +1,5 @@
 package examples;
 
-import specification.Borrowed;
 import specification.Free;
 import specification.Unique;
 
@@ -15,14 +14,17 @@ public class MyStack {
 			
 		}
 
-		public void test(){
+		public void test(@Free Object value){
 
+			Node r;
 			Node n; 
-			n = this.root;
+			r = this.root;
 
+			// this.root = null;
 
-			Object o = this.root;
+			n = new Node(value, r);
 
+			
 		}
 
 		
@@ -80,7 +82,7 @@ class Node {
 	 * @param value
 	 * @param next
 	 */
-	public Node (@Free Object value, @Borrowed Node next) {
+	public Node (@Free Object value, @Free Node next) {
 		this.value = value;
 		this.next = next;
 	}

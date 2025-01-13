@@ -20,7 +20,7 @@ class Node {
      * @param next
      */
     public Node(@specification.Free
-    java.lang.Object value, @specification.Borrowed
+    java.lang.Object value, @specification.Free
     examples.Node next) {
         this.value = value;
         this.next = next;

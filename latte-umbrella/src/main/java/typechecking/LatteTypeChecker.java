@@ -15,8 +15,6 @@ import spoon.reflect.code.CtFieldRead;
 import spoon.reflect.code.CtFieldWrite;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.code.CtLocalVariable;
-import spoon.reflect.code.CtThisAccess;
-import spoon.reflect.code.CtTypeAccess;
 import spoon.reflect.code.CtUnaryOperator;
 import spoon.reflect.code.CtVariableRead;
 import spoon.reflect.declaration.CtClass;
@@ -453,7 +451,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 		UniquenessAnnotation ua = new UniquenessAnnotation(Uniqueness.SHARED);
 		
 		if (literal.getValue() == null){ // its a null literal
-			ua = new UniquenessAnnotation(Uniqueness.UNIQUE);
+			ua = new UniquenessAnnotation(Uniqueness.FREE);
 		}
 
 		// Add the symbolic value to the environment with a shared default value
