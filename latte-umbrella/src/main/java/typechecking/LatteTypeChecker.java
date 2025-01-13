@@ -397,7 +397,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 		
 		// Store the symbolic value in metadata
 		operator.putMetadata("symbolic_value", sv);
-		logInfo(operator.toStringDebug() + ":"+ sv);
+		logInfo(operator.toStringDebug() + ": "+ sv);
 		loggingSpaces--;
 	}
 
