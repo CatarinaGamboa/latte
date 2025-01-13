@@ -5,6 +5,10 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import org.javatuples.Pair;
 
 /**
  * Symbolic Environment class to store the variables to their symbolic values
@@ -124,6 +128,13 @@ public class SymbolicEnvironment {
 				.reduce(false, (a, b) -> a || b);
 	}
 
+	public boolean hasFieldWithValue(SymbolicValue v){
+		return symbEnv.stream()
+				.map(innerMap -> innerMap.entrySet().stream()
+						.anyMatch(entry -> entry.getKey() instanceof FieldHeapLoc && entry.getValue().equals(v)))
+				.reduce(false, (a, b) -> a || b);
+	}
+
 
 	/**
 	 * Remove unreachable values
@@ -191,6 +202,50 @@ public class SymbolicEnvironment {
 	
 		return sb.toString();
 	}
+
+	public boolean distinct(List<SymbolicValue> paramSymbValues) {
+		if (paramSymbValues.size() < 2) return true;
+		List<Pair<SymbolicValue, SymbolicValue>> lp = 
+				IntStream.range(0, paramSymbValues.size())
+                .boxed()
+                .flatMap(i -> IntStream.range(i + 1, paramSymbValues.size())
+                        .mapToObj(j -> new Pair<>(paramSymbValues.get(i), paramSymbValues.get(j))))
+                .collect(Collectors.toList());
+		
+		// for (Pair<SymbolicValue, SymbolicValue> p : lp) {
+		// 	if (canReach(p.getValue0(), p.getValue1(), new ArrayList<>())) 
+		// 		return false;
+		// }
+		return true;
+	}
+	
+		private boolean canReach(SymbolicValue v1, SymbolicValue v2, List<SymbolicValue> visited) {
+			if (visited.contains(v2))
+				return false;
+			visited.add(v2);
+			
+			if (v1.equals(v2)) return true;
+
+			// Get all values that can be reached from v2.field
+			List<SymbolicValue> reachableFromField = symbEnv.stream()
+					.map(innerMap -> innerMap.entrySet().stream()
+							.filter(entry -> entry.getKey() instanceof FieldHeapLoc && 
+								    ((FieldHeapLoc)entry.getKey()).heapLoc.equals(v2))
+							.map(entry -> entry.getValue())
+							.collect(Collectors.toList()))
+					.flatMap(List::stream)
+					.collect(Collectors.toList());
+
+			//TODOOOOOO
+
+
+			for (SymbolicValue v : reachableFromField) {
+				return ( false || canReach(v1, v, visited)); 
+			}
+
+			// TODO Auto-generated method stub
+			throw new UnsupportedOperationException("Unimplemented method 'canReach'");
+		}
 
 
   }

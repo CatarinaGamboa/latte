@@ -1,5 +1,8 @@
 package typechecking;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import context.ClassLevelMaps;
 import context.Context;
 import context.PermissionEnvironment;
@@ -10,6 +13,7 @@ import context.Uniqueness;
 import context.UniquenessAnnotation;
 import spoon.reflect.code.CtAssignment;
 import spoon.reflect.code.CtBinaryOperator;
+import spoon.reflect.code.CtConstructorCall;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtFieldRead;
 import spoon.reflect.code.CtFieldWrite;
@@ -156,7 +160,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 						permEnv.add(vv, new UniquenessAnnotation(Uniqueness.FREE));
 						ClassLevelMaps.simplify(symbEnv, permEnv);
 					} else {
-						logWarning("TODO: Handle constructor call with arguments");
+						handleConstructorArgs(constCall);
 					}	
 				} else {
 					symbEnv.addVarSymbolicValue(localVariable.getSimpleName(), vValue);
@@ -311,8 +315,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 				permEnv.add(vv, new UniquenessAnnotation(Uniqueness.FREE));
 				ClassLevelMaps.simplify(symbEnv, permEnv);
 			} else {
-				// TODO handle constructor call with arguments
-				logWarning("TODO: Handle constructor call with arguments");
+				handleConstructorArgs(constCall);
 			}
 			
 
@@ -352,6 +355,54 @@ public class LatteTypeChecker  extends LatteProcessor {
 		}
 
 		loggingSpaces--;
+	}
+
+	/**
+	 * Handle the constructor with arguments
+	 * 
+	 * CheckNew
+	 * ctor(𝐶) = 𝐶 (𝛼1 𝐶1 𝑥1, ..., 𝛼𝑛 𝐶𝑛 𝑥𝑛 )
+	 * Γ ⊢ 𝑦 : 𝐶 Γ ⊢ 𝑒1, ..., 𝑒𝑛 : 𝐶1, ... , 𝐶𝑛
+	 * Γ; Δ; Σ ⊢ 𝑒1, ... , 𝑒𝑛 ⇓ 𝜈1, ... , 𝜈𝑛 ⊣ Γ′; Δ′; Σ′ 
+	 * Σ′ ⊢ 𝑒1, ... , 𝑒𝑛 : 𝛼1, ... , 𝛼𝑛 ⊣ Σ′′
+	 * distinct(Δ′, {𝜈𝑖 : borrowed ≤ 𝛼𝑖 }) fresh 𝜈′
+	 * Δ′ [𝑦 → 𝜈′]; Σ′′ [𝜈 ↦ → free] ⪰ Δ′′; Σ′′′
+	 * ------------------------------------------------------
+	 * Γ; Δ; Σ ⊢ 𝑦 = new 𝐶 (𝑒1, ..., 𝑒𝑛 ); ⊣ Γ; Δ′′; Σ′′′
+
+	 * @param constCall
+	 */
+	private void handleConstructorArgs (CtConstructorCall<?> constCall){
+		CtClass<?> klass = maps.getClassFrom(constCall.getType());
+		int paramSize = constCall.getArguments().size();
+		CtConstructor<?> c = maps.geCtConstructor(klass, paramSize);
+		List<SymbolicValue> paramSymbValues = new ArrayList<>();
+		for (int i = 0; i < paramSize; i++){
+			CtExpression<?> arg = constCall.getArguments().get(i);
+			// Γ; Δ; Σ ⊢ 𝑒1, ... , 𝑒𝑛 ⇓ 𝜈1, ... , 𝜈𝑛 ⊣ Γ′; Δ′; Σ′ 
+			SymbolicValue vv = (SymbolicValue) arg.getMetadata("symbolic_value");
+			if (vv == null) logWarning("Symbolic value for constructor argument not found");
+			
+			CtParameter<?> p = c.getParameters().get(i);
+			UniquenessAnnotation expectedUA = new UniquenessAnnotation(p);
+			UniquenessAnnotation vvPerm = permEnv.get(vv);
+			if (vvPerm.isGreaterEqualThan(Uniqueness.BORROWED)){
+				logError(String.format("Symbolic value %s has no permission", vv), arg);
+			}
+			logInfo(String.format("Checking constructor argument %s:%s, %s <= %s", p.getSimpleName(), vv, vvPerm, expectedUA));
+			// Σ′ ⊢ 𝑒1, ... , 𝑒𝑛 : 𝛼1, ... , 𝛼𝑛 ⊣ Σ′′
+			if (!permEnv.usePermissionAs(vv, vvPerm, expectedUA))
+				logError(String.format("Constructor argument %s expected an assignment with permission %s but got %s from %s", 
+					p.getSimpleName(), expectedUA, permEnv.get(vv), vv), arg);
+
+			// distinct(Δ′, {𝜈𝑖 : borrowed ≤ 𝛼𝑖 })
+			//distinct(Δ, 𝑆) ⇐⇒ ∀𝜈, 𝜈′ ∈ 𝑆 : Δ ⊢ 𝜈 ⇝ 𝜈′ =⇒ 𝜈 = 𝜈′
+			if (!symbEnv.distinct(paramSymbValues)){
+				logError(String.format("Non-distinct parameters in constructor call of %s", klass.getSimpleName()), constCall);
+			}
+
+		}
+
 	}
 
 

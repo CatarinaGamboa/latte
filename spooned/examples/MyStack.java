@@ -36,10 +36,12 @@ public class MyStack {
     examples.Node root) {
     }
 
-    public void test() {
-        // Node r;
+    public void test(@specification.Free
+    java.lang.Object value) {
+        examples.Node r;
         // Node n;
-        // r = this.root;
+        r = this.root;
         this.root = null;
+        // n = new Node(value, r);
     }
 }

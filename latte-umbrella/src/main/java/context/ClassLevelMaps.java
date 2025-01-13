@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.eclipse.jdt.internal.compiler.batch.Main.Logger;
 
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtConstructor;
@@ -61,7 +62,7 @@ public class ClassLevelMaps {
 
     public void addMethod(CtClass<?> klass, CtMethod<?> method) {
         Pair<String, Integer> mPair = Pair.of(method.getSimpleName(), method.getParameters().size());
-        if (classConstructors.containsKey(klass)){
+        if (classMethods.containsKey(klass)){
             Map<Pair<String, Integer>, CtMethod<?>> m = classMethods.get(klass);
             m.put(mPair, method);
         } else {
@@ -95,7 +96,7 @@ public class ClassLevelMaps {
         return null;
     }
 
-    public CtConstructor<?> geCtConstructors (CtClass<?> klass, int numParams){
+    public CtConstructor<?> geCtConstructor (CtClass<?> klass, int numParams){
         if (classConstructors.containsKey(klass)){
             Map<Integer, CtConstructor<?>> l = classConstructors.get(klass);
             if (l.containsKey(numParams)){
@@ -129,7 +130,8 @@ public class ClassLevelMaps {
 
         // 2) for each of lsv, check if any of the values in symbEnv are equal to v
        for (SymbolicValue v : lsv) {
-            if (!symbEnv.hasValue(v)){
+            // SimpUnique - no field with v as the symbolic value
+            if (!symbEnv.hasFieldWithValue(v)){
                 // 3) if no, v can be free in permEnv
                 permEnv.add(v, new UniquenessAnnotation(Uniqueness.FREE));
             }

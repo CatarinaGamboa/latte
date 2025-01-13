@@ -17,12 +17,12 @@ public class MyStack {
 		public void test(@Free Object value){
 
 			Node r;
-			Node n; 
+			// Node n; 
 			r = this.root;
 
-			// this.root = null;
+			this.root = null;
 
-			n = new Node(value, r);
+			// n = new Node(value, r);
 
 			
 		}

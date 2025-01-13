@@ -7,6 +7,7 @@ import context.SymbolicEnvironment;
 import context.TypeEnvironment;
 import context.UniquenessAnnotation;
 import spoon.reflect.declaration.CtClass;
+import spoon.reflect.declaration.CtConstructor;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtField;
 import spoon.reflect.declaration.CtMethod;
@@ -61,12 +62,15 @@ public class LatteClassFirstPass extends LatteProcessor{
 	@Override
 	public <T> void visitCtMethod(CtMethod<T> m) {
 		logInfo("Visiting method: " + m.getSimpleName());
-		m.getParameters().forEach(p -> {
-			logInfo("Visiting parameter: " + p.getSimpleName());
-			UniquenessAnnotation u = new UniquenessAnnotation(p);
-			
-		});
-		// super.visitCtMethod(m);
+		maps.addMethod((CtClass<?>) m.getParent(), m);
+		super.visitCtMethod(m);
+	}
+
+	@Override
+	public <T> void visitCtConstructor(CtConstructor<T> c) {
+		logInfo("Visiting constructor: " + c.getSimpleName());
+		maps.addConstructor((CtClass<?>) c.getParent(), c);
+		super.visitCtConstructor(c);
 	}
 
 
