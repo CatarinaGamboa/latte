@@ -2,9 +2,9 @@ package context;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
 /**
  * Symbolic Environment class to store the variables to their symbolic values
@@ -17,7 +17,7 @@ public class SymbolicEnvironment {
 
 	int symbolic_counter = 0;
 
-    private List<Map<VariableHeapLoc, SymbolicValue>> symbEnv;
+    private LinkedList<Map<VariableHeapLoc, SymbolicValue>> symbEnv;
 
 	/**
 	 * Singleton instance
@@ -29,7 +29,7 @@ public class SymbolicEnvironment {
 	}
 
 	private SymbolicEnvironment() {
-		symbEnv = new Stack<Map<VariableHeapLoc, SymbolicValue>>();
+		symbEnv = new LinkedList<Map<VariableHeapLoc, SymbolicValue>>();
 	}
 
 	public SymbolicValue addVariable(String var) {

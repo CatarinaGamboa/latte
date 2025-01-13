@@ -2,9 +2,9 @@ package context;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
 /**
  * Permission Environment class to store the permissions of the variables in scope
@@ -14,7 +14,7 @@ public class PermissionEnvironment {
     
     private static PermissionEnvironment instance;
 
-    private List<Map<SymbolicValue, UniquenessAnnotation>> map;
+    private LinkedList<Map<SymbolicValue, UniquenessAnnotation>> map;
 
 
     /**
@@ -27,7 +27,7 @@ public class PermissionEnvironment {
     }
 
     private PermissionEnvironment() {
-        map = new Stack<Map<SymbolicValue, UniquenessAnnotation>>(); 
+        map = new LinkedList<Map<SymbolicValue, UniquenessAnnotation>>(); 
     }
 
     /**
