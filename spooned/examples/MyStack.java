@@ -22,26 +22,28 @@ public class MyStack {
     @specification.Unique
     examples.Node root;
 
-    public MyStack(@specification.Free
-    examples.Node root) {
-        this.root = root;
-    }
-
+    // public MyStack(@Free Node root) {
+    // this.root = root;
+    // }
     void push(@specification.Free
     java.lang.Object value) {
         examples.Node r;
-        examples.Node n;
         r = this.root;// save root in r
 
         this.root = null;// nullify root
 
-        n = new examples.Node(value, r);// create new root
-
-        this.root = n;// replace root
-
-        examples.Node n1 = this.getNew(n);
+        examples.Node n1;
+        n1 = this.getNew(r);
     }
 
+    // void push( @Free Object value) {
+    // Node r;
+    // Node n;
+    // r = this.root; 			// save root in r
+    // this.root = null; 		//nullify root
+    // n = new Node(value, r); //create new root
+    // this.root = n; 			//replace root
+    // }
     @specification.Free
     examples.Node getNew(@specification.Free
     examples.Node value) {

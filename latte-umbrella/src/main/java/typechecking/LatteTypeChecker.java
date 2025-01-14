@@ -28,6 +28,7 @@ import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtParameter;
 import spoon.reflect.declaration.CtType;
+import spoon.reflect.declaration.CtVariable;
 import spoon.reflect.reference.CtFieldReference;
 import spoon.reflect.reference.CtLocalVariableReference;
 import spoon.reflect.reference.CtTypeReference;
@@ -166,7 +167,11 @@ public class LatteTypeChecker  extends LatteProcessor {
 					permEnv.add(vv, new UniquenessAnnotation(Uniqueness.FREE));
 					ClassLevelMaps.simplify(symbEnv, permEnv);
 				} else if (value instanceof CtInvocation) {
-					// TODO
+					SymbolicValue valueSV = (SymbolicValue) value.getMetadata("symbolic_value");
+					if (valueSV == null) logWarning("Symbolic value for invocation not found " + value.toString());
+					SymbolicValue fresh = symbEnv.addVariable(name);
+					permEnv.add(fresh, permEnv.get(valueSV));
+					localVariable.putMetadata("symbolic_value", fresh);
 				} else {
 					symbEnv.addVarSymbolicValue(localVariable.getSimpleName(), vValue);
 					ClassLevelMaps.simplify(symbEnv, permEnv);
@@ -175,6 +180,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 		}
 		loggingSpaces--;
 	}
+					
 
 	/**
 	 * CheckCall
@@ -242,6 +248,24 @@ public class LatteTypeChecker  extends LatteProcessor {
 		logInfo(String.format("Invocation %s:%s, %s:%s", invocation.toString(), returnSV, returnSV, returnUA));
 		invocation.putMetadata("symbolic_value", returnSV);
 	}
+
+
+	private void handleInvocation(CtInvocation<?> value, CtVariableWriteImpl<?> assignee, CtElement parent){
+		logInfo("Handling invocation <"+ parent.toStringDebug()+">");
+		SymbolicValue valueSV = (SymbolicValue) value.getMetadata("symbolic_value");
+		if (valueSV == null) logWarning("Symbolic value for invocation not found " + value.toString());
+		SymbolicValue targetSV = symbEnv.get(assignee.getVariable().getSimpleName());
+		if (targetSV == null) logWarning("Symbolic value for target not found " + assignee.toString());
+
+		UniquenessAnnotation valuePerm = permEnv.get(valueSV);
+		UniquenessAnnotation targetPerm = permEnv.get(targetSV);
+		if (!permEnv.usePermissionAs(valueSV, valuePerm, targetPerm))
+			logError(String.format("%s expected an assignment with permission %s but got %s:%s", 
+				assignee, targetPerm, valueSV, valuePerm), value);
+		SymbolicValue fresh = symbEnv.addVariable(assignee.getVariable().getSimpleName());
+		permEnv.add(fresh, targetPerm);
+	}
+
 
 	/**
 	 * EvalField
@@ -371,7 +395,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 		loggingSpaces++;
 		super.visitCtAssignment(assignment);
 
-		CtExpression<?> target = assignment.getAssigned();
+		CtExpression<?> assignee = assignment.getAssigned();
 		CtExpression<?> value = assignment.getAssignment();
 
 
@@ -379,8 +403,8 @@ public class LatteTypeChecker  extends LatteProcessor {
 
 		// Constructor Call - CheckNew
 		// x = new C(e1, ..., en)
-		if (value instanceof CtConstructorCallImpl && target instanceof CtVariableWriteImpl){
-			CtVariableWriteImpl<?> y = (CtVariableWriteImpl<?>) target;
+		if (value instanceof CtConstructorCallImpl && assignee instanceof CtVariableWriteImpl){
+			CtVariableWriteImpl<?> y = (CtVariableWriteImpl<?>) assignee;
 			CtConstructorCallImpl<?> constCall = (CtConstructorCallImpl<?>) value;
 
 			// Check all arguments follow the restrictions
@@ -391,18 +415,21 @@ public class LatteTypeChecker  extends LatteProcessor {
 			SymbolicValue vv = symbEnv.addVariable(y.getVariable().getSimpleName());
 			permEnv.add(vv, new UniquenessAnnotation(Uniqueness.FREE));
 			ClassLevelMaps.simplify(symbEnv, permEnv);
-
+		
+		// Invocation - CheckCall
+		} else if (value instanceof CtInvocation && assignee instanceof CtVariableWriteImpl){
+			handleInvocation((CtInvocation<?>) value, (CtVariableWriteImpl<?>) assignee, assignment);
 		// Variable Assignment - CheckVarAssign
-		} else if (target instanceof CtVariableWriteImpl){
+		} else if (assignee instanceof CtVariableWriteImpl){
 			SymbolicValue v = (SymbolicValue) value.getMetadata("symbolic_value");
 			if (v == null)
 				logWarning("Symbolic value for assignment not found");
-			symbEnv.addVarSymbolicValue(target.toString(), v);
+			symbEnv.addVarSymbolicValue(assignee.toString(), v);
 			ClassLevelMaps.simplify(symbEnv, permEnv);
 
 		// Field Assignment - CheckFieldAssign
-		} else if (target instanceof CtFieldWrite){
-			CtFieldWrite<?> fieldWrite = (CtFieldWrite<?>) target;
+		} else if (assignee instanceof CtFieldWrite){
+			CtFieldWrite<?> fieldWrite = (CtFieldWrite<?>) assignee;
 			logInfo("Visiting field write <"+ fieldWrite.toStringDebug()+">");
 	
 			CtExpression<?> x = fieldWrite.getTarget();
@@ -427,9 +454,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 			// Δ′′ [𝜈.𝑓 → 𝜈′]; Σ′′′ ⪰ Δ′′′; Σ′′′′
 			symbEnv.addFieldSymbolicValue(v, f.getSimpleName(), vv);
 			ClassLevelMaps.simplify(symbEnv, permEnv);
-		} else if (value instanceof CtInvocation){
-			//TODO CtInvocation
-		}
+		} 
 
 		loggingSpaces--;
 	}

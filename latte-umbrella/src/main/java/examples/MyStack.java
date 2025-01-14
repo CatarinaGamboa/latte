@@ -7,24 +7,34 @@ public class MyStack {
 
 		@Unique Node root;		
 		
-		public MyStack(@Free Node root) {
-			this.root = root;
-		}
+		// public MyStack(@Free Node root) {
+		// 	this.root = root;
+		// }
 
-		
+				
 		void push( @Free Object value) {
 			
 			Node r;
-			Node n;
 			
 			r = this.root; 			// save root in r
 			this.root = null; 		//nullify root
-			n = new Node(value, r); //create new root
-			this.root = n; 			//replace root
 
-			Node  n1 = this.getNew(n);
+			Node n1;
+			n1 = this.getNew(r);
 			
 		}
+
+		
+		// void push( @Free Object value) {
+			
+			// Node r;
+			// Node n;
+			
+			// r = this.root; 			// save root in r
+			// this.root = null; 		//nullify root
+			// n = new Node(value, r); //create new root
+			// this.root = n; 			//replace root
+		// }
 
 
 		@Free Node getNew(@Free Node value) {

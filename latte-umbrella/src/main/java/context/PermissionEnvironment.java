@@ -157,7 +157,8 @@ public class PermissionEnvironment {
                     return true;
                 }
             case BOTTOM:
-                return false;
+                add(v, vPerm);
+                return true;
         }
         return false;
     }

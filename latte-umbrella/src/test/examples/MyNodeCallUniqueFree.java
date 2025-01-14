@@ -21,7 +21,7 @@ public class MyNodeCallUniqueFree {
         n = new Node(value, r); //create new root
         this.root = n; 			//replace root
 
-        Node  n1 = this.getNew(n);
+        Node n1 = this.getNew(n);
         
     }
 
