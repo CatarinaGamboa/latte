@@ -106,7 +106,7 @@ public class ClassLevelMaps {
         return null;
     }
 
-    public CtMethod<?> getCtMethods(CtClass<?> klass, String methodName, int numParams){
+    public CtMethod<?> getCtMethod(CtClass<?> klass, String methodName, int numParams){
         Pair<String, Integer> mPair = Pair.of(methodName, numParams);
         if (classMethods.containsKey(klass)){
             Map<Pair<String, Integer>, CtMethod<?>> m = classMethods.get(klass);

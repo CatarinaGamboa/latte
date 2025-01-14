@@ -1,12 +1,4 @@
 package examples;
-// void push( @Free Object value) {
-// Node r;
-// Node n;
-// r = this.root; 			// save root in r
-// this.root = null; 		//nullify root
-// n = new Node(value, r); //create new root
-// this.root = n; 			//replace root
-// }
 // @Free Object pop (){
 // Object value;
 // if (this.root == null) {
@@ -35,13 +27,24 @@ public class MyStack {
         this.root = root;
     }
 
-    public void push(@specification.Free
+    void push(@specification.Free
     java.lang.Object value) {
         examples.Node r;
         examples.Node n;
-        r = this.root;
-        this.root = null;
-        n = new examples.Node(value, r);
-        this.root = n;
+        r = this.root;// save root in r
+
+        this.root = null;// nullify root
+
+        n = new examples.Node(value, r);// create new root
+
+        this.root = n;// replace root
+
+        examples.Node n1 = getNew(n);
+    }
+
+    @specification.Free
+    examples.Node getNew(@specification.Free
+    examples.Node value) {
+        return new examples.Node(new java.lang.Object(), value);
     }
 }

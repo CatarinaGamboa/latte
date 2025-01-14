@@ -11,29 +11,25 @@ public class MyStack {
 			this.root = root;
 		}
 
-		public void push(@Free Object value){
-
+		
+		void push( @Free Object value) {
+			
 			Node r;
-			Node n; 
+			Node n;
+			
+			r = this.root; 			// save root in r
+			this.root = null; 		//nullify root
+			n = new Node(value, r); //create new root
+			this.root = n; 			//replace root
 
-			r = this.root;
-			this.root = null;
-			n = new Node(value, r);
-			this.root = n; 	
+			Node  n1 = getNew(n);
+			
 		}
 
-		
-		// void push( @Free Object value) {
-			
-		// 	Node r;
-		// 	Node n;
-			
-		// 	r = this.root; 			// save root in r
-		// 	this.root = null; 		//nullify root
-		// 	n = new Node(value, r); //create new root
-		// 	this.root = n; 			//replace root
-			
-		// }
+
+		@Free Node getNew(@Free Node value) {
+			return new Node(new Object(), value);	
+		}
 		
 
 		// @Free Object pop (){

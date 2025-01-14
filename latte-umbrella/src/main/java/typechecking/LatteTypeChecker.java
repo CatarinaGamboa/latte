@@ -17,6 +17,7 @@ import spoon.reflect.code.CtConstructorCall;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtFieldRead;
 import spoon.reflect.code.CtFieldWrite;
+import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.code.CtUnaryOperator;
@@ -33,6 +34,7 @@ import spoon.support.reflect.code.CtConstructorCallImpl;
 import spoon.support.reflect.code.CtThisAccessImpl;
 import spoon.support.reflect.code.CtVariableReadImpl;
 import spoon.support.reflect.code.CtVariableWriteImpl;
+import spoon.support.reflect.declaration.CtClassImpl;
 
 /**
  * In the type checker we go through the code, add metadata regarding the types and their permissions
@@ -162,7 +164,8 @@ public class LatteTypeChecker  extends LatteProcessor {
 					SymbolicValue vv = symbEnv.addVariable(localVariable.getSimpleName());
 					permEnv.add(vv, new UniquenessAnnotation(Uniqueness.FREE));
 					ClassLevelMaps.simplify(symbEnv, permEnv);
-					
+				} else if (value instanceof CtInvocation) {
+					// TODO
 				} else {
 					symbEnv.addVarSymbolicValue(localVariable.getSimpleName(), vValue);
 					ClassLevelMaps.simplify(symbEnv, permEnv);
@@ -170,6 +173,68 @@ public class LatteTypeChecker  extends LatteProcessor {
 			}
 		}
 		loggingSpaces--;
+	}
+
+	/**
+	 * CheckCall
+	 *  method(Γ(𝑥), 𝑓 ) = 𝛼 𝐶 𝑚(𝛼0 𝐶0 this, 𝛼1 𝐶1 𝑥1, · · · , 𝛼𝑛 𝐶𝑛 𝑥𝑛 )
+	 *	Γ ⊢ 𝑦 : 𝐶 Γ ⊢ 𝑒0, · · · , 𝑒𝑛 : 𝐶0, · · · , 𝐶𝑛
+	 *	Γ; Δ; Σ ⊢ 𝑒0, · · · , 𝑒𝑛 ⇓ 𝜈0, · · · , 𝜈𝑛 ⊣ Γ′; Δ′; Σ′ 
+	 *	Σ′ ⊢ 𝑒0, · · · , 𝑒𝑛 : 𝛼0, · · · , 𝛼𝑛 ⊣ Σ′′
+	 *	distinct(Δ′, {𝜈𝑖 : borrowed ≤ 𝛼𝑖 }) fresh 𝜈′
+	 *	Δ′ [𝑦 ↦ → 𝜈′]; Σ′′ [𝜈 ↦ → 𝛼] ⪰ Δ′′; Σ′′′
+	 * 	------------------------------------------------
+	 *	Γ; Δ; Σ ⊢ 𝑦 = 𝑥 .𝑚(𝑒); ⊣ Γ; Δ′′; Σ′′′
+	 */
+	@Override
+	public <T> void visitCtInvocation(CtInvocation<T> invocation) {
+		logInfo("Visiting invocation <"+ invocation.toStringDebug()+">");
+		super.visitCtInvocation(invocation);
+
+		if(invocation.getExecutable().getSimpleName().equals("<init>"))
+			return;
+			
+		int paramSize = invocation.getArguments().size();
+		
+		// method(Γ(𝑥), 𝑓 ) = 𝛼 𝐶 𝑚(𝛼0 𝐶0 this, 𝛼1 𝐶1 𝑥1, · · · , 𝛼𝑛 𝐶𝑛 𝑥𝑛 )
+		CtClass<?> klass = maps.getClassFrom(invocation.getType());
+		CtMethod<?> m = maps.getCtMethod(klass, invocation.getExecutable().getSimpleName(), 
+			invocation.getArguments().size());
+
+		List<SymbolicValue> paramSymbValues = new ArrayList<>();
+
+		for (int i = 0; i < paramSize; i++){
+			CtExpression<?> arg = invocation.getArguments().get(i);
+			// Γ; Δ; Σ ⊢ 𝑒1, ... , 𝑒𝑛 ⇓ 𝜈1, ... , 𝜈𝑛 ⊣ Γ′; Δ′; Σ′ 
+			SymbolicValue vv = (SymbolicValue) arg.getMetadata("symbolic_value");
+			if (vv == null) logWarning("Symbolic value for constructor argument not found");
+			
+			CtParameter<?> p = m.getParameters().get(i);
+			UniquenessAnnotation expectedUA = new UniquenessAnnotation(p);
+			UniquenessAnnotation vvPerm = permEnv.get(vv);
+			// {𝜈𝑖 : borrowed ≤ 𝛼𝑖 }
+			if (!vvPerm.isGreaterEqualThan(Uniqueness.BORROWED)){
+				logError(String.format("Symbolic value %s:%s is not greater than BORROWED", vv, vvPerm), arg);
+			}
+			logInfo(String.format("Checking constructor argument %s:%s, %s <= %s", p.getSimpleName(), vv, vvPerm, expectedUA));
+			// Σ′ ⊢ 𝑒1, ... , 𝑒𝑛 : 𝛼1, ... , 𝛼𝑛 ⊣ Σ′′
+			if (!permEnv.usePermissionAs(vv, vvPerm, expectedUA))
+				logError(String.format("Constructor argument %s expected an assignment with permission %s but got %s from %s", 
+					p.getSimpleName(), expectedUA, permEnv.get(vv), vv), arg);
+			paramSymbValues.add(vv);
+		}
+		
+		// distinct(Δ′, {𝜈𝑖 : borrowed ≤ 𝛼𝑖 })
+		// distinct(Δ, 𝑆) ⇐⇒ ∀𝜈, 𝜈′ ∈ 𝑆 : Δ ⊢ 𝜈 ⇝ 𝜈′ =⇒ 𝜈 = 𝜈′
+		if (!symbEnv.distinct(paramSymbValues)){
+			logError(String.format("Non-distinct parameters in constructor call of %s", klass.getSimpleName()), invocation);
+		}
+
+		UniquenessAnnotation returnUA = new UniquenessAnnotation(m);
+		SymbolicValue returnSV = symbEnv.addVariable(invocation.toString());
+		permEnv.add(returnSV, returnUA);
+		logInfo(String.format("Invocation %s:%s, %s:%s", invocation.toString(), returnSV, returnSV, returnUA));
+		invocation.putMetadata("symbolic_value", returnSV);
 	}
 
 	/**
@@ -356,6 +421,8 @@ public class LatteTypeChecker  extends LatteProcessor {
 			// Δ′′ [𝜈.𝑓 → 𝜈′]; Σ′′′ ⪰ Δ′′′; Σ′′′′
 			symbEnv.addFieldSymbolicValue(v, f.getSimpleName(), vv);
 			ClassLevelMaps.simplify(symbEnv, permEnv);
+		} else if (value instanceof CtInvocation){
+			//TODO CtInvocation
 		}
 
 		loggingSpaces--;
