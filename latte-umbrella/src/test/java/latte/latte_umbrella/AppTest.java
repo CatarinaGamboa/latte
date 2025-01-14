@@ -35,7 +35,15 @@ public class AppTest {
         } catch (Exception e) {
             assert(false);
         }
-        
+    }
+
+    @Test
+    public void testMyNodePush(){
+        try {
+            App.launcher("src/test/examples/MyNodePush.java");
+        } catch (Exception e) {
+            assert(false);
+        }
     }
 
     @Test

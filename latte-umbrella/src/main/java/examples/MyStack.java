@@ -1,34 +1,25 @@
 package examples;
 
-import specification.Borrowed;
 import specification.Free;
 import specification.Unique;
 
 public class MyStack {
 
-		@Unique Node root;
-
-		Node shared_node;
-		
+		@Unique Node root;		
 		
 		public MyStack(@Free Node root) {
-			
+			this.root = root;
 		}
 
-		public void test(@Free Object value){
+		public void push(@Free Object value){
 
 			Node r;
 			Node n; 
-			
+
 			r = this.root;
-
 			this.root = null;
-
 			n = new Node(value, r);
-
-			// this.root = n; 
-
-			
+			this.root = n; 	
 		}
 
 		
@@ -86,7 +77,7 @@ class Node {
 	 * @param value
 	 * @param next
 	 */
-	public Node (@Borrowed Object value, @Borrowed Node next) {
+	public Node (@Free Object value, @Free Node next) {
 		this.value = value;
 		this.next = next;
 	}

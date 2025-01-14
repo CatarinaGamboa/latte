@@ -30,13 +30,12 @@ public class MyStack {
     @specification.Unique
     examples.Node root;
 
-    examples.Node shared_node;
-
     public MyStack(@specification.Free
     examples.Node root) {
+        this.root = root;
     }
 
-    public void test(@specification.Free
+    public void push(@specification.Free
     java.lang.Object value) {
         examples.Node r;
         examples.Node n;
