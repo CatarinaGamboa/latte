@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.eclipse.jdt.internal.compiler.batch.Main.Logger;
+import org.javatuples.Triplet;
 
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtConstructor;

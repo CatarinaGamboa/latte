@@ -39,7 +39,7 @@ public class MyStack {
 
         this.root = n;// replace root
 
-        examples.Node n1 = getNew(n);
+        examples.Node n1 = this.getNew(n);
     }
 
     @specification.Free

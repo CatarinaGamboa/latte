@@ -27,6 +27,7 @@ import spoon.reflect.declaration.CtConstructor;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtParameter;
+import spoon.reflect.declaration.CtType;
 import spoon.reflect.reference.CtFieldReference;
 import spoon.reflect.reference.CtLocalVariableReference;
 import spoon.reflect.reference.CtTypeReference;
@@ -193,11 +194,16 @@ public class LatteTypeChecker  extends LatteProcessor {
 
 		if(invocation.getExecutable().getSimpleName().equals("<init>"))
 			return;
-			
+
 		int paramSize = invocation.getArguments().size();
+
+		if (invocation.getTarget() == null){
+			logError("Invocation needs to have a target but found none -", invocation);
+		}
+		CtTypeReference<?> e = invocation.getTarget().getType();
 		
 		// method(Γ(𝑥), 𝑓 ) = 𝛼 𝐶 𝑚(𝛼0 𝐶0 this, 𝛼1 𝐶1 𝑥1, · · · , 𝛼𝑛 𝐶𝑛 𝑥𝑛 )
-		CtClass<?> klass = maps.getClassFrom(invocation.getType());
+		CtClass<?> klass = maps.getClassFrom(e);
 		CtMethod<?> m = maps.getCtMethod(klass, invocation.getExecutable().getSimpleName(), 
 			invocation.getArguments().size());
 
@@ -414,7 +420,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 			UniquenessAnnotation vvPerm = permEnv.get(vv);
 
 			// Check if we can use the permission of vv as the permission of the field
-			if (!permEnv.usePermissionAs(v, vvPerm, fieldPerm))
+			if (!permEnv.usePermissionAs(vv, vvPerm, fieldPerm))
 				logError(String.format("Field %s expected an assignment with permission %s but got %s from %s", 
 					f.getSimpleName(), fieldPerm, vvPerm, vv, assignment), assignment);
 			

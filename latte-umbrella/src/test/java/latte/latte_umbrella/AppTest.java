@@ -57,6 +57,17 @@ public class AppTest {
     }
 
     @Test
+    public void testMyNodeCallUniqueFree(){
+        try {
+            App.launcher("src/test/examples/MyNodeCallUniqueFree.java");
+        } catch (Exception e) {
+            assertTrue(e instanceof LatteException);
+            assertTrue(e.getMessage().contains("FREE but got UNIQUE"));
+        }
+        
+    }
+
+    @Test
     public void testReachabilityUnitTest(){
         Logger logger = Logger.getLogger(AppTest.class.getName());
         //test

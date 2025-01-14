@@ -26,14 +26,14 @@ public class LatteClassFirstPass extends LatteProcessor{
     public <T> void visitCtClass(CtClass<T> ctClass) {
 		logInfo("Visiting class: " + ctClass.getSimpleName());
 		context.addClass(ctClass);
-		enterScopes();
+		// enterScopes();
 
 		// Add the class to the type reference and class map
 		CtTypeReference<?> typeRef = ctClass.getReference();
 		maps.addTypeClass(typeRef, ctClass);
 		super.visitCtClass(ctClass);
 
-		exitScopes();
+		// exitScopes();
 	}
 			
 			

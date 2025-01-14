@@ -22,7 +22,7 @@ public class MyStack {
 			n = new Node(value, r); //create new root
 			this.root = n; 			//replace root
 
-			Node  n1 = getNew(n);
+			Node  n1 = this.getNew(n);
 			
 		}
 
