@@ -152,16 +152,17 @@ public class LatteTypeChecker  extends LatteProcessor {
 				logWarning(String.format("Local variable %s = %s has assignment with null symbolic value", name, 
 					localVariable.getAssignment().toString()));
 			else{
-				// CheckNew
+				// Constructor call - CheckNew
 				if (value instanceof CtConstructorCallImpl ){
 					CtConstructorCallImpl<?> constCall = (CtConstructorCallImpl<?>) value;
-					if (constCall.getArguments().size() == 0){
-						SymbolicValue vv = symbEnv.addVariable(localVariable.getSimpleName());
-						permEnv.add(vv, new UniquenessAnnotation(Uniqueness.FREE));
-						ClassLevelMaps.simplify(symbEnv, permEnv);
-					} else {
+					// Check if all arguments follow the restrictions
+					if (constCall.getArguments().size() > 0)
 						handleConstructorArgs(constCall);
-					}	
+					// Add the variable to the environment
+					SymbolicValue vv = symbEnv.addVariable(localVariable.getSimpleName());
+					permEnv.add(vv, new UniquenessAnnotation(Uniqueness.FREE));
+					ClassLevelMaps.simplify(symbEnv, permEnv);
+					
 				} else {
 					symbEnv.addVarSymbolicValue(localVariable.getSimpleName(), vValue);
 					ClassLevelMaps.simplify(symbEnv, permEnv);
@@ -305,20 +306,22 @@ public class LatteTypeChecker  extends LatteProcessor {
 
 		//TODO: CheckCall
 
-		//CheckNew
+		// Constructor Call - CheckNew
+		// x = new C(e1, ..., en)
 		if (value instanceof CtConstructorCallImpl && target instanceof CtVariableWriteImpl){
 			CtVariableWriteImpl<?> y = (CtVariableWriteImpl<?>) target;
 			CtConstructorCallImpl<?> constCall = (CtConstructorCallImpl<?>) value;
 
-			if (constCall.getArguments().size() == 0){
-				SymbolicValue vv = symbEnv.addVariable(y.getVariable().getSimpleName());
-				permEnv.add(vv, new UniquenessAnnotation(Uniqueness.FREE));
-				ClassLevelMaps.simplify(symbEnv, permEnv);
-			} else {
+			// Check all arguments follow the restrictions
+			if(constCall.getArguments().size() > 0)
 				handleConstructorArgs(constCall);
-			}
 			
+			// Add a new variable for this assignment
+			SymbolicValue vv = symbEnv.addVariable(y.getVariable().getSimpleName());
+			permEnv.add(vv, new UniquenessAnnotation(Uniqueness.FREE));
+			ClassLevelMaps.simplify(symbEnv, permEnv);
 
+		// Variable Assignment - CheckVarAssign
 		} else if (target instanceof CtVariableWriteImpl){
 			SymbolicValue v = (SymbolicValue) value.getMetadata("symbolic_value");
 			if (v == null)
@@ -326,7 +329,8 @@ public class LatteTypeChecker  extends LatteProcessor {
 			symbEnv.addVarSymbolicValue(target.toString(), v);
 			ClassLevelMaps.simplify(symbEnv, permEnv);
 
-		} else if (target instanceof CtFieldWrite){ // CheckFieldAssign
+		// Field Assignment - CheckFieldAssign
+		} else if (target instanceof CtFieldWrite){
 			CtFieldWrite<?> fieldWrite = (CtFieldWrite<?>) target;
 			logInfo("Visiting field write <"+ fieldWrite.toStringDebug()+">");
 	
@@ -386,23 +390,24 @@ public class LatteTypeChecker  extends LatteProcessor {
 			CtParameter<?> p = c.getParameters().get(i);
 			UniquenessAnnotation expectedUA = new UniquenessAnnotation(p);
 			UniquenessAnnotation vvPerm = permEnv.get(vv);
-			if (vvPerm.isGreaterEqualThan(Uniqueness.BORROWED)){
-				logError(String.format("Symbolic value %s has no permission", vv), arg);
+			// {𝜈𝑖 : borrowed ≤ 𝛼𝑖 }
+			if (!vvPerm.isGreaterEqualThan(Uniqueness.BORROWED)){
+				logError(String.format("Symbolic value %s:%s is not greater than BORROWED", vv, vvPerm), arg);
 			}
 			logInfo(String.format("Checking constructor argument %s:%s, %s <= %s", p.getSimpleName(), vv, vvPerm, expectedUA));
 			// Σ′ ⊢ 𝑒1, ... , 𝑒𝑛 : 𝛼1, ... , 𝛼𝑛 ⊣ Σ′′
 			if (!permEnv.usePermissionAs(vv, vvPerm, expectedUA))
 				logError(String.format("Constructor argument %s expected an assignment with permission %s but got %s from %s", 
 					p.getSimpleName(), expectedUA, permEnv.get(vv), vv), arg);
-
-			// distinct(Δ′, {𝜈𝑖 : borrowed ≤ 𝛼𝑖 })
-			//distinct(Δ, 𝑆) ⇐⇒ ∀𝜈, 𝜈′ ∈ 𝑆 : Δ ⊢ 𝜈 ⇝ 𝜈′ =⇒ 𝜈 = 𝜈′
-			if (!symbEnv.distinct(paramSymbValues)){
-				logError(String.format("Non-distinct parameters in constructor call of %s", klass.getSimpleName()), constCall);
-			}
-
+			paramSymbValues.add(vv);
 		}
 
+		// distinct(Δ′, {𝜈𝑖 : borrowed ≤ 𝛼𝑖 })
+		//distinct(Δ, 𝑆) ⇐⇒ ∀𝜈, 𝜈′ ∈ 𝑆 : Δ ⊢ 𝜈 ⇝ 𝜈′ =⇒ 𝜈 = 𝜈′
+		if (!symbEnv.distinct(paramSymbValues)){
+			logError(String.format("Non-distinct parameters in constructor call of %s", klass.getSimpleName()), constCall);
+		}
+		logInfo("all distinct");
 	}
 
 

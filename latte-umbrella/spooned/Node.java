@@ -1,4 +1,3 @@
-package examples;
 /**
  * Node class for the stack example
  * Uses @Unique annotations to specify that the value and next fields are unique
@@ -11,7 +10,7 @@ class Node {
     java.lang.Object value;
 
     @specification.Unique
-    examples.Node next;
+    Node next;
 
     /**
      * Constructor for the Node class using @Free value and next nodes
@@ -21,7 +20,7 @@ class Node {
      */
     public Node(@specification.Borrowed
     java.lang.Object value, @specification.Borrowed
-    examples.Node next) {
+    Node next) {
         this.value = value;
         this.next = next;
     }

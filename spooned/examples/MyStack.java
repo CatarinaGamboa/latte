@@ -39,9 +39,10 @@ public class MyStack {
     public void test(@specification.Free
     java.lang.Object value) {
         examples.Node r;
-        // Node n;
+        examples.Node n;
         r = this.root;
         this.root = null;
-        // n = new Node(value, r);
+        n = new examples.Node(value, r);
+        this.root = n;
     }
 }

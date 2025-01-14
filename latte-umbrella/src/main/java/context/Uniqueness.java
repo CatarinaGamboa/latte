@@ -1,13 +1,12 @@
 package context;
 
 public enum Uniqueness {
-    BORROWED (4),
+    BOTTOM (1),
     SHARED (2),
     UNIQUE (3),
-    // ALIAS (6),
-    BOTTOM (1),
+    BORROWED (4),
     FREE (5);
-
+    // ALIAS (6),
 
     private final int order;
 
@@ -25,6 +24,8 @@ public enum Uniqueness {
     }
     // Custom comparison method
     public boolean isGreaterEqualThan(Uniqueness other) {
+        if((this == UNIQUE && other == BORROWED) || (other == UNIQUE && this == BORROWED)) 
+            return true;
         return this.order >= other.order;
     }
 
