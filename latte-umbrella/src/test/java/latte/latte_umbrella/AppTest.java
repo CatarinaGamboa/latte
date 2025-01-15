@@ -68,6 +68,17 @@ public class AppTest {
     }
 
     @Test
+    public void testSmallestIncorrectExample(){
+        try {
+            App.launcher("src/test/examples/SmallestIncorrectExample.java");
+        } catch (Exception e) {
+            assertTrue(e instanceof LatteException);
+            assertTrue(e.getMessage().contains("expected an assignment with permission UNIQUE but got BORROWED"));
+        }
+        
+    }
+
+    @Test
     public void testReachabilityUnitTest(){
         Logger logger = Logger.getLogger(AppTest.class.getName());
         //test
