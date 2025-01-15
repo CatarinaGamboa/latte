@@ -19,7 +19,9 @@ public class App {
 	 * @param args
 	 */
 	public static void main( String[] args ){
-    	String allPath = "latte-umbrella/src/main/java/examples/MyStack.java";
+		String allPath;
+		if (args.length == 0)  allPath = "latte-umbrella/src/main/java/examples/MyStack.java";
+		else allPath = args[0];
     	launcher(allPath);
     }
     

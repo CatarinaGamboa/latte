@@ -70,7 +70,7 @@ abstract class LatteProcessor extends CtScanner{
           .append("\tFile: ")
           .append(filePath).append(":").append(line).append(":").append(column).append("\n"); // Clickable format
         
-        throw new LatteException(sb.toString());
+        throw new LatteException(sb.toString(), ce);
         
 	}
 
