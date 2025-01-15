@@ -2,6 +2,8 @@ package typechecking;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import context.ClassLevelMaps;
 import context.Context;
@@ -11,12 +13,15 @@ import context.SymbolicValue;
 import context.TypeEnvironment;
 import context.Uniqueness;
 import context.UniquenessAnnotation;
+import context.Variable;
+import context.VariableHeapLoc;
 import spoon.reflect.code.CtAssignment;
 import spoon.reflect.code.CtBinaryOperator;
 import spoon.reflect.code.CtConstructorCall;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtFieldRead;
 import spoon.reflect.code.CtFieldWrite;
+import spoon.reflect.code.CtIf;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.code.CtLocalVariable;
@@ -27,8 +32,6 @@ import spoon.reflect.declaration.CtConstructor;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtParameter;
-import spoon.reflect.declaration.CtType;
-import spoon.reflect.declaration.CtVariable;
 import spoon.reflect.reference.CtFieldReference;
 import spoon.reflect.reference.CtLocalVariableReference;
 import spoon.reflect.reference.CtTypeReference;
@@ -36,7 +39,6 @@ import spoon.support.reflect.code.CtConstructorCallImpl;
 import spoon.support.reflect.code.CtThisAccessImpl;
 import spoon.support.reflect.code.CtVariableReadImpl;
 import spoon.support.reflect.code.CtVariableWriteImpl;
-import spoon.support.reflect.declaration.CtClassImpl;
 
 /**
  * In the type checker we go through the code, add metadata regarding the types and their permissions
@@ -47,14 +49,14 @@ import spoon.support.reflect.declaration.CtClassImpl;
  */
 public class LatteTypeChecker  extends LatteProcessor {
 
-    public LatteTypeChecker(Context context, TypeEnvironment typeEnv, SymbolicEnvironment symbEnv, 
+	public LatteTypeChecker(Context context, TypeEnvironment typeEnv, SymbolicEnvironment symbEnv, 
 							PermissionEnvironment permEnv, ClassLevelMaps mtc) {
 		super(context, typeEnv, symbEnv, permEnv, mtc);
 		logInfo("[ Latte Type checker initialized ]");
 	}
 
 	@Override
-    public <T> void visitCtClass(CtClass<T> ctClass) {
+	public <T> void visitCtClass(CtClass<T> ctClass) {
 		logInfo("Visiting class: <" + ctClass.getSimpleName()+">");
 		enterScopes();
 		super.visitCtClass(ctClass);
@@ -165,7 +167,6 @@ public class LatteTypeChecker  extends LatteProcessor {
 					// Add the variable to the environment
 					SymbolicValue vv = symbEnv.addVariable(localVariable.getSimpleName());
 					permEnv.add(vv, new UniquenessAnnotation(Uniqueness.FREE));
-					ClassLevelMaps.simplify(symbEnv, permEnv);
 				} else if (value instanceof CtInvocation) {
 					SymbolicValue valueSV = (SymbolicValue) value.getMetadata("symbolic_value");
 					if (valueSV == null) logWarning("Symbolic value for invocation not found " + value.toString());
@@ -174,8 +175,8 @@ public class LatteTypeChecker  extends LatteProcessor {
 					localVariable.putMetadata("symbolic_value", fresh);
 				} else {
 					symbEnv.addVarSymbolicValue(localVariable.getSimpleName(), vValue);
-					ClassLevelMaps.simplify(symbEnv, permEnv);
 				}
+				ClassLevelMaps.simplify(symbEnv, permEnv);
 			}
 		}
 		loggingSpaces--;
@@ -398,9 +399,6 @@ public class LatteTypeChecker  extends LatteProcessor {
 		CtExpression<?> assignee = assignment.getAssigned();
 		CtExpression<?> value = assignment.getAssignment();
 
-
-		//TODO: CheckCall
-
 		// Constructor Call - CheckNew
 		// x = new C(e1, ..., en)
 		if (value instanceof CtConstructorCallImpl && assignee instanceof CtVariableWriteImpl){
@@ -414,18 +412,17 @@ public class LatteTypeChecker  extends LatteProcessor {
 			// Add a new variable for this assignment
 			SymbolicValue vv = symbEnv.addVariable(y.getVariable().getSimpleName());
 			permEnv.add(vv, new UniquenessAnnotation(Uniqueness.FREE));
-			ClassLevelMaps.simplify(symbEnv, permEnv);
 		
 		// Invocation - CheckCall
 		} else if (value instanceof CtInvocation && assignee instanceof CtVariableWriteImpl){
 			handleInvocation((CtInvocation<?>) value, (CtVariableWriteImpl<?>) assignee, assignment);
-		// Variable Assignment - CheckVarAssign
+
+			// Variable Assignment - CheckVarAssign
 		} else if (assignee instanceof CtVariableWriteImpl){
 			SymbolicValue v = (SymbolicValue) value.getMetadata("symbolic_value");
 			if (v == null)
 				logWarning("Symbolic value for assignment not found");
 			symbEnv.addVarSymbolicValue(assignee.toString(), v);
-			ClassLevelMaps.simplify(symbEnv, permEnv);
 
 		// Field Assignment - CheckFieldAssign
 		} else if (assignee instanceof CtFieldWrite){
@@ -453,9 +450,8 @@ public class LatteTypeChecker  extends LatteProcessor {
 			
 			// Δ′′ [𝜈.𝑓 → 𝜈′]; Σ′′′ ⪰ Δ′′′; Σ′′′′
 			symbEnv.addFieldSymbolicValue(v, f.getSimpleName(), vv);
-			ClassLevelMaps.simplify(symbEnv, permEnv);
 		} 
-
+		ClassLevelMaps.simplify(symbEnv, permEnv);
 		loggingSpaces--;
 	}
 
@@ -506,6 +502,46 @@ public class LatteTypeChecker  extends LatteProcessor {
 			logError(String.format("Non-distinct parameters in constructor call of %s", klass.getSimpleName()), constCall);
 		}
 		logInfo("all distinct");
+	}
+
+
+	@Override
+	public void visitCtIf(CtIf ifElement) {
+		logInfo("Visiting if <"+ ifElement.toStringDebug()+">");
+		// super.visitCtIf(ifElement);
+
+		// evaluate (?)
+		CtExpression<Boolean> condition = ifElement.getCondition();
+		if (condition instanceof CtBinaryOperator){
+			visitCtBinaryOperator((CtBinaryOperator<?>)condition);
+		} else if (condition instanceof CtUnaryOperator){
+			visitCtUnaryOperator((CtUnaryOperator<?>)condition);
+		} else if (condition instanceof CtLiteral){
+			visitCtLiteral((CtLiteral<?>)condition);
+		} else if (condition instanceof CtVariableRead){
+			visitCtVariableRead((CtVariableRead<?>)condition);
+		} else if (condition instanceof CtFieldRead){
+			visitCtFieldRead((CtFieldRead<?>)condition);
+		} else {
+			logError("Cannot evaluate the condition of the if statement: " + condition.toString(), condition);
+		}
+		
+		// TODO: save the current environment
+		enterScopes();
+		super.visitCtBlock(ifElement.getThenStatement());
+		SymbolicEnvironment thenSymbEnv = symbEnv.cloneLast();
+		PermissionEnvironment thenPermEnv = permEnv.cloneLast();
+		exitScopes();
+
+		enterScopes();
+		super.visitCtBlock(ifElement.getElseStatement());
+		SymbolicEnvironment elseSymbEnv = symbEnv.cloneLast();
+		PermissionEnvironment elsePermEnv = permEnv.cloneLast();
+		exitScopes();
+
+		joining(thenSymbEnv, thenPermEnv, elseSymbEnv, elsePermEnv);
+		// TODO: merge the environments
+
 	}
 
 
@@ -615,5 +651,35 @@ public class LatteTypeChecker  extends LatteProcessor {
 		literal.putMetadata("symbolic_value", sv);
 		logInfo("Literal "+ literal.toString() + ": "+ sv);
 	}
+
+
+	public void joining( SymbolicEnvironment thenSymbEnv,
+		PermissionEnvironment thenPermEnv, SymbolicEnvironment elseSymbEnv,
+		PermissionEnvironment elsePermEnv) {
+		
+		logInfo("Joining if statement");
+		// JoinEmpty
+		// ∅ ⊢ ∅; Σ1 ∧ ∅; Σ2 ⇛ ∅; ∅
+		if (thenSymbEnv.isEmpty() && elseSymbEnv.isEmpty())
+			return;
+		
+		// JoinDropVar
+		// 𝑥 ∉ Δ Δ ⊢ Δ1; Σ1 ∧ Δ2; Σ2 ⇛ Δ′; Σ′
+		// ----------------------------------
+		// Δ ⊢ 𝑥: 𝜈, Δ1; Σ1 ∧ Δ2; Σ2 ⇛ Δ′; Σ′
+		ClassLevelMaps.joinDropVar(symbEnv, thenSymbEnv);
+		ClassLevelMaps.joinDropVar(symbEnv, elseSymbEnv);
+		ClassLevelMaps.joinDropField(symbEnv);
+
+		ClassLevelMaps.joinUnify(symbEnv, permEnv, thenSymbEnv, thenPermEnv, elseSymbEnv, elsePermEnv);
+		ClassLevelMaps.joinElim(symbEnv, permEnv, thenSymbEnv, thenPermEnv, elseSymbEnv, elsePermEnv);
+
+		ClassLevelMaps.simplify(symbEnv, permEnv);
+
+		logInfo("Joining finished! "+ symbEnv + "\n "+ permEnv);
+		
+		// throw new UnsupportedOperationException("Unimplemented method 'joining'");
+	}
+
 
 }

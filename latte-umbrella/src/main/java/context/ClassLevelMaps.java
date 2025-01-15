@@ -6,9 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
-import org.eclipse.jdt.internal.compiler.batch.Main.Logger;
-import org.javatuples.Triplet;
 
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtConstructor;
@@ -139,5 +136,146 @@ public class ClassLevelMaps {
             }
        }
     }
+
+
+	public static void joinDropVar(SymbolicEnvironment symbEnv, SymbolicEnvironment  symb) {
+		List<VariableHeapLoc> remove = new ArrayList<>(); 
+		for (VariableHeapLoc v : symb.keySet()) 
+			if (!symbEnv.contains(v))
+				remove.add(v);
+		for (VariableHeapLoc v : remove)
+			symb.remove(v);
+	}
+
+
+    public static void joinDropField(SymbolicEnvironment symbEnv) {
+        List<VariableHeapLoc> remove = new ArrayList<>(); 
+        for (VariableHeapLoc v : symbEnv.keySet()) 
+            if (v instanceof FieldHeapLoc)
+                remove.add(v);
+        for (VariableHeapLoc v : remove)
+            symbEnv.remove(v);
+    }
+			
+	public static void joinUnify( 
+        SymbolicEnvironment symbEnv,     PermissionEnvironment permEnv,
+        SymbolicEnvironment thenSymbEnv, PermissionEnvironment thenPermEnv, 
+		SymbolicEnvironment elseSymbEnv, PermissionEnvironment elsePermEnv) {
+
+        // System.out.println("symbolic env: " + symbEnv);
+        // System.out.println("permission env: " + permEnv);
+
+        // System.out.println("then symbolic env: " + thenSymbEnv);
+        // System.out.println("then permission env: " + thenPermEnv);
+
+        // System.out.println("else symbolic env: " + elseSymbEnv);
+        // System.out.println("else permission env: " + elsePermEnv);
+		
+        // JoinUnifyVar
+		for(VariableHeapLoc v: thenSymbEnv.keySet()){
+			if(v instanceof Variable){
+                Variable x = (Variable) v;
+                if( elseSymbEnv.contains(x)){
+                    SymbolicValue v1 = thenSymbEnv.get(x), 
+                        v2 = elseSymbEnv.get(x);
+
+                    // Σ1 (𝜈1) ∧ Σ2 (𝜈2) ⇛ 𝛼
+                    UniquenessAnnotation freshUA = 
+                        UniquenessAnnotation.unifyAnnotation(thenPermEnv.get(v1), elsePermEnv.get(v2));
+
+                    // fresh 𝜈
+                    SymbolicValue freshV = symbEnv.getFresh();
+                    // Δ; Σ ⊢ Δ1 [𝜈/𝜈1]; 𝜈: 𝛼, Σ1 ∧ Δ2 [𝜈/𝜈2]; 𝜈: 𝛼, Σ2 ⇛ Δ′; Σ′
+                    thenSymbEnv.update(x, freshV);
+                    elseSymbEnv.update(x, freshV);
+
+                    thenPermEnv.add(freshV, freshUA);
+                    elsePermEnv.add(freshV, freshUA);
+                }
+            } else {
+                // JoinUnifyField
+                FieldHeapLoc x = (FieldHeapLoc) v;
+                if( elseSymbEnv.contains(x)){
+                    SymbolicValue v1 = thenSymbEnv.get(x), v2 = elseSymbEnv.get(x);
+                    // Σ1 (𝜈1) ∧ Σ2 (𝜈2) ⇛ 𝛼
+                    UniquenessAnnotation freshUA = 
+                        UniquenessAnnotation.unifyAnnotation(thenPermEnv.get(v1), elsePermEnv.get(v2));
+
+                    // fresh 𝜈
+                    SymbolicValue freshV = symbEnv.getFresh();
+                    // Δ; Σ ⊢ Δ1 [𝜈/𝜈1]; 𝜈: 𝛼, Σ1 ∧ Δ2 [𝜈/𝜈2]; 𝜈: 𝛼, Σ2 ⇛ Δ′; Σ′
+                    thenSymbEnv.update(x, freshV);
+                    elseSymbEnv.update(x, freshV);
+
+                    thenPermEnv.add(freshV, freshUA);
+                    elsePermEnv.add(freshV, freshUA);
+                }
+            }
+		}
+        // System.out.println("--------------------------------------------------");
+        // System.out.println("--------------------------------------------------");
+        // System.out.println("symbolic env: " + symbEnv);
+        // System.out.println("permission env: " + permEnv);
+
+        // System.out.println("then symbolic env: " + thenSymbEnv);
+        // System.out.println("then permission env: " + thenPermEnv);
+
+        // System.out.println("else symbolic env: " + elseSymbEnv);
+        // System.out.println("else permission env: " + elsePermEnv);
+	}
+
+    public static void joinElim( 
+        SymbolicEnvironment symbEnv,     PermissionEnvironment permEnv,
+        SymbolicEnvironment thenSymbEnv, PermissionEnvironment thenPermEnv, 
+		SymbolicEnvironment elseSymbEnv, PermissionEnvironment elsePermEnv) {
+        
+        // System.out.println("Started elim");
+        
+        for ( VariableHeapLoc v: thenSymbEnv.keySet()){
+            if( v instanceof Variable){
+                // joinElimVar
+                Variable x = (Variable) v;
+                if(elseSymbEnv.contains(x) && symbEnv.contains(x)){
+                    SymbolicValue v1 = thenSymbEnv.get(x), v2 = elseSymbEnv.get(x);
+                    UniquenessAnnotation ua1 = thenPermEnv.get(v1), ua2 = elsePermEnv.get(v2);
+                    if (v1.equals(v2) && ua1.equals(ua2)){
+                        symbEnv.update(x, v1);
+                        permEnv.add(v1, ua1);
+                    }
+                }
+            } else {
+                // joinElimField
+                FieldHeapLoc x = (FieldHeapLoc) v;
+                if(elseSymbEnv.contains(x)){
+                    SymbolicValue v1 = thenSymbEnv.get(x), v2 = elseSymbEnv.get(x);
+                    UniquenessAnnotation ua1 = thenPermEnv.get(v1), ua2 = elsePermEnv.get(v2);
+                    if (v1.equals(v2) && ua1.equals(ua2)){
+                        symbEnv.add(x, v1);
+                        permEnv.add(v1, ua1);
+                    }
+                } else {
+                    // joinDropFieldInner
+                    SymbolicValue v1 = thenSymbEnv.get(x);
+                    permEnv.add(v1, new UniquenessAnnotation(Uniqueness.BOTTOM));                    
+                }
+            }
+        }
+
+        for ( VariableHeapLoc v: elseSymbEnv.keySet()){
+            if(v instanceof FieldHeapLoc)
+                if (!thenSymbEnv.contains(v)){
+                    // joinDropFieldOuter
+                    SymbolicValue v1 = elseSymbEnv.get(v);
+                    permEnv.add(v1, new UniquenessAnnotation(Uniqueness.BOTTOM));
+                }
+        }
+
+        // System.out.println("--------------------------------------------------");
+        // System.out.println("--------------------------------------------------");
+        // System.out.println("symbolic env: " + symbEnv);
+        // System.out.println("permission env: " + permEnv);
+	}
+
+
 
 }

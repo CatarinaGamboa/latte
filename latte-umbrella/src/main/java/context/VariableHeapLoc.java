@@ -1,6 +1,6 @@
 package context;
 
-abstract class VariableHeapLoc {}
+public abstract class VariableHeapLoc {}
 
 class FieldHeapLoc extends VariableHeapLoc{
 

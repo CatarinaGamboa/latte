@@ -95,6 +95,24 @@ public class UniquenessAnnotation {
 		return sb.toString();
 	}
 
+	/**
+	 * In unification, we can unify the annotations if they are the same, or if one of them is free we can
+	 * join it to the other one. If none of the above is true, we cannot unify and return bottom.
+	 * @param a1
+	 * @param a2
+	 * @return
+	 */
+    public static UniquenessAnnotation unifyAnnotation(UniquenessAnnotation a1, UniquenessAnnotation a2) {
+		if (a1.annotation.equals(a2.annotation)) 
+			return a1;
+		else if (a1.isFree() && a2.isLessEqualThan(Uniqueness.FREE))
+			return a2;
+		else if (a2.isFree() && a1.isLessEqualThan(Uniqueness.FREE))
+			return a1;
+		else
+			return new UniquenessAnnotation(Uniqueness.BOTTOM);
+    }
+
 
 
 }

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -78,8 +79,24 @@ public class SymbolicEnvironment {
 		symbEnv.getFirst().put(f, vv);
 	}
 
+	/**
+	 * Add a new field to the environment with a given symbolic value
+	 * @param v
+	 * @param simpleName
+	 * @param vv
+	 */
+	void add(VariableHeapLoc v, SymbolicValue vv) {
+		symbEnv.getFirst().put(v, vv);
+	}
 
-
+	void update(VariableHeapLoc v, SymbolicValue vv) {
+		for (Map<VariableHeapLoc, SymbolicValue> map : symbEnv) {
+			if (map.containsKey(v)) {
+				map.put(v, vv);
+				return;
+			}
+		}
+	}
 
 	/**
 	 * Returns a fresh symbolic value
@@ -113,13 +130,26 @@ public class SymbolicEnvironment {
 	 * @param var
 	 * @return
 	 */
-	private SymbolicValue get(VariableHeapLoc var) {
+	SymbolicValue get(VariableHeapLoc var) {
 		for(Map<VariableHeapLoc, SymbolicValue> map : symbEnv) {
 			if (map.containsKey(var)) {
 				return map.get(var);
 			}
 		}
 		return null;
+	}
+
+	public Set<VariableHeapLoc> keySet(){
+		return symbEnv.stream()
+				.map(Map::keySet)
+				.flatMap(Set::stream)
+				.collect(Collectors.toSet());
+	}
+
+	public void remove(VariableHeapLoc key){
+		for( Map<VariableHeapLoc, SymbolicValue> map : symbEnv)
+			if(map.containsKey(key))
+				map.remove(key);
 	}
 
 	public boolean hasValue(SymbolicValue v) {
@@ -248,6 +278,37 @@ public class SymbolicEnvironment {
 			return ( false || canReach(v, v2, visited)); 
 		}
 		return false;
+	}
+
+	/**
+	 * Clone the symbolic environment at a certain moment in time
+	 * @return
+	 */
+	public SymbolicEnvironment cloneLast() {
+		SymbolicEnvironment clone = new SymbolicEnvironment();
+
+        // clone.enterScope();
+        // symbEnv.getFirst().forEach((k, v) -> {
+        //     clone.add(k, v);
+        // });
+		for (Map<VariableHeapLoc, SymbolicValue> map : symbEnv) {
+			Map<VariableHeapLoc, SymbolicValue> newMap = new HashMap<>();
+			map.forEach((k, v) -> {
+				newMap.put(k, v);
+			});
+			clone.symbEnv.add(newMap);
+		}
+		return clone;
+    }
+
+	public boolean contains(VariableHeapLoc v) {
+		return symbEnv.stream()
+				.map(innerMap -> innerMap.containsKey(v))
+				.reduce(false, (a, b) -> a || b);
+	}
+
+	public boolean isEmpty() {
+		return symbEnv.stream().allMatch(Map::isEmpty);
 	}
 
   }

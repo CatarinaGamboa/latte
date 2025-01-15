@@ -163,4 +163,39 @@ public class PermissionEnvironment {
         return false;
     }
 
+    /**
+	 * Clone the permission environment at a certain moment in time
+	 * @return
+	 */
+	public PermissionEnvironment cloneLast() {
+        PermissionEnvironment clone = new PermissionEnvironment();
+        // clone.enterScope();
+        // map.getFirst().forEach((k, v) -> {
+        //     clone.add(k, v);
+        // });
+        for (Map<SymbolicValue, UniquenessAnnotation> innerMap : map) {
+            Map<SymbolicValue, UniquenessAnnotation> newMap = new HashMap<>();
+            innerMap.forEach((k, v) -> {
+                newMap.put(k, v);
+            });
+            clone.map.add(newMap);
+        }
+        return clone;
+    }
+
+    public boolean contains(SymbolicValue v) {
+		return map.stream()
+                .map(innerMap -> innerMap.containsKey(v))
+                .reduce(false, (a, b) -> a || b);
+	}
+
+    public void update(SymbolicValue v, UniquenessAnnotation ua) {
+        for (Map<SymbolicValue, UniquenessAnnotation> innerMap : map) {
+            if (innerMap.containsKey(v)) {
+                innerMap.put(v, ua);
+                return;
+            }
+        }
+    }
+
 }
