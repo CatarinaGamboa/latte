@@ -25,6 +25,7 @@ import spoon.reflect.code.CtIf;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.code.CtLocalVariable;
+import spoon.reflect.code.CtReturn;
 import spoon.reflect.code.CtUnaryOperator;
 import spoon.reflect.code.CtVariableRead;
 import spoon.reflect.declaration.CtClass;
@@ -542,6 +543,26 @@ public class LatteTypeChecker  extends LatteProcessor {
 		joining(thenSymbEnv, thenPermEnv, elseSymbEnv, elsePermEnv);
 		// TODO: merge the environments
 
+	}
+
+	@Override
+	public <R> void visitCtReturn(CtReturn<R> returnStatement) {
+		logInfo("Visiting return <"+ returnStatement.toStringDebug()+">");
+		super.visitCtReturn(returnStatement);
+
+		CtExpression<?> returned = returnStatement.getReturnedExpression();
+		if (returned == null) return;
+		SymbolicValue vRet = (SymbolicValue) returned.getMetadata("symbolic_value");
+		if (vRet == null) logError("Symbolic value for return not found:"+returned.toStringDebug(), returned);
+		UniquenessAnnotation ua = permEnv.get(vRet);
+
+		CtMethod<?> cmet = returnStatement.getParent(CtMethod.class);
+		UniquenessAnnotation expectedUA = new UniquenessAnnotation(cmet);
+	
+		if(!permEnv.usePermissionAs(vRet, ua, expectedUA)){
+			logError(String.format("Return expected an assignment %s:%s but got %s:%s", 
+				ua, permEnv.get(vRet), vRet), returned);
+		}
 	}
 
 

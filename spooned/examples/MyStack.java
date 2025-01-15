@@ -1,4 +1,8 @@
 package examples;
+// public static void main(String[] args) {
+// Node n = new Node(7, null);
+// MyStack s = new MyStack(n);
+// }
 public class MyStack {
     @specification.Unique
     examples.Node root;
@@ -30,17 +34,12 @@ public class MyStack {
         } else {
             examples.Node r = this.root;
             value = r.value;
-            examples.Node n;
-            n = r.next;
-            r.next = null;
-            r.value = null;
-            this.root = n;
+            // Node n;
+            // n = r.next;
+            // r.next = null;
+            // r.value = null;
+            // this.root = n;
         }
         return value;
-    }
-
-    public static void main(java.lang.String[] args) {
-        examples.Node n = new examples.Node(7, null);
-        examples.MyStack s = new examples.MyStack(n);
     }
 }
