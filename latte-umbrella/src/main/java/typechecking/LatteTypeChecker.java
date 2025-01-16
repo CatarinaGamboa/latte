@@ -2,19 +2,13 @@ package typechecking;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import context.ClassLevelMaps;
-import context.Context;
 import context.PermissionEnvironment;
 import context.SymbolicEnvironment;
 import context.SymbolicValue;
-import context.TypeEnvironment;
 import context.Uniqueness;
 import context.UniquenessAnnotation;
-import context.Variable;
-import context.VariableHeapLoc;
 import spoon.reflect.code.CtAssignment;
 import spoon.reflect.code.CtBinaryOperator;
 import spoon.reflect.code.CtConstructorCall;
@@ -50,9 +44,9 @@ import spoon.support.reflect.code.CtVariableWriteImpl;
  */
 public class LatteTypeChecker  extends LatteProcessor {
 
-	public LatteTypeChecker(Context context, TypeEnvironment typeEnv, SymbolicEnvironment symbEnv, 
+	public LatteTypeChecker( SymbolicEnvironment symbEnv, 
 							PermissionEnvironment permEnv, ClassLevelMaps mtc) {
-		super(context, typeEnv, symbEnv, permEnv, mtc);
+		super(symbEnv, permEnv, mtc);
 		logInfo("[ Latte Type checker initialized ]");
 	}
 
@@ -140,10 +134,7 @@ public class LatteTypeChecker  extends LatteProcessor {
 		loggingSpaces++;
 		// CheckVarDecl
 		// 1) Add the variable to the typing context
-		CtTypeReference<?> t = localVariable.getType();
 		String name = localVariable.getSimpleName();
-		CtClass<?> ctClass = maps.getClassFrom(t);
-		typeEnv.add(name, ctClass);
 		SymbolicValue v = symbEnv.addVariable(name);
 		permEnv.add(v, new UniquenessAnnotation(Uniqueness.BOTTOM));
 
@@ -698,8 +689,6 @@ public class LatteTypeChecker  extends LatteProcessor {
 		ClassLevelMaps.simplify(symbEnv, permEnv);
 
 		logInfo("Joining finished! "+ symbEnv + "\n "+ permEnv);
-		
-		// throw new UnsupportedOperationException("Unimplemented method 'joining'");
 	}
 
 

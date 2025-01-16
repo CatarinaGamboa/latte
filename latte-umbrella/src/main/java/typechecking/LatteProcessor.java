@@ -4,16 +4,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import context.ClassLevelMaps;
-import context.Context;
 import context.PermissionEnvironment;
 import context.SymbolicEnvironment;
-import context.TypeEnvironment;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.visitor.CtScanner;
 
 abstract class LatteProcessor extends CtScanner{
-    Context context;
-	TypeEnvironment typeEnv;
 	SymbolicEnvironment symbEnv;
 	PermissionEnvironment permEnv;
 	ClassLevelMaps maps;
@@ -23,10 +19,8 @@ abstract class LatteProcessor extends CtScanner{
 
     int loggingSpaces = 0;
 
-    public LatteProcessor(Context context, TypeEnvironment typeEnv, SymbolicEnvironment symbEnv, 
+    public LatteProcessor(  SymbolicEnvironment symbEnv, 
             PermissionEnvironment permEnv, ClassLevelMaps maps) {
-            this.context = context; 
-            this.typeEnv = typeEnv;
             this.symbEnv = symbEnv;
             this.permEnv = permEnv;
             this.maps = maps;
@@ -78,7 +72,6 @@ abstract class LatteProcessor extends CtScanner{
 	 * Enter scopes from all environments
 	 */
 	protected void enterScopes(){
-		typeEnv.enterScope();
 		symbEnv.enterScope();
 		permEnv.enterScope();
 		loggingSpaces++;
@@ -88,7 +81,6 @@ abstract class LatteProcessor extends CtScanner{
 	 * Exit scopes from all environments
 	 */
 	protected void exitScopes(){
-		typeEnv.exitScope();
 		symbEnv.exitScope();
 		permEnv.exitScope();
 		loggingSpaces--;

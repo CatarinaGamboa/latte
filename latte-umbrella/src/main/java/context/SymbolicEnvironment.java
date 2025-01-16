@@ -16,24 +16,12 @@ import org.javatuples.Pair;
  * Δ ::= ∅ | 𝑥: 𝜈, Δ | 𝜈.𝑓 : 𝜈, Δ
  */
 public class SymbolicEnvironment {
-	
-	// Singleton instance
-	private static SymbolicEnvironment instance;
 
 	int symbolic_counter = 0;
 
     private LinkedList<Map<VariableHeapLoc, SymbolicValue>> symbEnv;
 
-	/**
-	 * Singleton instance
-	 * @return
-	 */
-	public static SymbolicEnvironment getInstance() {
-		if (instance == null) instance = new SymbolicEnvironment();
-		return instance;
-	}
-
-	private SymbolicEnvironment() {
+	public SymbolicEnvironment() {
 		symbEnv = new LinkedList<Map<VariableHeapLoc, SymbolicValue>>();
 	}
 
@@ -185,7 +173,6 @@ public class SymbolicEnvironment {
 
 	/**
 	 * Remove unreachable values
-	 * TODO: Test this
 	 * @return	List of removed symbolic values
 	 */
 	public List<SymbolicValue> removeUnreachableValues() {
@@ -304,10 +291,6 @@ public class SymbolicEnvironment {
 	public SymbolicEnvironment cloneLast() {
 		SymbolicEnvironment clone = new SymbolicEnvironment();
 
-        // clone.enterScope();
-        // symbEnv.getFirst().forEach((k, v) -> {
-        //     clone.add(k, v);
-        // });
 		for (Map<VariableHeapLoc, SymbolicValue> map : symbEnv) {
 			Map<VariableHeapLoc, SymbolicValue> newMap = new HashMap<>();
 			map.forEach((k, v) -> {

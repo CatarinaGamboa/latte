@@ -5,29 +5,16 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Permission Environment class to store the permissions of the variables in scope
  * Σ ::= ∅ | 𝜈: 𝛼 | 𝜈: ⊥
  */
 public class PermissionEnvironment {
-    
-    private static PermissionEnvironment instance;
 
     private LinkedList<Map<SymbolicValue, UniquenessAnnotation>> permEnv;
 
-
-    /**
-     * Singleton instance
-     * @return
-     */
-    public static PermissionEnvironment getInstance() {
-        if (instance == null) instance = new PermissionEnvironment();
-        return instance;
-    }
-
-    private PermissionEnvironment() {
+    public PermissionEnvironment() {
         permEnv = new LinkedList<Map<SymbolicValue, UniquenessAnnotation>>(); 
     }
 
@@ -184,22 +171,6 @@ public class PermissionEnvironment {
         return clone;
     }
 
-
-    // /**
-	//  * Updates all previous references of vOld with vNew
-	//  * @param vOld old value
-	//  * @param vNew new value
-	//  */
-	// void updateAll(SymbolicValue vOld, SymbolicValue vNew) {
-	// 	// Update all field accesses of vOld (keys)
-	// 	for (Map<SymbolicValue, UniquenessAnnotation> map : permEnv)
-	// 		for (SymbolicValue key : map.keySet()) 
-    //             if (key.equals(vOld)) {
-    //                 map.put(vNew, map.get(key));
-    //                 map.remove(key);
-    //             }
-	// }
-
     public boolean contains(SymbolicValue v) {
 		return permEnv.stream()
                 .map(innerMap -> innerMap.containsKey(v))
@@ -214,5 +185,4 @@ public class PermissionEnvironment {
             }
         }
     }
-
 }

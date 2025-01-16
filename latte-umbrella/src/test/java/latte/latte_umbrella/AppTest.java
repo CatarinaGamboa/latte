@@ -79,10 +79,33 @@ public class AppTest {
     }
 
     @Test
+    public void testMyNodePushPop(){
+        try {
+            App.launcher("src/test/examples/MyNodePushPop.java");
+        } catch (Exception e) {
+            assert(false);
+        }
+        
+    }
+
+
+    @Test
+    public void testMyNodePushPopIncorrect(){
+        try {
+            App.launcher("src/test/examples/MyNodePushPopIncorrect.java");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            assertTrue(e instanceof LatteException);
+            assertTrue(e.getMessage().contains("FREE but got BOTTOM"));
+        }
+        
+    }
+
+    @Test
     public void testReachabilityUnitTest(){
         Logger logger = Logger.getLogger(AppTest.class.getName());
         //test
-        SymbolicEnvironment se = SymbolicEnvironment.getInstance();
+        SymbolicEnvironment se = new SymbolicEnvironment();
         se.enterScope();
         SymbolicValue v1 = se.addVariable("x");
         // x->1

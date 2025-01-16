@@ -1,9 +1,9 @@
-package examples;
 
+import specification.Borrowed;
 import specification.Free;
 import specification.Unique;
 
-public class MyStack {
+public class MyNodePushPopIncorrect {
 
 		@Unique Node root;		
 		
@@ -31,19 +31,15 @@ public class MyStack {
 			} else {
 				Node r = this.root;
 				value = r.value;
-				Node n;
-				n = r.next;
-				r.next = null;
-				r.value = null;
-				this.root = n;
+				// Node n;
+				// n = r.next;
+				// r.next = null;
+				// r.value = null;
+				// this.root = n;
 			}
 			return value;
 		}
 		
-		// public static void main(String[] args) {
-		// 	Node n = new Node(7, null);
-		// 	MyStack s = new MyStack(n);
-		// }
 
 }
 

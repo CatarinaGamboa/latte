@@ -23,16 +23,7 @@ public class ClassLevelMaps {
     
 
 
-	/**
-	 * Singleton instance
-	 * @return
-	 */
-	public static ClassLevelMaps getInstance() {
-		if (instance == null) instance = new ClassLevelMaps();
-		return instance;
-	}
-
-    private ClassLevelMaps() {
+    public ClassLevelMaps() {
         typeClassMap = new HashMap<CtTypeReference<?>, CtClass<?>>();
         classFields = new HashMap<CtClass<?>, Map<String, CtField<?>>>();
         classConstructors = new HashMap<>();
@@ -161,15 +152,6 @@ public class ClassLevelMaps {
         SymbolicEnvironment symbEnv,     PermissionEnvironment permEnv,
         SymbolicEnvironment thenSymbEnv, PermissionEnvironment thenPermEnv, 
 		SymbolicEnvironment elseSymbEnv, PermissionEnvironment elsePermEnv) {
-
-        // System.out.println("symbolic env: " + symbEnv);
-        // System.out.println("permission env: " + permEnv);
-
-        // System.out.println("then symbolic env: " + thenSymbEnv);
-        // System.out.println("then permission env: " + thenPermEnv);
-
-        // System.out.println("else symbolic env: " + elseSymbEnv);
-        // System.out.println("else permission env: " + elsePermEnv);
 		
         // JoinUnifyVar
 		for(VariableHeapLoc v: thenSymbEnv.keySet()){
@@ -212,25 +194,13 @@ public class ClassLevelMaps {
                 }
             }
 		}
-        // System.out.println("--------------------------------------------------");
-        // System.out.println("--------------------------------------------------");
-        // System.out.println("symbolic env: " + symbEnv);
-        // System.out.println("permission env: " + permEnv);
-
-        // System.out.println("then symbolic env: " + thenSymbEnv);
-        // System.out.println("then permission env: " + thenPermEnv);
-
-        // System.out.println("else symbolic env: " + elseSymbEnv);
-        // System.out.println("else permission env: " + elsePermEnv);
 	}
 
     public static void joinElim( 
         SymbolicEnvironment symbEnv,     PermissionEnvironment permEnv,
         SymbolicEnvironment thenSymbEnv, PermissionEnvironment thenPermEnv, 
 		SymbolicEnvironment elseSymbEnv, PermissionEnvironment elsePermEnv) {
-        
-        // System.out.println("Started elim");
-        
+                
         for ( VariableHeapLoc v: thenSymbEnv.keySet()){
             if( v instanceof Variable){
                 // joinElimVar
@@ -269,11 +239,6 @@ public class ClassLevelMaps {
                     permEnv.add(v1, new UniquenessAnnotation(Uniqueness.BOTTOM));
                 }
         }
-
-        // System.out.println("--------------------------------------------------");
-        // System.out.println("--------------------------------------------------");
-        // System.out.println("symbolic env: " + symbEnv);
-        // System.out.println("permission env: " + permEnv);
 	}
 
 

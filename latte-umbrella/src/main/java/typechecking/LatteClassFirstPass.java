@@ -1,10 +1,8 @@
 package typechecking;
 
 import context.ClassLevelMaps;
-import context.Context;
 import context.PermissionEnvironment;
 import context.SymbolicEnvironment;
-import context.TypeEnvironment;
 import context.UniquenessAnnotation;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtConstructor;
@@ -15,9 +13,9 @@ import spoon.reflect.reference.CtTypeReference;
 
 public class LatteClassFirstPass extends LatteProcessor{
 
-    public LatteClassFirstPass(Context c, TypeEnvironment te, SymbolicEnvironment se, PermissionEnvironment pe,
+    public LatteClassFirstPass(SymbolicEnvironment se, PermissionEnvironment pe,
             ClassLevelMaps mtc) {
-        super(c, te, se, pe, mtc);
+        super(se, pe, mtc);
         logInfo("[ First Class Pass started ]");
         enterScopes();
     }
@@ -25,15 +23,10 @@ public class LatteClassFirstPass extends LatteProcessor{
     @Override
     public <T> void visitCtClass(CtClass<T> ctClass) {
 		logInfo("Visiting class: " + ctClass.getSimpleName());
-		context.addClass(ctClass);
-		// enterScopes();
-
 		// Add the class to the type reference and class map
 		CtTypeReference<?> typeRef = ctClass.getReference();
 		maps.addTypeClass(typeRef, ctClass);
 		super.visitCtClass(ctClass);
-
-		// exitScopes();
 	}
 			
 			
