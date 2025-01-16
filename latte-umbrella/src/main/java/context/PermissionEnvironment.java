@@ -137,6 +137,8 @@ public class PermissionEnvironment {
                 if (vPerm.isGreaterEqualThan(Uniqueness.FREE)){
                     add(v, new UniquenessAnnotation(Uniqueness.UNIQUE));
                     return true;
+                } else if (vPerm.annotationEquals(Uniqueness.UNIQUE)){
+                    return true;
                 }
                 break;
             case SHARED:

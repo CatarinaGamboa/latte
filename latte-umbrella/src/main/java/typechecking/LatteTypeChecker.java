@@ -171,6 +171,10 @@ public class LatteTypeChecker  extends LatteProcessor {
 				ClassLevelMaps.simplify(symbEnv, permEnv);
 			}
 		}
+
+		logInfo("\nSymbolic Env: " + symbEnv.toString());
+		logInfo("\nPermissions Env: " + permEnv.toString());
+
 		loggingSpaces--;
 	}
 					

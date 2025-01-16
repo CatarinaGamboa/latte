@@ -4,7 +4,7 @@ import specification.Borrowed;
 import specification.Free;
 import specification.Unique;
 
-public class MyStack {
+public class MyNodeComplete {
 
 		@Unique Node root;		
 		
@@ -13,15 +13,15 @@ public class MyStack {
 		}
 
 		
-		// void push( @Free Object value) {	
-		// 	Node r;
-		// 	Node n;
+		void push( @Free Object value) {	
+			Node r;
+			Node n;
 			
-		// 	r = this.root; 			// save root in r
-		// 	this.root = null; 		//nullify root
-		// 	n = new Node(value, r); //create new root
-		// 	this.root = n; 			//replace root
-		// }
+			r = this.root; 			// save root in r
+			this.root = null; 		//nullify root
+			n = new Node(value, r); //create new root
+			this.root = n; 			//replace root
+		}
 
 		@Free Object pop (){
 			Object value;

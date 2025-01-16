@@ -88,7 +88,16 @@ public class AppTest {
         
     }
 
-
+    @Test
+    public void testMyNodeComplete(){
+        try {
+            App.launcher("src/test/examples/MyNodeComplete.java");
+        } catch (Exception e) {
+            assert(false);
+        }
+        
+    }
+    
     @Test
     public void testMyNodePushPopIncorrect(){
         try {
