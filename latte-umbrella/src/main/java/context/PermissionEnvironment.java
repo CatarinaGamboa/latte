@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Permission Environment class to store the permissions of the variables in scope
@@ -14,7 +15,7 @@ public class PermissionEnvironment {
     
     private static PermissionEnvironment instance;
 
-    private LinkedList<Map<SymbolicValue, UniquenessAnnotation>> map;
+    private LinkedList<Map<SymbolicValue, UniquenessAnnotation>> permEnv;
 
 
     /**
@@ -27,7 +28,7 @@ public class PermissionEnvironment {
     }
 
     private PermissionEnvironment() {
-        map = new LinkedList<Map<SymbolicValue, UniquenessAnnotation>>(); 
+        permEnv = new LinkedList<Map<SymbolicValue, UniquenessAnnotation>>(); 
     }
 
     /**
@@ -36,7 +37,7 @@ public class PermissionEnvironment {
      * @param ann
      */
     public void add(SymbolicValue symb, UniquenessAnnotation ann) {
-        map.getFirst().put(symb, ann);
+        permEnv.getFirst().put(symb, ann);
     }
 
     /**
@@ -44,7 +45,7 @@ public class PermissionEnvironment {
      * @param symb
      */
     public void remove(SymbolicValue symb) {
-        for (Map<SymbolicValue, UniquenessAnnotation> innerMap : map) {
+        for (Map<SymbolicValue, UniquenessAnnotation> innerMap : permEnv) {
             if (innerMap.containsKey(symb)) {
                 innerMap.remove(symb);
                 return;
@@ -58,7 +59,7 @@ public class PermissionEnvironment {
      * @return the permission of the symbolic value or null if it does not exist
      */
     public UniquenessAnnotation get(SymbolicValue symb) {
-        for (Map<SymbolicValue, UniquenessAnnotation> innerMap : map) {
+        for (Map<SymbolicValue, UniquenessAnnotation> innerMap : permEnv) {
             if (innerMap.containsKey(symb)) {
                 return innerMap.get(symb);
             }
@@ -73,7 +74,7 @@ public class PermissionEnvironment {
      */
     public List<SymbolicValue> getUniqueValues() {
         List<SymbolicValue> values = new ArrayList<SymbolicValue>();
-        map.forEach( innerMap -> {
+        permEnv.forEach( innerMap -> {
             innerMap.keySet().forEach(key -> {
                 if (innerMap.get(key).isUnique()) {
                     values.add(key);
@@ -96,14 +97,14 @@ public class PermissionEnvironment {
 	 * Enter a new scope
 	 */
 	public void enterScope() {
-		map.addFirst(new HashMap<SymbolicValue, UniquenessAnnotation>());
+		permEnv.addFirst(new HashMap<SymbolicValue, UniquenessAnnotation>());
 	}
 	
 	/**
 	 * Exit the current scope
 	 */
 	public void exitScope() {
-		map.removeFirst();
+		permEnv.removeFirst();
 	}
 
     /**
@@ -114,8 +115,8 @@ public class PermissionEnvironment {
         StringBuilder sb = new StringBuilder();
         sb.append("Symbolic Value to Uniqueness Annotations:\n");
 
-        for (int i = 0; i < map.size(); i++) {
-            Map<SymbolicValue, UniquenessAnnotation> currentMap = map.get(i);
+        for (int i = 0; i < permEnv.size(); i++) {
+            Map<SymbolicValue, UniquenessAnnotation> currentMap = permEnv.get(i);
             sb.append("  Map ").append(i + 1).append(":\n");
 
             for (Map.Entry<SymbolicValue, UniquenessAnnotation> entry : currentMap.entrySet()) {
@@ -173,24 +174,40 @@ public class PermissionEnvironment {
         // map.getFirst().forEach((k, v) -> {
         //     clone.add(k, v);
         // });
-        for (Map<SymbolicValue, UniquenessAnnotation> innerMap : map) {
+        for (Map<SymbolicValue, UniquenessAnnotation> innerMap : permEnv) {
             Map<SymbolicValue, UniquenessAnnotation> newMap = new HashMap<>();
             innerMap.forEach((k, v) -> {
                 newMap.put(k, v);
             });
-            clone.map.add(newMap);
+            clone.permEnv.add(newMap);
         }
         return clone;
     }
 
+
+    // /**
+	//  * Updates all previous references of vOld with vNew
+	//  * @param vOld old value
+	//  * @param vNew new value
+	//  */
+	// void updateAll(SymbolicValue vOld, SymbolicValue vNew) {
+	// 	// Update all field accesses of vOld (keys)
+	// 	for (Map<SymbolicValue, UniquenessAnnotation> map : permEnv)
+	// 		for (SymbolicValue key : map.keySet()) 
+    //             if (key.equals(vOld)) {
+    //                 map.put(vNew, map.get(key));
+    //                 map.remove(key);
+    //             }
+	// }
+
     public boolean contains(SymbolicValue v) {
-		return map.stream()
+		return permEnv.stream()
                 .map(innerMap -> innerMap.containsKey(v))
                 .reduce(false, (a, b) -> a || b);
 	}
 
     public void update(SymbolicValue v, UniquenessAnnotation ua) {
-        for (Map<SymbolicValue, UniquenessAnnotation> innerMap : map) {
+        for (Map<SymbolicValue, UniquenessAnnotation> innerMap : permEnv) {
             if (innerMap.containsKey(v)) {
                 innerMap.put(v, ua);
                 return;

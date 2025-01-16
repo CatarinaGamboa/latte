@@ -560,8 +560,8 @@ public class LatteTypeChecker  extends LatteProcessor {
 		UniquenessAnnotation expectedUA = new UniquenessAnnotation(cmet);
 	
 		if(!permEnv.usePermissionAs(vRet, ua, expectedUA)){
-			logError(String.format("Return expected an assignment %s:%s but got %s:%s", 
-				ua, permEnv.get(vRet), vRet), returned);
+			logError(String.format("Return value expected %s but got %s in %s", 
+				expectedUA, ua, returnStatement.toString()), returned);
 		}
 	}
 

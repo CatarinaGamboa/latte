@@ -34,11 +34,11 @@ public class MyStack {
         } else {
             examples.Node r = this.root;
             value = r.value;
-            // Node n;
-            // n = r.next;
-            // r.next = null;
-            // r.value = null;
-            // this.root = n;
+            examples.Node n;
+            n = r.next;
+            r.next = null;
+            r.value = null;
+            this.root = n;
         }
         return value;
     }

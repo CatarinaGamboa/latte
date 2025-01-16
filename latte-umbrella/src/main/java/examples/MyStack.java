@@ -32,11 +32,11 @@ public class MyStack {
 			} else {
 				Node r = this.root;
 				value = r.value;
-				// Node n;
-				// n = r.next;
-				// r.next = null;
-				// r.value = null;
-				// this.root = n;
+				Node n;
+				n = r.next;
+				r.next = null;
+				r.value = null;
+				this.root = n;
 			}
 			return value;
 		}

@@ -141,7 +141,7 @@ public class ClassLevelMaps {
 	public static void joinDropVar(SymbolicEnvironment symbEnv, SymbolicEnvironment  symb) {
 		List<VariableHeapLoc> remove = new ArrayList<>(); 
 		for (VariableHeapLoc v : symb.keySet()) 
-			if (!symbEnv.contains(v))
+			if (v instanceof Variable && !symbEnv.contains(v))
 				remove.add(v);
 		for (VariableHeapLoc v : remove)
 			symb.remove(v);
@@ -186,8 +186,8 @@ public class ClassLevelMaps {
                     // fresh 𝜈
                     SymbolicValue freshV = symbEnv.getFresh();
                     // Δ; Σ ⊢ Δ1 [𝜈/𝜈1]; 𝜈: 𝛼, Σ1 ∧ Δ2 [𝜈/𝜈2]; 𝜈: 𝛼, Σ2 ⇛ Δ′; Σ′
-                    thenSymbEnv.update(x, freshV);
-                    elseSymbEnv.update(x, freshV);
+                    thenSymbEnv.updateAll(v1, freshV);
+                    elseSymbEnv.updateAll(v2, freshV);
 
                     thenPermEnv.add(freshV, freshUA);
                     elsePermEnv.add(freshV, freshUA);
@@ -204,8 +204,8 @@ public class ClassLevelMaps {
                     // fresh 𝜈
                     SymbolicValue freshV = symbEnv.getFresh();
                     // Δ; Σ ⊢ Δ1 [𝜈/𝜈1]; 𝜈: 𝛼, Σ1 ∧ Δ2 [𝜈/𝜈2]; 𝜈: 𝛼, Σ2 ⇛ Δ′; Σ′
-                    thenSymbEnv.update(x, freshV);
-                    elseSymbEnv.update(x, freshV);
+                    thenSymbEnv.updateAll(v1, freshV);
+                    elseSymbEnv.updateAll(v2, freshV);
 
                     thenPermEnv.add(freshV, freshUA);
                     elsePermEnv.add(freshV, freshUA);
@@ -236,10 +236,10 @@ public class ClassLevelMaps {
                 // joinElimVar
                 Variable x = (Variable) v;
                 if(elseSymbEnv.contains(x) && symbEnv.contains(x)){
-                    SymbolicValue v1 = thenSymbEnv.get(x), v2 = elseSymbEnv.get(x);
+                    SymbolicValue v1 = thenSymbEnv.get(x), v2 = elseSymbEnv.get(x), vSymb = symbEnv.get(x);
                     UniquenessAnnotation ua1 = thenPermEnv.get(v1), ua2 = elsePermEnv.get(v2);
                     if (v1.equals(v2) && ua1.equals(ua2)){
-                        symbEnv.update(x, v1);
+                        symbEnv.updateAll(vSymb, v1);
                         permEnv.add(v1, ua1);
                     }
                 }

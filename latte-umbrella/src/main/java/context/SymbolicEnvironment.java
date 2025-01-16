@@ -89,11 +89,28 @@ public class SymbolicEnvironment {
 		symbEnv.getFirst().put(v, vv);
 	}
 
-	void update(VariableHeapLoc v, SymbolicValue vv) {
+	/**
+	 * Updates all previous references to vOld with vNew
+	 * @param vOld
+	 * @param vNew
+	 */
+	void updateAll(SymbolicValue vOld, SymbolicValue vNew) {
+		// Update in all values
 		for (Map<VariableHeapLoc, SymbolicValue> map : symbEnv) {
-			if (map.containsKey(v)) {
-				map.put(v, vv);
-				return;
+			for(Map.Entry<VariableHeapLoc, SymbolicValue> entry : map.entrySet()) {
+				if (entry.getValue().equals(vOld)) {
+					entry.setValue(vNew);
+				}
+			}
+		}
+		// Update all field accesses of vOld (keys)
+		for (Map<VariableHeapLoc, SymbolicValue> map : symbEnv) {
+			List<VariableHeapLoc> keys = map.keySet().stream()
+					.filter(k -> k instanceof FieldHeapLoc && ((FieldHeapLoc) k).heapLoc.equals(vOld))
+					.collect(Collectors.toList());
+			for (VariableHeapLoc key : keys) {
+				map.put(new FieldHeapLoc(vNew, ((FieldHeapLoc) key).field), map.get(key));
+				map.remove(key);
 			}
 		}
 	}
