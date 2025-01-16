@@ -536,8 +536,6 @@ public class LatteTypeChecker  extends LatteProcessor {
 		exitScopes();
 
 		joining(thenSymbEnv, thenPermEnv, elseSymbEnv, elsePermEnv);
-		// TODO: merge the environments
-
 	}
 
 	@Override

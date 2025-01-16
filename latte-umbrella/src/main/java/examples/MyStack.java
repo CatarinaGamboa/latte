@@ -34,7 +34,7 @@ public class MyStack {
 				Node n;
 				n = r.next;
 				r.next = null;
-				r.value = null;
+				// r.value = null;
 				this.root = n;
 			}
 			return value;
