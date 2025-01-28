@@ -9,6 +9,9 @@ public class LatteException extends RuntimeException {
         this.ce = ce;
     }
 
+    /*
+     * Retain the element that caused the exception
+     */
     public CtElement getElement(){
         return ce;
     }

@@ -31,7 +31,7 @@ public class PermissionEnvironment {
      * Removes the symbolic value in the key from the environment
      * @param symb
      */
-    public void remove(SymbolicValue symb) {
+    private void remove(SymbolicValue symb) {
         for (Map<SymbolicValue, UniquenessAnnotation> innerMap : permEnv) {
             if (innerMap.containsKey(symb)) {
                 innerMap.remove(symb);
@@ -59,7 +59,7 @@ public class PermissionEnvironment {
      * Get all symbolic values with Unique as the permission
      * @return
      */
-    public List<SymbolicValue> getUniqueValues() {
+    List<SymbolicValue> getUniqueValues() {
         List<SymbolicValue> values = new ArrayList<SymbolicValue>();
         permEnv.forEach( innerMap -> {
             innerMap.keySet().forEach(key -> {
@@ -75,7 +75,7 @@ public class PermissionEnvironment {
      * Remove the values of the given list from the environment
      * @param removed
      */
-    public void removeValues(List<SymbolicValue> removed) {
+    void removeValues(List<SymbolicValue> removed) {
         for (SymbolicValue symbolicValue : removed) 
             remove(symbolicValue);
     }
@@ -93,30 +93,6 @@ public class PermissionEnvironment {
 	public void exitScope() {
 		permEnv.removeFirst();
 	}
-
-    /**
-     * String representation of the Permission Environment
-     */
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Symbolic Value to Uniqueness Annotations:\n");
-
-        for (int i = 0; i < permEnv.size(); i++) {
-            Map<SymbolicValue, UniquenessAnnotation> currentMap = permEnv.get(i);
-            sb.append("  Map ").append(i + 1).append(":\n");
-
-            for (Map.Entry<SymbolicValue, UniquenessAnnotation> entry : currentMap.entrySet()) {
-                sb.append("    ")
-                .append(entry.getKey().toString()) // Key
-                .append(" -> ")
-                .append(entry.getValue().toString()) // Value
-                .append("\n");
-            }
-        }
-
-        return sb.toString();
-    }
 
     /**
      * Uses the current permission of a symbolic value as another permission
@@ -173,18 +149,27 @@ public class PermissionEnvironment {
         return clone;
     }
 
-    public boolean contains(SymbolicValue v) {
-		return permEnv.stream()
-                .map(innerMap -> innerMap.containsKey(v))
-                .reduce(false, (a, b) -> a || b);
-	}
+    /**
+     * String representation of the Permission Environment
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Symbolic Value to Uniqueness Annotations:\n");
 
-    public void update(SymbolicValue v, UniquenessAnnotation ua) {
-        for (Map<SymbolicValue, UniquenessAnnotation> innerMap : permEnv) {
-            if (innerMap.containsKey(v)) {
-                innerMap.put(v, ua);
-                return;
+        for (int i = 0; i < permEnv.size(); i++) {
+            Map<SymbolicValue, UniquenessAnnotation> currentMap = permEnv.get(i);
+            sb.append("  Map ").append(i + 1).append(":\n");
+
+            for (Map.Entry<SymbolicValue, UniquenessAnnotation> entry : currentMap.entrySet()) {
+                sb.append("    ")
+                .append(entry.getKey().toString()) // Key
+                .append(" -> ")
+                .append(entry.getValue().toString()) // Value
+                .append("\n");
             }
         }
+
+        return sb.toString();
     }
 }

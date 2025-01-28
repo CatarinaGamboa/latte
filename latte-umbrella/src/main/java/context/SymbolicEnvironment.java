@@ -144,26 +144,26 @@ public class SymbolicEnvironment {
 		return null;
 	}
 
-	public Set<VariableHeapLoc> keySet(){
+	Set<VariableHeapLoc> keySet(){
 		return symbEnv.stream()
 				.map(Map::keySet)
 				.flatMap(Set::stream)
 				.collect(Collectors.toSet());
 	}
 
-	public void remove(VariableHeapLoc key){
+	void remove(VariableHeapLoc key){
 		for( Map<VariableHeapLoc, SymbolicValue> map : symbEnv)
 			if(map.containsKey(key))
 				map.remove(key);
 	}
 
-	public boolean hasValue(SymbolicValue v) {
+	boolean hasValue(SymbolicValue v) {
 		return symbEnv.stream()
 				.map(innerMap -> innerMap.containsValue(v))
 				.reduce(false, (a, b) -> a || b);
 	}
 
-	public boolean hasFieldWithValue(SymbolicValue v){
+	boolean hasFieldWithValue(SymbolicValue v){
 		return symbEnv.stream()
 				.map(innerMap -> innerMap.entrySet().stream()
 						.anyMatch(entry -> entry.getKey() instanceof FieldHeapLoc && entry.getValue().equals(v)))
@@ -175,7 +175,7 @@ public class SymbolicEnvironment {
 	 * Remove unreachable values
 	 * @return	List of removed symbolic values
 	 */
-	public List<SymbolicValue> removeUnreachableValues() {
+	List<SymbolicValue> removeUnreachableValues() {
 		// 1) get all symbolic values in the keys that are part of fields in the heap
 		List<FieldHeapLoc> keys = new ArrayList<>();
 		List<SymbolicValue> returns = new ArrayList<>();
@@ -216,27 +216,11 @@ public class SymbolicEnvironment {
 		symbEnv.removeFirst();
 	}
 
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("Symbolic Environment:\n");
-	
-		for (int i = 0; i < symbEnv.size(); i++) {
-			Map<VariableHeapLoc, SymbolicValue> map = symbEnv.get(i);
-			sb.append("  Map ").append(i + 1).append(":\n");
-	
-			for (Map.Entry<VariableHeapLoc, SymbolicValue> entry : map.entrySet()) {
-				sb.append("    ")
-				  .append(entry.getKey().toString()) // Key
-				  .append(" -> ")
-				  .append(entry.getValue().toString()) // Value
-				  .append("\n");
-			}
-		}
-	
-		return sb.toString();
-	}
-
+	/**
+	 * Checks if all the symbolic values are distinct
+	 * @param paramSymbValues
+	 * @return
+	 */
 	public boolean distinct(List<SymbolicValue> paramSymbValues) {
 		if (paramSymbValues.size() < 2) return true;
 		List<Pair<SymbolicValue, SymbolicValue>> lp = 
@@ -310,6 +294,28 @@ public class SymbolicEnvironment {
 	public boolean isEmpty() {
 		return symbEnv.stream().allMatch(Map::isEmpty);
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Symbolic Environment:\n");
+	
+		for (int i = 0; i < symbEnv.size(); i++) {
+			Map<VariableHeapLoc, SymbolicValue> map = symbEnv.get(i);
+			sb.append("  Map ").append(i + 1).append(":\n");
+	
+			for (Map.Entry<VariableHeapLoc, SymbolicValue> entry : map.entrySet()) {
+				sb.append("    ")
+				  .append(entry.getKey().toString()) // Key
+				  .append(" -> ")
+				  .append(entry.getValue().toString()) // Value
+				  .append("\n");
+			}
+		}
+	
+		return sb.toString();
+	}
+
 
   }
 

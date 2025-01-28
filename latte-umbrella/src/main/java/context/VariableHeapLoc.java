@@ -1,7 +1,13 @@
 package context;
 
+/**
+ * Represents a variable or a field in the heap
+ */
 public abstract class VariableHeapLoc {}
 
+/**
+ * Represents a field in the heap
+ */
 class FieldHeapLoc extends VariableHeapLoc{
 
 	SymbolicValue heapLoc;
@@ -33,4 +39,34 @@ class FieldHeapLoc extends VariableHeapLoc{
 	public String toString() {
 		return heapLoc.toString() + "." + field.toString();
 	}
+}
+
+/*
+ * Represents a variable
+ */
+class Variable extends VariableHeapLoc{
+
+    String name;
+
+    public Variable(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "Variable{" +
+                "name='" + name + '\'' +
+                '}';
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Variable && ((Variable) obj).name.equals(name);
+    }
+
 }

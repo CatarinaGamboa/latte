@@ -17,6 +17,10 @@ abstract class LatteProcessor extends CtScanner{
 
     final String THIS = "this";
 
+	// * Metadata keys:
+	// * EVAL_KEY -> SymbolicValue
+	final String EVAL_KEY = "symbolic_value"; 
+
     int loggingSpaces = 0;
 
     public LatteProcessor(  SymbolicEnvironment symbEnv, 
@@ -64,11 +68,10 @@ abstract class LatteProcessor extends CtScanner{
           .append("\tFile: ")
           .append(filePath).append(":").append(line).append(":").append(column).append("\n"); // Clickable format
         
-        throw new LatteException(sb.toString(), ce);
-        
+        throw new LatteException(sb.toString(), ce);   
 	}
 
-    	/**
+    /**
 	 * Enter scopes from all environments
 	 */
 	protected void enterScopes(){
