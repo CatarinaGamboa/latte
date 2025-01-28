@@ -23,7 +23,7 @@ public class AppTest {
             App.launcher("src/test/examples/MyNode.java");
         } catch (Exception e) {
             assertTrue(e instanceof LatteException);
-            assertTrue(e.getMessage().contains("expected an assignment with permission UNIQUE but got BORROWED"));
+            assertTrue(e.getMessage().contains("UNIQUE but got BORROWED"));
         }
         
     }
@@ -73,7 +73,7 @@ public class AppTest {
             App.launcher("src/test/examples/SmallestIncorrectExample.java");
         } catch (Exception e) {
             assertTrue(e instanceof LatteException);
-            assertTrue(e.getMessage().contains("expected an assignment with permission UNIQUE but got BORROWED"));
+            assertTrue(e.getMessage().contains("UNIQUE but got BORROWED"));
         }
         
     }

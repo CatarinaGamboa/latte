@@ -4,8 +4,9 @@ import spoon.reflect.declaration.CtElement;
 
 public class LatteException extends RuntimeException {
     private CtElement ce;
-    public LatteException(String message, CtElement ce) {
-        super(message);
+    private String shortMessage;
+    public LatteException(String shortMessage, String fullMessage, CtElement ce) {
+        super(fullMessage);
         this.ce = ce;
     }
 
@@ -14,5 +15,9 @@ public class LatteException extends RuntimeException {
      */
     public CtElement getElement(){
         return ce;
+    }
+
+    public String getShortMessage(){
+        return shortMessage;
     }
 }

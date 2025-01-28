@@ -9,11 +9,11 @@ import context.SymbolicEnvironment;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.visitor.CtScanner;
 
-abstract class LatteChecker extends CtScanner{
+abstract class LatteAbstractChecker extends CtScanner{
 	SymbolicEnvironment symbEnv;
 	PermissionEnvironment permEnv;
 	ClassLevelMaps maps;
-    private static Logger logger = LoggerFactory.getLogger(LatteChecker.class);
+    private static Logger logger = LoggerFactory.getLogger(LatteAbstractChecker.class);
 
     final String THIS = "this";
 
@@ -23,7 +23,7 @@ abstract class LatteChecker extends CtScanner{
 
     int loggingSpaces = 0;
 
-    public LatteChecker(  SymbolicEnvironment symbEnv, 
+    public LatteAbstractChecker(  SymbolicEnvironment symbEnv, 
             PermissionEnvironment permEnv, ClassLevelMaps maps) {
             this.symbEnv = symbEnv;
             this.permEnv = permEnv;
@@ -68,7 +68,7 @@ abstract class LatteChecker extends CtScanner{
           .append("\tFile: ")
           .append(filePath).append(":").append(line).append(":").append(column).append("\n"); // Clickable format
         
-        throw new LatteException(sb.toString(), ce);   
+        throw new LatteException(sb.toString(), text, ce);   
 	}
 
     /**

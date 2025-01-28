@@ -95,7 +95,7 @@ public class App {
 			CtElement ce = e.getElement();
 			SourcePosition sp = ce.getPosition();
 			JsonError error = new JsonError(sp.getLine(), sp.getColumn(), 
-											sp.getEndLine(), sp.getEndColumn(), e.getMessage());
+											sp.getEndLine(), sp.getEndColumn(), e.getMessage(), e.getShortMessage());
 			String json = new Gson().toJson(error); // using Gson to convert object to JSON
 			System.err.println(json);
 
