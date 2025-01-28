@@ -39,7 +39,7 @@ import spoon.support.reflect.code.CtVariableWriteImpl;
  * In the type checker we go through the code, add metadata regarding the types and their permissions
  * and check if the code is well-typed
  */
-public class LatteTypeChecker  extends LatteProcessor {
+public class LatteTypeChecker  extends LatteChecker {
 
 	public LatteTypeChecker( SymbolicEnvironment symbEnv, 
 							PermissionEnvironment permEnv, ClassLevelMaps mtc) {

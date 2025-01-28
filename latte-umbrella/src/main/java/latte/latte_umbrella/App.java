@@ -14,7 +14,7 @@ import spoon.reflect.declaration.CtPackage;
 import spoon.reflect.factory.Factory;
 import spoon.support.QueueProcessingManager;
 import typechecking.LatteException;
-import typechecking.Processor;
+import typechecking.LatteProcessor;
 
 /**
  * App for Latte Verification
@@ -69,7 +69,7 @@ public class App {
 	    launcher.run();
 	
 	    final Factory factory = launcher.getFactory();
-        final Processor processor = new Processor(factory);
+        final LatteProcessor processor = new LatteProcessor(factory);
 	    final ProcessingManager processingManager = new QueueProcessingManager(factory);
 
    
