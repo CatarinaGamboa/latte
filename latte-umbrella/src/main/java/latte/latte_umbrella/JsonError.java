@@ -5,7 +5,7 @@ public class JsonError {
     private int startColumn;
     private int endLine;
     private int endColumn;
-    private String shortMessage;
+    private String message;
     private String fullMessage;
 
     public JsonError(int startLine, int startColumn, int endLine, int endColumn, String fullMessage, String shortMessage) {
@@ -13,8 +13,8 @@ public class JsonError {
         this.startColumn = startColumn;
         this.endLine = endLine;
         this.endColumn = endColumn;
-        this.shortMessage = shortMessage;
         this.fullMessage = fullMessage;
+        this.message = shortMessage;
     }
 
     // Getters and setters (optional if you're using a serialization library)
@@ -34,8 +34,8 @@ public class JsonError {
         return endColumn;
     }
 
-    public String getShortMessage() {
-        return shortMessage;
+    public String getMessage() {
+        return message;
     }
 
     public String getFullMessage() {

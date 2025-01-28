@@ -68,7 +68,7 @@ abstract class LatteAbstractChecker extends CtScanner{
           .append("\tFile: ")
           .append(filePath).append(":").append(line).append(":").append(column).append("\n"); // Clickable format
         
-        throw new LatteException(sb.toString(), text, ce);   
+        throw new LatteException(text, sb.toString(), ce);   
 	}
 
     /**
