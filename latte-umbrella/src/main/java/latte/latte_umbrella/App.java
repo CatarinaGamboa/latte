@@ -3,6 +3,7 @@ package latte.latte_umbrella;
 import java.io.File;
 import java.security.InvalidParameterException;
 import java.util.Arrays;
+import java.util.Scanner;
 
 import com.google.gson.Gson;
 
@@ -26,12 +27,23 @@ public class App {
 	 * @param args
 	 */
 	public static void main( String[] args ){
-		String allPath;
-		if (args.length == 0)  allPath = "latte-umbrella/src/main/java/examples/MyStack.java";
-		else allPath = args[0];
-    	launcher(allPath);
-    }
-    
+		
+		if (args.length == 0) {
+			System.out.println("Please enter the path to the file you want to process");
+			String allPath = "latte-umbrella/src/main/java/examples/MyStack.java";
+			launcher(allPath);
+			return;
+
+		} else if (args.length == 1 && args[0].equals("-multi")) {
+			// Analyze multiple files from command line
+			Scanner scanner = new Scanner(System.in);
+			while(scanner.hasNextLine()){
+				String filePath = scanner.nextLine();
+				launcher(filePath);
+			}
+			scanner.close();
+		}
+    }    
     
     /**
 	 * 
