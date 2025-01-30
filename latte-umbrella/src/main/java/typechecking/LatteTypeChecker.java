@@ -226,7 +226,7 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 			logInfo(String.format("Checking constructor argument %s:%s, %s <= %s", p.getSimpleName(), vv, vvPerm, expectedUA));
 			// Σ′ ⊢ 𝑒1, ... , 𝑒𝑛 : 𝛼1, ... , 𝛼𝑛 ⊣ Σ′′
 			if (!permEnv.usePermissionAs(vv, vvPerm, expectedUA))
-				logError(String.format("Expected %s but got %s from %s", expectedUA, vvPerm, vv), arg);
+				logError(String.format("Expected %s but got %s", expectedUA, vvPerm), arg);
 
 			paramSymbValues.add(vv);
 		}
@@ -262,9 +262,7 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 		UniquenessAnnotation valuePerm = permEnv.get(valueSV);
 		UniquenessAnnotation targetPerm = permEnv.get(targetSV);
 		if (!permEnv.usePermissionAs(valueSV, valuePerm, targetPerm))
-			// logError(String.format("%s expected an assignment with permission %s but got %s:%s", 
-			// 	assignee, targetPerm, valueSV, valuePerm), value);
-			logError(String.format("Expected %s but got %s in %s", targetPerm, valuePerm, value), value);
+			logError(String.format("Expected %s but got %s", targetPerm, valuePerm, value), value);
 		SymbolicValue fresh = symbEnv.addVariable(assignee.getVariable().getSimpleName());
 		permEnv.add(fresh, targetPerm);
 	}
@@ -457,9 +455,8 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 
 			// Check if we can use the permission of vv as the permission of the field
 			if (!permEnv.usePermissionAs(vv, vvPerm, fieldPerm))
-				// logError(String.format("Field %s expected an assignment with permission %s but got %s from %s", f.getSimpleName(), fieldPerm, vvPerm, vv, assignment), assignment);
-				logError(String.format("Expected %s but got %s from %s", 
-					fieldPerm, vvPerm, assignment), assignment);
+				logError(String.format("Expected %s but got %s", 
+					fieldPerm, vvPerm), assignment);
 
 			// Δ′′ [𝜈.𝑓 → 𝜈′]; Σ′′′ ⪰ Δ′′′; Σ′′′′
 			symbEnv.addFieldSymbolicValue(v, f.getSimpleName(), vv);
@@ -504,8 +501,8 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 			logInfo(String.format("Checking constructor argument %s:%s, %s <= %s", p.getSimpleName(), vv, vvPerm, expectedUA));
 			// Σ′ ⊢ 𝑒1, ... , 𝑒𝑛 : 𝛼1, ... , 𝛼𝑛 ⊣ Σ′′
 			if (!permEnv.usePermissionAs(vv, vvPerm, expectedUA))
-				logError(String.format("Expected %s but got %s from %s", 
-					 expectedUA, vvPerm, vv), arg);
+				logError(String.format("Expected %s but got %s", 
+					 expectedUA, vvPerm), arg);
 			paramSymbValues.add(vv);
 		}
 
