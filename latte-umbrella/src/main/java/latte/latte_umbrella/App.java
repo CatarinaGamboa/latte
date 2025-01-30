@@ -27,12 +27,11 @@ public class App {
 	 * @param args
 	 */
 	public static void main( String[] args ){
-		
+
 		if (args.length == 0) {
 			System.out.println("Please enter the path to the file you want to process");
 			String allPath = "latte-umbrella/src/main/java/examples/MyStack.java";
 			launcher(allPath);
-			return;
 
 		} else if (args.length == 1 && args[0].equals("-multi")) {
 			// Analyze multiple files from command line
