@@ -28,7 +28,7 @@ public class MyStack {
 		}
 
 
-		public @Free Node test( @Free Object value) {
+		public @Shared Node test( @Free Object value) {
 			return new Node(value,null);
 		}
 

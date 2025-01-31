@@ -127,6 +127,16 @@ public class AppTest {
         
     }
 
+    @Test
+    public void testMyStackFieldAssignMethod(){
+        try {
+            App.launcher("src/test/examples/MyStackFieldAssignMethod.java");
+        } catch (Exception e) {
+            assertTrue(e instanceof LatteException);
+            assertTrue(e.getMessage().contains("UNIQUE but got SHARED"));
+        }
+    }
+
 
     @Test
     public void testReachabilityUnitTest(){
