@@ -146,15 +146,11 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 				logError(String.format("Local variable %s = %s has assignment with null symbolic value", name, 
 					localVariable.getAssignment().toString()), localVariable);
 			else{
-				// Constructor call - CheckNew
-				if (value instanceof CtConstructorCallImpl ){
-					CtConstructorCallImpl<?> constCall = (CtConstructorCallImpl<?>) value;
-					// Check if all arguments follow the restrictions
-					if (constCall.getArguments().size() > 0)
-						handleConstructorArgs(constCall);
-					// Add the variable to the environment
-					SymbolicValue vv = symbEnv.addVariable(localVariable.getSimpleName());
-					permEnv.add(vv, new UniquenessAnnotation(Uniqueness.FREE));
+				// If we already evaluated the value, we can get its symbolic value and associate it with the local variable
+				Object metadata = value.getMetadata(EVAL_KEY);
+				if (metadata != null){
+					SymbolicValue vv = (SymbolicValue) metadata;
+					symbEnv.addVarSymbolicValue(localVariable.getSimpleName(), vv);
 
 				// CheckCall
 				} else if (value instanceof CtInvocation) {
@@ -409,22 +405,17 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 		CtExpression<?> assignee = assignment.getAssigned();
 		CtExpression<?> value = assignment.getAssignment();
 
-		// Constructor Call - CheckNew
-		// x = new C(e1, ..., en)
-		if (value instanceof CtConstructorCallImpl && assignee instanceof CtVariableWriteImpl){
-			CtVariableWriteImpl<?> y = (CtVariableWriteImpl<?>) assignee;
-			CtConstructorCallImpl<?> constCall = (CtConstructorCallImpl<?>) value;
 
-			// Check all arguments follow the restrictions
-			if(constCall.getArguments().size() > 0)
-				handleConstructorArgs(constCall);
-			
-			// Add a new variable for this assignment
-			SymbolicValue vv = symbEnv.addVariable(y.getVariable().getSimpleName());
-			permEnv.add(vv, new UniquenessAnnotation(Uniqueness.FREE));
-		
+		if ( assignee instanceof CtVariableWriteImpl ){
+			CtVariableWriteImpl<?> var = (CtVariableWriteImpl<?>) assignee;
+			Object metadata = value.getMetadata(EVAL_KEY);
+			if (metadata != null){
+				SymbolicValue vv = (SymbolicValue) metadata;
+				symbEnv.addVarSymbolicValue(var.getVariable().getSimpleName(), vv);				
+			}
+		}		
 		// Invocation - CheckCall
-		} else if (value instanceof CtInvocation && assignee instanceof CtVariableWriteImpl){
+		else if (value instanceof CtInvocation && assignee instanceof CtVariableWriteImpl){
 			handleInvocation((CtInvocation<?>) value, (CtVariableWriteImpl<?>) assignee, assignment);
 
 			// Variable Assignment - CheckVarAssign
@@ -463,6 +454,21 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 		} 
 		ClassLevelMaps.simplify(symbEnv, permEnv);
 		loggingSpaces--;
+	}
+
+
+	@Override
+	public <T> void visitCtConstructorCall(CtConstructorCall<T> constCall) {
+		logInfo("Visiting constructor call <"+ constCall.toStringDebug()+">");
+		super.visitCtConstructorCall(constCall);
+
+		// Check if all arguments follow the restrictions
+		if (constCall.getArguments().size() > 0)
+			handleConstructorArgs(constCall);
+		// Create a new symbolic value for the constructor
+		SymbolicValue vv = symbEnv.getFresh();
+		permEnv.add(vv, new UniquenessAnnotation(Uniqueness.FREE));
+		constCall.putMetadata(EVAL_KEY, vv);
 	}
 
 	/**

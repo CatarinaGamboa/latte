@@ -94,7 +94,7 @@ public class App {
 
 			// To search all previous packages
 	    	// processingManager.process(factory.Package().getRootPackage());
-			System.out.println(":::SUCCESS:::");
+			System.out.println(":::SUCCESS::: "+filePath);
 		} catch(LatteException e){
 
 			// Print error for commandline use

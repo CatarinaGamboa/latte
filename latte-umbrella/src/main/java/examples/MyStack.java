@@ -13,83 +13,86 @@ public class MyStack {
 		}
 
 		
-		// void push( @Free Object value) {	
-		// 	Node r;
-		// 	Node n;
+		void push( @Free Object value) {	
+			Node r;
+			Node n;
 			
-		// 	r = this.root; 			// save root in r
-		// 	this.root = null; 		//nullify root
-		// 	n = new Node(value, r); //create new root
-		// 	this.root = n; 			//replace root
+			r = this.root; 			// save root in r
+			this.root = null; 		//nullify root
+
+
+			this.root = new Node(value, r);
+			// n = new Node(value, r); //create new root
+			// this.root = n; 			//replace root
+		}
+
+		// @Free Object pop (){
+		// 	Object value;
+
+		// 	if (this.root == null) {
+		// 		value = null;
+		// 	} else {
+		// 		Node r = root;
+		// 		value = r.value;
+		// 		Node n;
+		// 		n = r.next;
+		// 		r.next = null;
+		// 		r.value = null;
+		// 		this.root = n;
+		// 	}
+		// 	return value;
 		// }
-
-		@Free Object pop (){
-			Object value;
-
-			if (this.root == null) {
-				value = null;
-			} else {
-				Node r = root;
-				value = r.value;
-				Node n;
-				n = r.next;
-				r.next = null;
-				// r.value = null;
-				this.root = n;
-			}
-			return value;
-		}
 		
-		public @Unique Object dequeue() {
-			Node r = this.root;
-			//r : alias(this.root)
-			if (r == null || r.next == null) {
-			  // In an empty or single-element stack, dequeue and pop
-			  // are equivalent
-			  return pop();
-			} else {
+		// public @Unique Object dequeue() {
+		// 	Node r = this.root;
+		// 	//r : alias(this.root)
+		// 	if (r == null || r.next == null) {
+		// 	  // In an empty or single-element stack, dequeue and pop
+		// 	  // are equivalent
+		// 	  return pop();
+		// 	} else {
 			
-				// `this` and `this.root` are effectively alias, thus
-				// we cannot pass `this.root` to `this.dequeue` without
-				// doing a destructive read
-				this.root = null;
-				// r : unique
+		// 		// `this` and `this.root` are effectively alias, thus
+		// 		// we cannot pass `this.root` to `this.dequeue` without
+		// 		// doing a destructive read
+		// 		this.root = null;
+		// 		// r : unique
 			
-				Object value = dequeueHelper(r);
-				// value : unique
+		// 		Object value = dequeueHelper(r);
+		// 		// value : unique
 			
-				// Since `dequeue` only detaches the next node of the one
-				// passed to it, it will never need to detach `root`, so
-				// we can just restore it back to the original value.
-				this.root = r;
-				// r : alias(this.root)
+		// 		// Since `dequeue` only detaches the next node of the one
+		// 		// passed to it, it will never need to detach `root`, so
+		// 		// we can just restore it back to the original value.
+		// 		this.root = r;
+		// 		// r : alias(this.root)
 			
-				return value;
-			}
-		}
+		// 		return value;
+		// 	}
+		// }
 		
-		private @Unique Object dequeueHelper(@Borrowed Node n) {
-			// Look ahead two steps so that we can disconnect the *next*
-			// node by mutating the node that will remain in the stack.
+		// private @Free Object dequeueHelper(@Borrowed Node n) {
+		// 	// Look ahead two steps so that we can disconnect the *next*
+		// 	// node by mutating the node that will remain in the stack.
 		
-			Node nn = n.next;
-			// nn : alias(n.next)
+		// 	Node nn = n.next;
+		// 	// nn : alias(n.next)
 		
-			if (nn.next == null) {
-			  n.next = null;
-			  // nn : unique
+		// 	if (nn.next == null) {
+		// 	  n.next = null;
+		// 	  // nn : unique
 			  
-			  Object value = nn.value;
-			  // value : alias(nn.value)
+		// 	  Object value = nn.value;
+		// 	  // value : alias(nn.value)
 		
-			  nn.value = null;
-			  // value : unique
+		// 	  nn.value = null;
+		// 	  // value : unique
 		
-			  return value;
-			} else {
-			  return dequeueHelper(n.next);
-			}
-		}
+		// 	  return value;
+		// 	} else {
+		// 	  return dequeueHelper(n.next);
+		// 	}
+		// }
 }
 
 /**
