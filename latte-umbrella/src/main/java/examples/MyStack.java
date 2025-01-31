@@ -2,6 +2,7 @@ package examples;
 
 import specification.Borrowed;
 import specification.Free;
+import specification.Shared;
 import specification.Unique;
 
 public class MyStack {
@@ -21,9 +22,14 @@ public class MyStack {
 			this.root = null; 		//nullify root
 
 
-			this.root = new Node(value, r);
+			this.root = test(null);
 			// n = new Node(value, r); //create new root
 			// this.root = n; 			//replace root
+		}
+
+
+		public @Free Node test( @Free Object value) {
+			return new Node(value,null);
 		}
 
 		// @Free Object pop (){

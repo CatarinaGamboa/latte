@@ -30,7 +30,6 @@ import spoon.reflect.declaration.CtParameter;
 import spoon.reflect.reference.CtFieldReference;
 import spoon.reflect.reference.CtLocalVariableReference;
 import spoon.reflect.reference.CtTypeReference;
-import spoon.support.reflect.code.CtConstructorCallImpl;
 import spoon.support.reflect.code.CtThisAccessImpl;
 import spoon.support.reflect.code.CtVariableReadImpl;
 import spoon.support.reflect.code.CtVariableWriteImpl;
@@ -151,14 +150,7 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 				if (metadata != null){
 					SymbolicValue vv = (SymbolicValue) metadata;
 					symbEnv.addVarSymbolicValue(localVariable.getSimpleName(), vv);
-
-				// CheckCall
-				} else if (value instanceof CtInvocation) {
-					SymbolicValue valueSV = (SymbolicValue) value.getMetadata(EVAL_KEY);
-					if (valueSV == null) logError("Symbolic value for invocation not found " + value.toString(), localVariable);
-					SymbolicValue fresh = symbEnv.addVariable(name);
-					permEnv.add(fresh, permEnv.get(valueSV));
-					localVariable.putMetadata(EVAL_KEY, fresh);
+					localVariable.putMetadata(EVAL_KEY, vv);
 				} else {
 					symbEnv.addVarSymbolicValue(localVariable.getSimpleName(), vValue);
 				}
@@ -239,30 +231,6 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 		logInfo(String.format("Invocation %s:%s, %s:%s", invocation.toString(), returnSV, returnSV, returnUA));
 		invocation.putMetadata(EVAL_KEY, returnSV);
 	}
-
-
-	/**
-	 * Handles invocation when there is an assignment to a variable
-	 * @param value The invocation assignment
-	 * @param assignee The variable that receives the assignment
-	 * @param parent The parent element which is the assignment
-	 */
-	private void handleInvocation(CtInvocation<?> value, CtVariableWriteImpl<?> assignee, CtElement parent){
-		logInfo("Handling invocation <"+ parent.toStringDebug()+">");
-
-		SymbolicValue valueSV = (SymbolicValue) value.getMetadata(EVAL_KEY);
-		if (valueSV == null) logError("Symbolic value for invocation not found " + value.toString(), parent);
-		SymbolicValue targetSV = symbEnv.get(assignee.getVariable().getSimpleName());
-		if (targetSV == null) logError("Symbolic value for target not found " + assignee.toString(), parent);
-
-		UniquenessAnnotation valuePerm = permEnv.get(valueSV);
-		UniquenessAnnotation targetPerm = permEnv.get(targetSV);
-		if (!permEnv.usePermissionAs(valueSV, valuePerm, targetPerm))
-			logError(String.format("Expected %s but got %s", targetPerm, valuePerm, value), value);
-		SymbolicValue fresh = symbEnv.addVariable(assignee.getVariable().getSimpleName());
-		permEnv.add(fresh, targetPerm);
-	}
-
 
 	/**
 	 * EvalField
@@ -405,20 +373,24 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 		CtExpression<?> assignee = assignment.getAssigned();
 		CtExpression<?> value = assignment.getAssignment();
 
-
 		if ( assignee instanceof CtVariableWriteImpl ){
 			CtVariableWriteImpl<?> var = (CtVariableWriteImpl<?>) assignee;
+			SymbolicValue targetSV = (SymbolicValue) value.getMetadata(EVAL_KEY);
 			Object metadata = value.getMetadata(EVAL_KEY);
 			if (metadata != null){
-				SymbolicValue vv = (SymbolicValue) metadata;
-				symbEnv.addVarSymbolicValue(var.getVariable().getSimpleName(), vv);				
-			}
-		}		
-		// Invocation - CheckCall
-		else if (value instanceof CtInvocation && assignee instanceof CtVariableWriteImpl){
-			handleInvocation((CtInvocation<?>) value, (CtVariableWriteImpl<?>) assignee, assignment);
+				SymbolicValue valueSV = (SymbolicValue) metadata;
 
-			// Variable Assignment - CheckVarAssign
+				UniquenessAnnotation valuePerm = permEnv.get(valueSV);
+				UniquenessAnnotation targetPerm = permEnv.get(targetSV);
+				if (!permEnv.usePermissionAs(valueSV, valuePerm, targetPerm))
+					logError(String.format("Expected %s but got %s", targetPerm, valuePerm, value), value);
+
+				SymbolicValue fresh = symbEnv.addVariable(var.getVariable().getSimpleName());
+				permEnv.add(fresh, targetPerm);
+			} else {
+				logError("BUG: Missing metadata for the assignment", var);
+			}
+		// Variable Assignment - CheckVarAssign
 		} else if (assignee instanceof CtVariableWriteImpl){
 			SymbolicValue v = (SymbolicValue) value.getMetadata(EVAL_KEY);
 			if (v == null)
