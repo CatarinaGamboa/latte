@@ -17,17 +17,9 @@ import typechecking.LatteException;
  */
 public class AppTest {
 
-    @Test
-    public void testMyNode(){
-        try {
-            App.launcher("src/test/examples/MyNode.java");
-        } catch (Exception e) {
-            assertTrue(e instanceof LatteException);
-            assertTrue(e.getMessage().contains("UNIQUE but got BORROWED"));
-        }
-        
-    }
-
+    /*
+     * Correct Examples
+     */
     @Test
     public void testMyNodeCorrect(){
         try {
@@ -44,6 +36,63 @@ public class AppTest {
         } catch (Exception e) {
             assert(false);
         }
+    }
+ 
+    @Test
+    public void testMyNodePushPop(){
+        try {
+            App.launcher("src/test/examples/MyNodePushPop.java");
+        } catch (Exception e) {
+            assert(false);
+        }
+        
+    }
+
+    @Test
+    public void testMyNodeComplete(){
+        try {
+            App.launcher("src/test/examples/MyNodeComplete.java");
+        } catch (Exception e) {
+            assert(false);
+        }
+        
+    }
+
+    @Test
+    public void testMyStackFieldAssign(){
+        try {
+            App.launcher("src/test/examples/MyStackFieldAssign.java");
+        } catch (Exception e) {
+            assert(false);
+        }
+        
+    }
+    
+    /*
+     * Incorrect Examples
+     */
+
+     @Test
+     public void testMyNode(){
+         try {
+             App.launcher("src/test/examples/MyNode.java");
+         } catch (Exception e) {
+             assertTrue(e instanceof LatteException);
+             assertTrue(e.getMessage().contains("UNIQUE but got BORROWED"));
+         }
+         
+     }
+
+    @Test
+    public void testMyNodePushPopIncorrect(){
+        try {
+            App.launcher("src/test/examples/MyNodePushPopIncorrect.java");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            assertTrue(e instanceof LatteException);
+            assertTrue(e.getMessage().contains("FREE but got BOTTOM"));
+        }
+        
     }
 
     @Test
@@ -78,37 +127,6 @@ public class AppTest {
         
     }
 
-    @Test
-    public void testMyNodePushPop(){
-        try {
-            App.launcher("src/test/examples/MyNodePushPop.java");
-        } catch (Exception e) {
-            assert(false);
-        }
-        
-    }
-
-    @Test
-    public void testMyNodeComplete(){
-        try {
-            App.launcher("src/test/examples/MyNodeComplete.java");
-        } catch (Exception e) {
-            assert(false);
-        }
-        
-    }
-    
-    @Test
-    public void testMyNodePushPopIncorrect(){
-        try {
-            App.launcher("src/test/examples/MyNodePushPopIncorrect.java");
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            assertTrue(e instanceof LatteException);
-            assertTrue(e.getMessage().contains("FREE but got BOTTOM"));
-        }
-        
-    }
 
     @Test
     public void testReachabilityUnitTest(){
