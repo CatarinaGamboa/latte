@@ -561,7 +561,7 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 
 		// Get a fresh symbolic value and add it to the environment with a shared default value
 		SymbolicValue sv = symbEnv.getFresh();
-		UniquenessAnnotation ua = new UniquenessAnnotation(Uniqueness.SHARED);
+		UniquenessAnnotation ua = new UniquenessAnnotation(Uniqueness.FREE);
 
 		// Add the symbolic value to the environment with a shared default value
 		permEnv.add(sv, ua);
@@ -643,7 +643,7 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 
 		// Get a fresh symbolic value and add it to the environment with a shared default value
 		SymbolicValue sv = symbEnv.getFresh();
-		UniquenessAnnotation ua = new UniquenessAnnotation(Uniqueness.SHARED);
+		UniquenessAnnotation ua = new UniquenessAnnotation(Uniqueness.FREE);
 		
 		if (literal.getValue() == null)
 			ua = new UniquenessAnnotation(Uniqueness.FREE);  // its a null literal

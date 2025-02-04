@@ -68,6 +68,17 @@ public class AppTest {
         
     }
     
+    @Test
+    public void testBox1(){
+        try {
+            App.launcher("src/test/examples/BoxMain.java");
+        } catch (Exception e) {
+            e.printStackTrace();
+            assert(false);
+        }
+        
+    }
+    
     /*
      * Incorrect Examples
      */
