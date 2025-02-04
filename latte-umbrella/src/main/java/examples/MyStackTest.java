@@ -3,7 +3,6 @@ package examples;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.http.HttpResponse;
 import java.util.ArrayList;
 
 import specification.Borrowed;
@@ -11,39 +10,37 @@ import specification.Free;
 import specification.Shared;
 import specification.Unique;
 
-class MyStackTest {
+import java.io.UnsupportedEncodingException;
 
-	@Unique Object value;
-
-	public MyStackTest(){
-		Object v = value;
-
-		Box2 b2 = new Box2(v);
-
-
-	}
+public class MyStackTest {
 }
 
-class Box2{
-	@Shared Object val;
 
-	public Box2(@Free Object v){
-		this.val = v; 
-	}
+class Test {
+    public static void test(HttpResponse r) throws UnsupportedEncodingException {
+        HttpResponse response = r;
+        InputStream in = response.getEntity().getContent();
+        BufferedReader reader = new BufferedReader(
+                new InputStreamReader(
+                        response.getEntity().getContent(), "UTF-8")); // Second call to getEntity()
+
+    //Cannot call getContent twice if the entity is not repeatable. There is a method isRepeatable() to check
+    }
 }
-// class Box{
-// 	@Unique int value;
 
-// 	void add(@Borrowed int delta){
-// 		this.value = this.value + delta;
-// 	}
+class HttpResponse {
+    // TODO: STUB METHOD
+    public HttpEntity getEntity() {
+        return new HttpEntity();
+    }
+}
 
-// 	// @Free Box2 makeBox2(){
-// 	// 	return new Box2(this.value);
-// 	// }
-
-// }
-
+class HttpEntity {
+    // TODO: STUB METHOD
+    public InputStream getContent() {
+        return (InputStream) new Object();
+    }
+}
 
 
 

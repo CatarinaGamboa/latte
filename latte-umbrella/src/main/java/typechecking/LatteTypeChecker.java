@@ -181,7 +181,9 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 		logInfo("Visiting invocation <"+ invocation.toStringDebug()+">");
 		super.visitCtInvocation(invocation);
 
-		if(invocation.getExecutable().getSimpleName().equals("<init>"))
+		String metName = invocation.getExecutable().getSimpleName();
+
+		if(metName.equals("<init>"))
 			return;
 
 		int paramSize = invocation.getArguments().size();
@@ -193,9 +195,13 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 		
 		// method(Γ(𝑥), 𝑓 ) = 𝛼 𝐶 𝑚(𝛼0 𝐶0 this, 𝛼1 𝐶1 𝑥1, · · · , 𝛼𝑛 𝐶𝑛 𝑥𝑛 )
 		CtClass<?> klass = maps.getClassFrom(e);
-		CtMethod<?> m = maps.getCtMethod(klass, invocation.getExecutable().getSimpleName(), 
+		CtMethod<?> m = maps.getCtMethod(klass, metName, 
 			invocation.getArguments().size());
 
+		if (m == null){
+			logInfo(String.format("Cannot find method {} for {} in the context", metName, invocation.getType()));
+			return;
+		}
 		List<SymbolicValue> paramSymbValues = new ArrayList<>();
 
 		for (int i = 0; i < paramSize; i++){
@@ -463,6 +469,10 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 		int paramSize = constCall.getArguments().size();
 		CtConstructor<?> c = maps.geCtConstructor(klass, paramSize);
 		List<SymbolicValue> paramSymbValues = new ArrayList<>();
+		if (klass == null || c == null){
+			logInfo(String.format("Cannot find the constructor for {} in the context", constCall.getType()));
+			return;
+		}
 		for (int i = 0; i < paramSize; i++){
 			CtExpression<?> arg = constCall.getArguments().get(i);
 			// Γ; Δ; Σ ⊢ 𝑒1, ... , 𝑒𝑛 ⇓ 𝜈1, ... , 𝜈𝑛 ⊣ Γ′; Δ′; Σ′ 
