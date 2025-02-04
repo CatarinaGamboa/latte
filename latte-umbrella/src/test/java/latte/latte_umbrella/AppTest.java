@@ -148,6 +148,16 @@ public class AppTest {
         }
     }
 
+    @Test
+    public void testFieldAccessNoThis(){
+        try {
+            App.launcher("src/test/examples/FieldAccessNoThis.java");
+        } catch (Exception e) {
+            assertTrue(e instanceof LatteException);
+            assertTrue(e.getMessage().contains("UNIQUE but got SHARED"));
+        }
+    }
+
 
     @Test
     public void testReachabilityUnitTest(){

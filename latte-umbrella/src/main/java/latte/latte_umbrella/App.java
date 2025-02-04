@@ -30,7 +30,7 @@ public class App {
 
 		if (args.length == 0) {
 			System.out.println("Please enter the path to the file you want to process");
-			String allPath = "latte-umbrella/src/main/java/examples/MyStack.java";
+			String allPath = "latte-umbrella/src/main/java/examples/MyStackTest.java";
 			launcher(allPath);
 
 		} else if (args.length == 1 && args[0].equals("-multi")) {

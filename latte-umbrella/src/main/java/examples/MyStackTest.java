@@ -13,7 +13,11 @@ import specification.Unique;
 
 class MyStackTest {
 
+	@Unique Object value;
 
+	public MyStackTest(@Shared Object t){
+		value = t;
+	}
 		// public static void test(@Borrowed ArrayList<String> list) {
 		// 	// ArrayList<String> nl = list;
 			
