@@ -15,25 +15,22 @@ class MyStackTest {
 
 	@Unique Object value;
 
-	public MyStackTest(@Shared Object t){
-		value = t;
+	public MyStackTest(){
+		Object v = value;
+
+		Box2 b2 = new Box2(v);
+
+
 	}
-		// public static void test(@Borrowed ArrayList<String> list) {
-		// 	// ArrayList<String> nl = list;
-			
-		// 	// byte[] t = nl.getFirst().getBytes();
-
-		// 	// byte[] f = list.getFirst().getBytes();
-
-		// 	Box b1 = new Box();
-		// 	b1.add(123);
-
-
-
-		// }
 }
 
+class Box2{
+	@Shared Object val;
 
+	public Box2(@Free Object v){
+		this.val = v; 
+	}
+}
 // class Box{
 // 	@Unique int value;
 
@@ -47,13 +44,7 @@ class MyStackTest {
 
 // }
 
-// class Box2{
-// 	@Shared int val;
 
-// 	public Box2(@Free int v){
-// 		this.val = v; 
-// 	}
-// }
 
 
 // class Box {

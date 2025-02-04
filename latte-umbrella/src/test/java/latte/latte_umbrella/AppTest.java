@@ -158,6 +158,16 @@ public class AppTest {
         }
     }
 
+    @Test
+    public void testFieldAccessRightNoThis(){
+        try {
+            App.launcher("src/test/examples/FieldAccessRightNoThis.java");
+        } catch (Exception e) {
+            assertTrue(e instanceof LatteException);
+            assertTrue(e.getMessage().contains("FREE but got UNIQUE"));
+        }
+    }
+
 
     @Test
     public void testReachabilityUnitTest(){
