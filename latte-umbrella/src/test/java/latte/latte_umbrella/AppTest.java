@@ -79,6 +79,17 @@ public class AppTest {
         
     }
     
+
+    @Test
+    public void testHttpEntityNoAnnotations(){
+        try {
+            App.launcher("src/test/examples/HttpEntityNoAnnotations.java");
+        } catch (Exception e) {
+            e.printStackTrace();
+            assert(false);
+        }
+    }
+    
     /*
      * Incorrect Examples
      */
