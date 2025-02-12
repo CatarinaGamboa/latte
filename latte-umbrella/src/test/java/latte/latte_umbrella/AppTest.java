@@ -76,7 +76,6 @@ public class AppTest {
             e.printStackTrace();
             assert(false);
         }
-        
     }
     
 
@@ -84,6 +83,16 @@ public class AppTest {
     public void testHttpEntityNoAnnotations(){
         try {
             App.launcher("src/test/examples/HttpEntityNoAnnotations.java");
+        } catch (Exception e) {
+            e.printStackTrace();
+            assert(false);
+        }
+    }
+    
+    @Test
+    public void testURLConnectionReuseConnection(){
+        try {
+            App.launcher("src/test/examples/URLConnectionReuseConnection.java");
         } catch (Exception e) {
             e.printStackTrace();
             assert(false);
