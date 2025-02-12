@@ -128,6 +128,16 @@ public class AppTest {
             assert(false);
         }
     }
+
+    @Test
+    public void testResultSetNoNext(){
+        try {
+            App.launcher("src/test/examples/ResultSetNoNext.java");
+        } catch (Exception e) {
+            e.printStackTrace();
+            assert(false);
+        }
+    }
     
     /*
      * Incorrect Examples
