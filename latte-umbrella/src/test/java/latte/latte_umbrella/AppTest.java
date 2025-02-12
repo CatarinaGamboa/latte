@@ -118,6 +118,7 @@ public class AppTest {
             assert(false);
         }
     }
+<<<<<<< HEAD
 
     @Test
     public void testTimerTaskCannotReschedule(){
@@ -148,6 +149,8 @@ public class AppTest {
             assert(false);
         }
     }
+=======
+>>>>>>> 4ba1475 (add examples urlconnection property with several methods)
     
     /*
      * Incorrect Examples
