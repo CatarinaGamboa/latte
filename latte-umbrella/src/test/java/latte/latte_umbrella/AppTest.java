@@ -118,6 +118,16 @@ public class AppTest {
             assert(false);
         }
     }
+
+    @Test
+    public void testTimerTaskCannotReschedule(){
+        try {
+            App.launcher("src/test/examples/TimerTaskCannotReschedule.java");
+        } catch (Exception e) {
+            e.printStackTrace();
+            assert(false);
+        }
+    }
     
     /*
      * Incorrect Examples
