@@ -138,6 +138,16 @@ public class AppTest {
             assert(false);
         }
     }
+
+    @Test
+    public void testResultSetForwardOnly(){
+        try {
+            App.launcher("src/test/examples/ResultSetForwardOnly.java");
+        } catch (Exception e) {
+            e.printStackTrace();
+            assert(false);
+        }
+    }
     
     /*
      * Incorrect Examples
