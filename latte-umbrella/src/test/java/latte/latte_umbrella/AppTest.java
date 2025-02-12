@@ -118,6 +118,7 @@ public class AppTest {
             assert(false);
         }
     }
+<<<<<<< HEAD
 
     @Test
     public void testTimerTaskCannotReschedule(){
