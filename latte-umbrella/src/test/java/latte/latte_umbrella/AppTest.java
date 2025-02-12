@@ -98,6 +98,16 @@ public class AppTest {
             assert(false);
         }
     }
+
+    @Test
+    public void testURLConnectionSetProperty1(){
+        try {
+            App.launcher("src/test/examples/URLConnectionSetProperty1.java");
+        } catch (Exception e) {
+            e.printStackTrace();
+            assert(false);
+        }
+    }
     
     /*
      * Incorrect Examples
