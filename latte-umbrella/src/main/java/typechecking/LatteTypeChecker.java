@@ -213,10 +213,7 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 			CtParameter<?> p = m.getParameters().get(i);
 			UniquenessAnnotation expectedUA = new UniquenessAnnotation(p);
 			UniquenessAnnotation vvPerm = permEnv.get(vv);
-			// {𝜈𝑖 : borrowed ≤ 𝛼𝑖 }
-			if (!vvPerm.isGreaterEqualThan(Uniqueness.BORROWED)){
-				logError(String.format("Symbolic value %s:%s is not greater than BORROWED", vv, vvPerm), arg);
-			}
+			
 			logInfo(String.format("Checking constructor argument %s:%s, %s <= %s", p.getSimpleName(), vv, vvPerm, expectedUA));
 			// Σ′ ⊢ 𝑒1, ... , 𝑒𝑛 : 𝛼1, ... , 𝛼𝑛 ⊣ Σ′′
 			if (!permEnv.usePermissionAs(vv, vvPerm, expectedUA))
@@ -227,7 +224,12 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 		
 		// distinct(Δ′, {𝜈𝑖 : borrowed ≤ 𝛼𝑖 })
 		// distinct(Δ, 𝑆) ⇐⇒ ∀𝜈, 𝜈′ ∈ 𝑆 : Δ ⊢ 𝜈 ⇝ 𝜈′ =⇒ 𝜈 = 𝜈′
-		if (!symbEnv.distinct(paramSymbValues)){
+		List<SymbolicValue> check_distinct = new ArrayList<>();
+		for(SymbolicValue sv: paramSymbValues)
+			if (permEnv.get(sv).isGreaterEqualThan(Uniqueness.BORROWED))
+				check_distinct.add(sv);
+
+		if (!symbEnv.distinct(check_distinct)){
 			logError(String.format("Non-distinct parameters in constructor call of %s", klass.getSimpleName()), invocation);
 		}
 
@@ -653,7 +655,7 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 
 		// Get a fresh symbolic value and add it to the environment with a shared default value
 		SymbolicValue sv = symbEnv.getFresh();
-		UniquenessAnnotation ua = new UniquenessAnnotation(Uniqueness.FREE);
+		UniquenessAnnotation ua = new UniquenessAnnotation(Uniqueness.SHARED);
 		
 		if (literal.getValue() == null)
 			ua = new UniquenessAnnotation(Uniqueness.FREE);  // its a null literal
