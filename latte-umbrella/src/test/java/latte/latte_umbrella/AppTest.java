@@ -108,6 +108,16 @@ public class AppTest {
             assert(false);
         }
     }
+
+    @Test
+    public void testURLConnectionSetPropertyMultipleShort(){
+        try {
+            App.launcher("src/test/examples/URLConnectionSetPropertyMultipleShort.java");
+        } catch (Exception e) {
+            e.printStackTrace();
+            assert(false);
+        }
+    }
     
     /*
      * Incorrect Examples
