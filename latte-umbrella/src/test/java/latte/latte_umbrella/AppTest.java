@@ -76,7 +76,6 @@ public class AppTest {
             e.printStackTrace();
             assert(false);
         }
-        
     }
     
 
@@ -84,6 +83,66 @@ public class AppTest {
     public void testHttpEntityNoAnnotations(){
         try {
             App.launcher("src/test/examples/HttpEntityNoAnnotations.java");
+        } catch (Exception e) {
+            e.printStackTrace();
+            assert(false);
+        }
+    }
+    
+    @Test
+    public void testURLConnectionReuseConnection(){
+        try {
+            App.launcher("src/test/examples/URLConnectionReuseConnection.java");
+        } catch (Exception e) {
+            e.printStackTrace();
+            assert(false);
+        }
+    }
+
+    @Test
+    public void testURLConnectionSetProperty1(){
+        try {
+            App.launcher("src/test/examples/URLConnectionSetProperty1.java");
+        } catch (Exception e) {
+            e.printStackTrace();
+            assert(false);
+        }
+    }
+
+    @Test
+    public void testURLConnectionSetPropertyMultipleShort(){
+        try {
+            App.launcher("src/test/examples/URLConnectionSetPropertyMultipleShort.java");
+        } catch (Exception e) {
+            e.printStackTrace();
+            assert(false);
+        }
+    }
+
+    @Test
+    public void testTimerTaskCannotReschedule(){
+        try {
+            App.launcher("src/test/examples/TimerTaskCannotReschedule.java");
+        } catch (Exception e) {
+            e.printStackTrace();
+            assert(false);
+        }
+    }
+
+    @Test
+    public void testResultSetNoNext(){
+        try {
+            App.launcher("src/test/examples/ResultSetNoNext.java");
+        } catch (Exception e) {
+            e.printStackTrace();
+            assert(false);
+        }
+    }
+
+    @Test
+    public void testResultSetForwardOnly(){
+        try {
+            App.launcher("src/test/examples/ResultSetForwardOnly.java");
         } catch (Exception e) {
             e.printStackTrace();
             assert(false);
