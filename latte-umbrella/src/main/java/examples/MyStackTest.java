@@ -3,21 +3,12 @@ package examples;
 
 public class MyStackTest {
 
-        public static void main(String[] args) {
+    public static void main(String[] args) {
 
         // Define and initialize queues
-        LinkedList<Integer> qev1, qev2, qcv1, qcv2;
+        LinkedList<Integer> qev1;
         qev1 = new LinkedList<>();
-        qev2 = new LinkedList<>();
-        qcv1 = new LinkedList<>();
-        qcv2 = new LinkedList<>();
-
         qev1.add(100);
-        qev1.add(200);
-        qev1.add(300);
-        qev1.add(300);
-        qev1.add(300);
-        qev1.add(300);
 
         // Get an iterator for the queue
         Iterator<Integer> iterator = qev1.iterator();
