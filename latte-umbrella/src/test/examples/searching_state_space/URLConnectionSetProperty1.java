@@ -3,7 +3,7 @@ import specification.Unique;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class URLConnectionSetProperty1 {
+public class SSSURLConnectionSetProperty1 {
     
     public static void example331538(@Borrowed URL address) {
         try {
@@ -14,8 +14,7 @@ public class URLConnectionSetProperty1 {
             // Step 2) Setup parameters and connection properties
             cnx.setAllowUserInteraction(false); // Step 2)
             cnx.setDoOutput(true);
-            cnx.addRequestProperty("User-Agent", 
-                "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
+            cnx.addRequestProperty("User-Agent",  "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
 
 
             // Step 3)

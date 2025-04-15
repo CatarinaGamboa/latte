@@ -92,7 +92,7 @@ public class AppTest {
     @Test
     public void testURLConnectionReuseConnection(){
         try {
-            App.launcher("src/test/examples/URLConnectionReuseConnection.java");
+            App.launcher("src/test/examples/searching_state_space/URLConnectionReuseConnection.java");
         } catch (Exception e) {
             e.printStackTrace();
             assert(false);
@@ -102,7 +102,7 @@ public class AppTest {
     @Test
     public void testURLConnectionSetProperty1(){
         try {
-            App.launcher("src/test/examples/URLConnectionSetProperty1.java");
+            App.launcher("src/test/examples/searching_state_space/URLConnectionSetProperty1.java");
         } catch (Exception e) {
             e.printStackTrace();
             assert(false);
@@ -112,7 +112,7 @@ public class AppTest {
     @Test
     public void testURLConnectionSetPropertyMultipleShort(){
         try {
-            App.launcher("src/test/examples/URLConnectionSetPropertyMultipleShort.java");
+            App.launcher("src/test/examples/searching_state_space/URLConnectionSetPropertyMultipleShort.java");
         } catch (Exception e) {
             e.printStackTrace();
             assert(false);
@@ -122,7 +122,7 @@ public class AppTest {
     @Test
     public void testTimerTaskCannotReschedule(){
         try {
-            App.launcher("src/test/examples/TimerTaskCannotReschedule.java");
+            App.launcher("src/test/examples/searching_state_space/TimerTaskCannotReschedule.java");
         } catch (Exception e) {
             e.printStackTrace();
             assert(false);
@@ -132,7 +132,7 @@ public class AppTest {
     @Test
     public void testResultSetNoNext(){
         try {
-            App.launcher("src/test/examples/ResultSetNoNext.java");
+            App.launcher("src/test/examples/searching_state_space/ResultSetNoNext.java");
         } catch (Exception e) {
             e.printStackTrace();
             assert(false);
@@ -142,13 +142,23 @@ public class AppTest {
     @Test
     public void testResultSetForwardOnly(){
         try {
-            App.launcher("src/test/examples/ResultSetForwardOnly.java");
+            App.launcher("src/test/examples/searching_state_space/ResultSetForwardOnly.java");
         } catch (Exception e) {
             e.printStackTrace();
             assert(false);
         }
     }
-    
+
+    @Test
+    public void testSOSMediaRecord(){
+        try {
+            App.launcher("src/test/examples/stack_overflow/MediaRecord.java");
+        } catch (Exception e) {
+            e.printStackTrace();
+            assert(false);
+        }
+    }
+
     /*
      * Incorrect Examples
      */

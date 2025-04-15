@@ -6,7 +6,7 @@ import specification.Borrowed;
 import specification.Shared;
 import specification.Unique;
 
-public class URLConnectionSetPropertyMultipleShort {
+public class SSSURLConnectionSetPropertyMultipleComplete {
 
     String sessionId = "1234";
     public  void example5368535(@Borrowed URL address, String content) {
@@ -26,27 +26,38 @@ public class URLConnectionSetPropertyMultipleShort {
         }
     }
 
-    // Setters
-    @Unique // @StateRefinement(return, to="manipulate")
-    public URLConnection openConnection(@Borrowed URL url, boolean in, boolean out, 
-                                                    String requestMethode) throws IOException {
+    // Exactly from the original code
+    @Unique
+    public URLConnection openConnection(@Borrowed URL url, boolean in, boolean out, String requestMethode) throws IOException{
         URLConnection con = url.openConnection();
         con.setDoInput(in);
         con.setDoOutput (out);
+        con.setRequestMethod(requestMethode);
+        con.setRequestProperty ("Content-Type", "application/x-www-form-urlencoded");
         return con;
     }
 
     // Set cookies
-    // @StateRefinement(cnx, from="manipulate")
-    private void setCookies(@Borrowed URLConnection cnx) {
-        cnx.setRequestProperty("Cookie", sessionId);
+    private  void setCookies(@Borrowed URLConnection cnx) {
+        if (sessionId != null) {
+            cnx.setRequestProperty("Cookie", sessionId);
+            System.out.println("Cookie set: " + sessionId);
+        }
     }
 
     // Write content
-    // @StateRefinement(cnx, from="interact")
     private void writeToOutput(@Borrowed URLConnection cnx, String content) throws IOException {
-        cnx.getOutputStream();
+        try {
+            OutputStream os = cnx.getOutputStream() ;
+            os.write(content.getBytes());
+            os.flush();
+            os.close();
+        } catch (IOException e) {
+            System.err.println("Error writing content: " + e.getMessage());
+            throw e;
+        }
     }
+ 
 }
 
 

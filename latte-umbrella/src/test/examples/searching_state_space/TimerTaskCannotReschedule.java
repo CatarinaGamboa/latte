@@ -3,7 +3,7 @@ import java.util.TimerTask;
 import specification.Borrowed;
 import specification.Free;
 
-public class TimerTaskCannotReschedule {
+public class SSSTimerTaskCannotReschedule {
 
     /*
     * Error cannot reschedule  a timer
@@ -47,12 +47,12 @@ class Timer{
 //     timer.cancel();
 
 //     // Step 3) Schedule a new task for this timer -> ERROR Cannot reschedule a Timer
-//     timer.schedule(new TimerTask() {
-//         @Override
-//         public void run() {
-//             System.out.println("Timer task completed.");
-//         }
-//     }, 1000);
+    // timer.schedule(new TimerTask() {
+    //     @Override
+    //     public void run() {
+    //         System.out.println("Timer task completed.");
+    //     }
+    // }, 1000);
 // }
 
 

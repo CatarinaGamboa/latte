@@ -5,7 +5,7 @@ import specification.Borrowed;
 import specification.Free;
 import specification.Unique;
 
-public class ResultSetNoNext {
+public class SSSResultSetNoNext {
 
 
     /*
@@ -42,19 +42,19 @@ public class ResultSetNoNext {
         // prepareStatement​(String sql, int resultSetType, int resultSetConcurrency){}
     }
 
-
     class PreparedStatement{
         void setString(int index, String s){}
 
-        // @StateRefinement(return, to="TYPE_FORWARD_ONLY, col == -1")
+        // @ReturnState( to="TYPE_FORWARD_ONLY, beforeRow")
         ResultSet executeQuery(String s){return null;}
     }
 
+    //@StateSet({"beforeRow", "onRow"})
     class ResultSet{
-        // @StateRefinement(this, col > 0)
+        // @StateRefinement( from = "onRow")
         float getFloat(String s){return 0;}
 
-        // @StateRefinement(this, col == old(col) + 1)
+        // @StateRefinement( to="onRow")
         void next(){}
     }
 

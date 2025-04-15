@@ -1,7 +1,7 @@
 import specification.Borrowed;
 import specification.Unique;
 
-public class URLConnectionReuseConnection {
+public class SSSURLConnectionReuseConnection {
     
     public static void example4278917(@Borrowed URL address) {
 

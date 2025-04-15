@@ -1,186 +1,59 @@
 package examples;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-
-import specification.Borrowed;
-import specification.Free;
-import specification.Shared;
-import specification.Unique;
-
-import java.io.UnsupportedEncodingException;
 
 public class MyStackTest {
-}
 
+        public static void main(String[] args) {
 
-class Test {
-    public static void test(HttpResponse r) throws UnsupportedEncodingException {
-        HttpResponse response = r;
-        InputStream in = response.getEntity().getContent();
-        BufferedReader reader = new BufferedReader(
-                new InputStreamReader(
-                        response.getEntity().getContent(), "UTF-8")); // Second call to getEntity()
+        // Define and initialize queues
+        LinkedList<Integer> qev1, qev2, qcv1, qcv2;
+        qev1 = new LinkedList<>();
+        qev2 = new LinkedList<>();
+        qcv1 = new LinkedList<>();
+        qcv2 = new LinkedList<>();
 
-    //Cannot call getContent twice if the entity is not repeatable. There is a method isRepeatable() to check
+        qev1.add(100);
+        qev1.add(200);
+        qev1.add(300);
+        qev1.add(300);
+        qev1.add(300);
+        qev1.add(300);
+
+        // Get an iterator for the queue
+        Iterator<Integer> iterator = qev1.iterator();
+
+        try {
+            iterator.remove(); // Error no call to next before remove
+        }
+        catch(UnsupportedOperationException e) {
+            System.out.println("Calling Iterator.remove() and throwing exception.");
+        }
+
     }
+
 }
 
-class HttpResponse {
-    // TODO: STUB METHOD
-    public HttpEntity getEntity() {
-        return new HttpEntity();
-    }
+// @ExternalRefinementsFor("java.util.Iterator")
+// @StateSet({"start", "ready", "inNext"})
+class Iterator<N> {
+
+    // @StateRefinement(to = "start(this)")
+    public Iterator(){}
+
+    // @StateRefinement(to = "ready(this)")
+    public boolean hasNext(){return true;}
+
+    // @StateRefinement(from = "ready(this)", to = "inNext(this)")
+    public Object next(){return null;}
+
+    // @StateRefinement(from = "inNext(this)", to = "start(this)")
+    public void remove(){}
 }
 
-class HttpEntity {
-    // TODO: STUB METHOD
-    public InputStream getContent() {
-        return (InputStream) new Object();
-    }
+// @ExternalRefinementsFor("java.util.LinkedList")
+class LinkedList<T> {
+
+    public Iterator<T> iterator(){return null;}    
+
+    public void add(T t){}
 }
-
-
-
-// class Box {
-// 	@Unique int value;
-// 	void add(@Owned int delta) {
-// 	// ERROR: RHS and LHS are not separately unique
-// 	this.value = this.value + this.delta;
-// 	}
-// 	void test() {
-// 	int x = 123;
-// 	Box b1 = new Box(x);
-// 	// ERROR: ‘x‘ is consumed since ‘value‘ is unique,
-// 	// thus it is unaccessible
-// 	Box b2 = new Box(x);
-// 	}
-// 	void makeBox2() {
-// 	// ERROR: ‘this.value‘ is unique, thus cannot be
-// 	// passed to a shared parameter
-// 	return new Box2(this.value);
-// 	}
-// 	}
-// 	class Box2 { @Shared int value; }
-
-
-
-// 		HttpResponse response = r;
-//         InputStream in = response.getEntity().getContent();
-//         BufferedReader reader = new BufferedReader(
-//                 new InputStreamReader(
-//                         response.getEntity().getContent(), "UTF-8")); // Second call to getEntity()
-
-    
-
-// 		@Unique Node root;		
-		
-// 		public MyStack(@Free Node root) {
-// 			this.root = root;
-// 		}
-
-		
-// 		void push( @Free Object value) {	
-// 			Node r;
-// 			Node n;
-			
-// 			r = this.root; 			// save root in r
-// 			this.root = null; 		//nullify root
-// 			n = new Node(value, r); //create new root
-// 			this.root = n; 			//replace root
-// 		}
-
-
-// 		@Free Object pop (){
-// 			Object value;
-
-// 			if (this.root == null) {
-// 				value = null;
-// 			} else {
-// 				Node r = root;
-// 				value = r.value;
-// 				Node n;
-// 				n = r.next;
-// 				r.next = null;
-// 				r.value = null;
-// 				this.root = n;
-// 			}
-// 			return value;
-// 		}
-		
-// 		// public @Unique Object dequeue() {
-// 		// 	Node r = this.root;
-// 		// 	//r : alias(this.root)
-// 		// 	if (r == null || r.next == null) {
-// 		// 	  // In an empty or single-element stack, dequeue and pop
-// 		// 	  // are equivalent
-// 		// 	  return pop();
-// 		// 	} else {
-			
-// 		// 		// `this` and `this.root` are effectively alias, thus
-// 		// 		// we cannot pass `this.root` to `this.dequeue` without
-// 		// 		// doing a destructive read
-// 		// 		this.root = null;
-// 		// 		// r : unique
-			
-// 		// 		Object value = dequeueHelper(r);
-// 		// 		// value : unique
-			
-// 		// 		// Since `dequeue` only detaches the next node of the one
-// 		// 		// passed to it, it will never need to detach `root`, so
-// 		// 		// we can just restore it back to the original value.
-// 		// 		this.root = r;
-// 		// 		// r : alias(this.root)
-			
-// 		// 		return value;
-// 		// 	}
-// 		// }
-		
-// 		// private @Free Object dequeueHelper(@Borrowed Node n) {
-// 		// 	// Look ahead two steps so that we can disconnect the *next*
-// 		// 	// node by mutating the node that will remain in the stack.
-		
-// 		// 	Node nn = n.next;
-// 		// 	// nn : alias(n.next)
-		
-// 		// 	if (nn.next == null) {
-// 		// 	  n.next = null;
-// 		// 	  // nn : unique
-			  
-// 		// 	  Object value = nn.value;
-// 		// 	  // value : alias(nn.value)
-		
-// 		// 	  nn.value = null;
-// 		// 	  // value : unique
-		
-// 		// 	  return value;
-// 		// 	} else {
-// 		// 	  return dequeueHelper(n.next);
-// 		// 	}
-// 		// }
-// }
-
-// /**
-//  * Node class for the stack example
-//  * Uses @Unique annotations to specify that the value and next fields are unique
-//  * in the scope of the Node class
-//  * @author catarina gamboa
-//  *
-//  */
-// class Node {
-	
-// 	@Unique Object value;
-// 	@Unique Node next;
-
-// 	/**
-// 	 * Constructor for the Node class using @Free value and next nodes
-// 	 * @param value
-// 	 * @param next
-// 	 */
-// 	public Node (@Free Object value, @Free Node next) {
-// 		this.value = value;
-// 		this.next = next;
-// 	}
-// }
