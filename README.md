@@ -58,8 +58,8 @@ latte-umbrella/
 Clone the repository and build with Maven:
 
 ```bash
-git clone https://github.com/your-username/latte.git
-cd latte
+git clone https://github.com/CatarinaGamboa/latte.git
+cd latte/latte-umbrella
 mvn clean install
 ```
 
