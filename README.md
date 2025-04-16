@@ -3,6 +3,7 @@
 Latte is a lightweight static analysis tool for tracking aliasing in Java programs. This tool allows you to annotate your programs with permissions where aliases are tracked to prevent bugs related to unexpected object references and side effects.
 
 For more details, check our [research paper](https://arxiv.org/pdf/2309.05637).
+Test our VSCode Plugin in the Codespaces of the project [latte-vscode](https://github.com/CatarinaGamboa/latte-vscode).
 
 ## Overview
 
