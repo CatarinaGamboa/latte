@@ -28,11 +28,11 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Build with Maven
-      working-directory: latte-umbrella
+      working-directory: latte
       run: mvn -B package --file pom.xml
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     - name: Update dependency graph
       run: |
-        cd latte-umbrella
+        cd latte
         mvn com.github.ferstl:depgraph-maven-plugin:4.0.1:graph

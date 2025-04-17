@@ -5,10 +5,10 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>latte</groupId>
-  <artifactId>latte-umbrella</artifactId>
+  <artifactId>latte</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 
-  <name>latte-umbrella</name>
+  <name>latte</name>
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
 
