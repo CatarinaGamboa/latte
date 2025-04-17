@@ -1,4 +1,4 @@
-package latte.latte_umbrella;
+package api;
 
 public class JsonError {
     private int startLine;

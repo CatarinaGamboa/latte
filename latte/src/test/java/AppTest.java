@@ -1,4 +1,4 @@
-package latte.latte_umbrella;
+
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -11,7 +11,7 @@ import org.junit.Test;
 import context.SymbolicEnvironment;
 import context.SymbolicValue;
 import typechecking.LatteException;
-
+import api.App;
 /**
  * Unit test for simple App.
  */
