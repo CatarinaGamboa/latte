@@ -26,13 +26,12 @@ Local variables are not annotated and start with a default annotation that allow
 ## Project Structure
 
 ```
-latte-umbrella/
+latte/
 ├── src/
 │   └── main/
 │       └── java/
 │           ├── latte/
-│           │   └── latte_umbrella/
-│           │       └── App.java  # Main application entry point
+│           │   └── App.java  # Main application entry point
 │           └── examples/         # Test examples for the analysis
 │   └── test/
 │       └── java/
@@ -58,8 +57,8 @@ latte-umbrella/
 Clone the repository and build with Maven:
 
 ```bash
-git clone https://github.com/your-username/latte.git
-cd latte
+git clone https://github.com/CatarinaGamboa/latte.git
+cd latte/latte
 mvn clean install
 ```
 

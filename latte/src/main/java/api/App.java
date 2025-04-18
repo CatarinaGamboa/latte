@@ -1,5 +1,4 @@
-package latte.latte_umbrella;
-
+package api;
 import java.io.File;
 import java.security.InvalidParameterException;
 import java.util.Arrays;
@@ -30,7 +29,7 @@ public class App {
 
 		if (args.length == 0) {
 			System.out.println("Please enter the path to the file you want to process");
-			String allPath = "latte-umbrella/src/main/java/examples/MyStackTest.java";
+			String allPath = "latte/src/main/java/examples/MyStackTest.java";
 			launcher(allPath);
 
 		} else if (args.length == 1 && args[0].equals("-multi")) {
