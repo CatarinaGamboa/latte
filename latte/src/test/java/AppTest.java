@@ -18,6 +18,7 @@ import typechecking.LatteException;
 
 public class AppTest {
 
+    // Provide the test cases: file path, should pass (boolean), and expected error message (if any)
     private static Stream<Arguments> provideTestCases() {
         return Stream.of(
             Arguments.of("src/test/examples/MyNodeCorrect.java", true, null),
@@ -48,6 +49,11 @@ public class AppTest {
     @ParameterizedTest
     @MethodSource("provideTestCases")
     public void testApp(String filePath, boolean shouldPass, String expectedErrorMessage) {
+        runTest(filePath, shouldPass, expectedErrorMessage);
+    }
+
+    // The shared method that handles the actual test logic
+    private void runTest(String filePath, boolean shouldPass, String expectedErrorMessage) {
         try {
             App.launcher(filePath);
             if (!shouldPass) {
@@ -58,6 +64,8 @@ public class AppTest {
                 fail("Unexpected exception: " + e.getMessage());
             } else {
                 assertTrue(e instanceof LatteException);
+                // Print the exception message for debugging
+                System.out.println("Exception message: " + e.getMessage());
                 assertTrue(e.getMessage().contains(expectedErrorMessage));
             }
         }
@@ -66,9 +74,13 @@ public class AppTest {
     @Test
     public void testReachabilityUnitTest() {
         Logger logger = Logger.getLogger(AppTest.class.getName());
+
+        // Create a symbolic environment
         SymbolicEnvironment se = new SymbolicEnvironment();
         se.enterScope();
+
         SymbolicValue v1 = se.addVariable("x");
+        // x->1
         SymbolicValue v2 = se.addVariable("y");
         SymbolicValue v3 = se.addField(v1, "f");
         se.addVarSymbolicValue("z", v1);
@@ -76,6 +88,7 @@ public class AppTest {
 
         logger.info(se.toString());
 
+        // Test reachability between variables
         boolean b = se.canReach(v1, v2, new ArrayList<>());
         logger.info(v1.toString() + " can reach " + v2.toString() + "? " + b);
         assertFalse(b);
@@ -85,7 +98,7 @@ public class AppTest {
         assertTrue(b1);
 
         boolean b2 = se.canReach(v1, v4, new ArrayList<>());
-        logger.info(v1.toString() + " can reach " + v4.toString() + "? " + b1);
+        logger.info(v1.toString() + " can reach " + v4.toString() + "? " + b2);
         assertTrue(b2);
     }
 }
