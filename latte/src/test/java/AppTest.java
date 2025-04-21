@@ -82,7 +82,9 @@ public class AppTest {
         SymbolicValue v1 = se.addVariable("x");
         // x->1
         SymbolicValue v2 = se.addVariable("y");
+        // x->1; y->2
         SymbolicValue v3 = se.addField(v1, "f");
+        // x->1; y->2, 1.f->3, z -> 1
         se.addVarSymbolicValue("z", v1);
         SymbolicValue v4 = se.get("z");
 
