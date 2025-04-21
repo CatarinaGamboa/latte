@@ -84,10 +84,10 @@ public class AppTest {
         SymbolicValue v2 = se.addVariable("y");
         // x->1; y->2
         SymbolicValue v3 = se.addField(v1, "f");
-        // x->1; y->2, 1.f->3, z -> 1
+        // x->1; y->2, 1.f->3
         se.addVarSymbolicValue("z", v1);
         SymbolicValue v4 = se.get("z");
-
+        // x->1; y->2, 1.f->3, z -> 1
         logger.info(se.toString());
 
         // Test reachability between variables
