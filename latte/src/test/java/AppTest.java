@@ -1,120 +1,91 @@
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.ArrayList;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
+
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import api.App;
+import context.SymbolicEnvironment;
+import context.SymbolicValue;
 import typechecking.LatteException;
 
 public class AppTest {
 
-    /*
-     * === Helper Methods ===
-     */
-
-    private void assertLauncherPasses(String filePath) {
-        assertDoesNotThrow(() -> App.launcher(filePath));
+    private static Stream<Arguments> provideTestCases() {
+        return Stream.of(
+            Arguments.of("src/test/examples/MyNodeCorrect.java", true, null),
+            Arguments.of("src/test/examples/MyNodePush.java", true, null),
+            Arguments.of("src/test/examples/MyNodePushPop.java", true, null),
+            Arguments.of("src/test/examples/MyNodeComplete.java", true, null),
+            Arguments.of("src/test/examples/MyStackFieldAssign.java", true, null),
+            Arguments.of("src/test/examples/BoxMain.java", true, null),
+            Arguments.of("src/test/examples/HttpEntityNoAnnotations.java", true, null),
+            Arguments.of("src/test/examples/searching_state_space/URLConnectionReuseConnection.java", true, null),
+            Arguments.of("src/test/examples/searching_state_space/URLConnectionSetProperty1.java", true, null),
+            Arguments.of("src/test/examples/searching_state_space/URLConnectionSetPropertyMultipleShort.java", true, null),
+            Arguments.of("src/test/examples/searching_state_space/TimerTaskCannotReschedule.java", true, null),
+            Arguments.of("src/test/examples/searching_state_space/ResultSetNoNext.java", true, null),
+            Arguments.of("src/test/examples/searching_state_space/ResultSetForwardOnly.java", true, null),
+            Arguments.of("src/test/examples/stack_overflow/MediaRecord.java", true, null),
+            Arguments.of("src/test/examples/MyNode.java", false, "UNIQUE but got BORROWED"),
+            Arguments.of("src/test/examples/MyNodePushPopIncorrect.java", false, "FREE but got BOTTOM"),
+            Arguments.of("src/test/examples/MyNodeNoDistinct.java", false, "Non-distinct parameters"),
+            Arguments.of("src/test/examples/MyNodeCallUniqueFree.java", false, "FREE but got UNIQUE"),
+            Arguments.of("src/test/examples/SmallestIncorrectExample.java", false, "UNIQUE but got BORROWED"),
+            Arguments.of("src/test/examples/MyStackFieldAssignMethod.java", false, "UNIQUE but got SHARED"),
+            Arguments.of("src/test/examples/FieldAccessNoThis.java", false, "UNIQUE but got SHARED"),
+            Arguments.of("src/test/examples/FieldAccessRightNoThis.java", false, "FREE but got UNIQUE")
+        );
     }
 
-    /*
-     * === Correct Examples ===
-     */
-
-    private static final List<String> CORRECT_FILES = List.of(
-        "src/test/examples/MyNodeCorrect.java",
-        "src/test/examples/MyNodePush.java",
-        "src/test/examples/MyNodePushPop.java",
-        "src/test/examples/MyNodeComplete.java",
-        "src/test/examples/MyStackFieldAssign.java",
-        "src/test/examples/BoxMain.java",
-        "src/test/examples/HttpEntityNoAnnotations.java",
-        "src/test/examples/searching_state_space/URLConnectionReuseConnection.java",
-        "src/test/examples/searching_state_space/URLConnectionSetProperty1.java",
-        "src/test/examples/searching_state_space/URLConnectionSetPropertyMultipleShort.java",
-        "src/test/examples/searching_state_space/TimerTaskCannotReschedule.java",
-        "src/test/examples/searching_state_space/ResultSetNoNext.java",
-        "src/test/examples/searching_state_space/ResultSetForwardOnly.java",
-        "src/test/examples/stack_overflow/MediaRecord.java"
-    );
-
     @ParameterizedTest
-    @CsvSource({
-        "src/test/examples/MyNodeCorrect.java",
-        "src/test/examples/MyNodePush.java",
-        "src/test/examples/MyNodePushPop.java",
-        "src/test/examples/MyNodeComplete.java",
-        "src/test/examples/MyStackFieldAssign.java",
-        "src/test/examples/BoxMain.java",
-        "src/test/examples/HttpEntityNoAnnotations.java",
-        "src/test/examples/searching_state_space/URLConnectionReuseConnection.java",
-        "src/test/examples/searching_state_space/URLConnectionSetProperty1.java",
-        "src/test/examples/searching_state_space/URLConnectionSetPropertyMultipleShort.java",
-        "src/test/examples/searching_state_space/TimerTaskCannotReschedule.java",
-        "src/test/examples/searching_state_space/ResultSetNoNext.java",
-        "src/test/examples/searching_state_space/ResultSetForwardOnly.java",
-        "src/test/examples/stack_overflow/MediaRecord.java"
-    })
-    public void testCorrectExamples(String filePath) {
-        assertLauncherPasses(filePath);
-    }
-
-    /*
-     * === Parameterized Incorrect Examples ===
-     */
-    
-    @ParameterizedTest
-    @CsvSource({
-        "src/test/examples/MyNode.java, UNIQUE but got BORROWED",
-        "src/test/examples/MyNodePushPopIncorrect.java, FREE but got BOTTOM",
-        "src/test/examples/MyNodeNoDistinct.java, Non-distinct parameters",
-        "src/test/examples/MyNodeCallUniqueFree.java, FREE but got UNIQUE",
-        "src/test/examples/SmallestIncorrectExample.java, UNIQUE but got BORROWED",
-        "src/test/examples/MyStackFieldAssignMethod.java, UNIQUE but got SHARED",
-        "src/test/examples/FieldAccessNoThis.java, UNIQUE but got SHARED",
-        "src/test/examples/FieldAccessRightNoThis.java, FREE but got UNIQUE"
-    })
-    public void testIncorrectExamples(String filePath, String expectedMessage) {
+    @MethodSource("provideTestCases")
+    public void testApp(String filePath, boolean shouldPass, String expectedErrorMessage) {
         try {
             App.launcher(filePath);
-        } catch (LatteException e) {
-            assertTrue(e.getMessage().contains(expectedMessage));
+            if (!shouldPass) {
+                fail("Expected an exception but none was thrown.");
+            }
+        } catch (Exception e) {
+            if (shouldPass) {
+                fail("Unexpected exception: " + e.getMessage());
+            } else {
+                assertTrue(e instanceof LatteException);
+                assertTrue(e.getMessage().contains(expectedErrorMessage));
+            }
         }
     }
 
-    /*
-     * === Other Unit Tests ===
-     */
-   
-   @Test
-   public void testReachabilityUnitTest() {
-       Logger logger = Logger.getLogger(AppTest.class.getName());
-       //test
-       SymbolicEnvironment se = new SymbolicEnvironment();
-       se.enterScope();
-       SymbolicValue v1 = se.addVariable("x");
-       // x->1
-       SymbolicValue v2 = se.addVariable("y");
-       // x->1; y->2
-       SymbolicValue v3 = se.addField(v1,"f");
-       // x->1; y->2, 1.f->3
-       se.addVarSymbolicValue("z", v1);
-       SymbolicValue v4 = se.get("z");
-       // x->1; y->2, 1.f->3, z -> 1
+    @Test
+    public void testReachabilityUnitTest() {
+        Logger logger = Logger.getLogger(AppTest.class.getName());
+        SymbolicEnvironment se = new SymbolicEnvironment();
+        se.enterScope();
+        SymbolicValue v1 = se.addVariable("x");
+        SymbolicValue v2 = se.addVariable("y");
+        SymbolicValue v3 = se.addField(v1, "f");
+        se.addVarSymbolicValue("z", v1);
+        SymbolicValue v4 = se.get("z");
 
-       logger.info(se.toString());
+        logger.info(se.toString());
 
-       boolean b = se.canReach(v1, v2, new ArrayList<>());
-       logger.info(v1.toString() + " can reach " +  v2.toString() + "? " + b);
-       assertFalse(b);
-       
-       boolean b1 = se.canReach(v1, v3, new ArrayList<>());
-       logger.info(v1.toString() + " can reach " +  v3.toString() + "? " + b1);
-       assertTrue(b1);
+        boolean b = se.canReach(v1, v2, new ArrayList<>());
+        logger.info(v1.toString() + " can reach " + v2.toString() + "? " + b);
+        assertFalse(b);
 
-       
-       boolean b2 = se.canReach(v1, v4, new ArrayList<>());
-       logger.info(v1.toString() + " can reach " +  v4.toString() + "? " + b1);
-       assertTrue(b2);
-   }
+        boolean b1 = se.canReach(v1, v3, new ArrayList<>());
+        logger.info(v1.toString() + " can reach " + v3.toString() + "? " + b1);
+        assertTrue(b1);
 
+        boolean b2 = se.canReach(v1, v4, new ArrayList<>());
+        logger.info(v1.toString() + " can reach " + v4.toString() + "? " + b1);
+        assertTrue(b2);
+    }
 }
