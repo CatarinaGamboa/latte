@@ -1,21 +1,10 @@
-
-
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
-
-import org.junit.jupiter.api.Test;
-
-import context.SymbolicEnvironment;
-import context.SymbolicValue;
-import typechecking.LatteException;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import api.App;
-/**
- * Unit test for simple App.
- */
+import typechecking.LatteException;
 
 public class AppTest {
 
@@ -25,11 +14,6 @@ public class AppTest {
 
     private void assertLauncherPasses(String filePath) {
         assertDoesNotThrow(() -> App.launcher(filePath));
-    }
-
-    private void assertLauncherFails(String filePath, String expectedMessage) {
-        Exception exception = assertThrows(LatteException.class, () -> App.launcher(filePath));
-        assertTrue(exception.getMessage().contains(expectedMessage));
     }
 
     /*
@@ -53,103 +37,56 @@ public class AppTest {
         "src/test/examples/stack_overflow/MediaRecord.java"
     );
 
-    @Test
-    public void testCorrectExamples() {
-        CORRECT_FILES.forEach(this::assertLauncherPasses);
+    @ParameterizedTest
+    @CsvSource({
+        "src/test/examples/MyNodeCorrect.java",
+        "src/test/examples/MyNodePush.java",
+        "src/test/examples/MyNodePushPop.java",
+        "src/test/examples/MyNodeComplete.java",
+        "src/test/examples/MyStackFieldAssign.java",
+        "src/test/examples/BoxMain.java",
+        "src/test/examples/HttpEntityNoAnnotations.java",
+        "src/test/examples/searching_state_space/URLConnectionReuseConnection.java",
+        "src/test/examples/searching_state_space/URLConnectionSetProperty1.java",
+        "src/test/examples/searching_state_space/URLConnectionSetPropertyMultipleShort.java",
+        "src/test/examples/searching_state_space/TimerTaskCannotReschedule.java",
+        "src/test/examples/searching_state_space/ResultSetNoNext.java",
+        "src/test/examples/searching_state_space/ResultSetForwardOnly.java",
+        "src/test/examples/stack_overflow/MediaRecord.java"
+    })
+    public void testCorrectExamples(String filePath) {
+        assertLauncherPasses(filePath);
     }
 
     /*
-     * === Incorrect Examples ===
+     * === Parameterized Incorrect Examples ===
      */
-
-    @Test
-    public void testMyNode(){
+    
+    @ParameterizedTest
+    @CsvSource({
+        "src/test/examples/MyNode.java, UNIQUE but got BORROWED",
+        "src/test/examples/MyNodePushPopIncorrect.java, FREE but got BOTTOM",
+        "src/test/examples/MyNodeNoDistinct.java, Non-distinct parameters",
+        "src/test/examples/MyNodeCallUniqueFree.java, FREE but got UNIQUE",
+        "src/test/examples/SmallestIncorrectExample.java, UNIQUE but got BORROWED",
+        "src/test/examples/MyStackFieldAssignMethod.java, UNIQUE but got SHARED",
+        "src/test/examples/FieldAccessNoThis.java, UNIQUE but got SHARED",
+        "src/test/examples/FieldAccessRightNoThis.java, FREE but got UNIQUE"
+    })
+    public void testIncorrectExamples(String filePath, String expectedMessage) {
         try {
-            App.launcher("src/test/examples/MyNode.java");
-        } catch (Exception e) {
-            assertTrue(e instanceof LatteException);
-            assertTrue(e.getMessage().contains("UNIQUE but got BORROWED"));
+            App.launcher(filePath);
+        } catch (LatteException e) {
+            assertTrue(e.getMessage().contains(expectedMessage));
         }
-        
     }
 
+    /*
+     * === Other Unit Tests ===
+     */
+   
    @Test
-   public void testMyNodePushPopIncorrect(){
-       try {
-           App.launcher("src/test/examples/MyNodePushPopIncorrect.java");
-       } catch (Exception e) {
-           System.out.println(e.getMessage());
-           assertTrue(e instanceof LatteException);
-           assertTrue(e.getMessage().contains("FREE but got BOTTOM"));
-       }
-       
-   }
-
-   @Test
-   public void testMyNodeNoDistinct(){
-       try {
-           App.launcher("src/test/examples/MyNodeNoDistinct.java");
-       } catch (Exception e) {
-           assertTrue(e instanceof LatteException);
-           assertTrue(e.getMessage().contains("Non-distinct parameters"));
-       }   
-   }
-
-   @Test
-   public void testMyNodeCallUniqueFree(){
-       try {
-           App.launcher("src/test/examples/MyNodeCallUniqueFree.java");
-       } catch (Exception e) {
-           assertTrue(e instanceof LatteException);
-           assertTrue(e.getMessage().contains("FREE but got UNIQUE"));
-       }
-       
-   }
-
-   @Test
-   public void testSmallestIncorrectExample(){
-       try {
-           App.launcher("src/test/examples/SmallestIncorrectExample.java");
-       } catch (Exception e) {
-           assertTrue(e instanceof LatteException);
-           assertTrue(e.getMessage().contains("UNIQUE but got BORROWED"));
-       }
-       
-   }
-
-   @Test
-   public void testMyStackFieldAssignMethod(){
-       try {
-           App.launcher("src/test/examples/MyStackFieldAssignMethod.java");
-       } catch (Exception e) {
-           assertTrue(e instanceof LatteException);
-           assertTrue(e.getMessage().contains("UNIQUE but got SHARED"));
-       }
-   }
-
-   @Test
-   public void testFieldAccessNoThis(){
-       try {
-           App.launcher("src/test/examples/FieldAccessNoThis.java");
-       } catch (Exception e) {
-           assertTrue(e instanceof LatteException);
-           assertTrue(e.getMessage().contains("UNIQUE but got SHARED"));
-       }
-   }
-
-   @Test
-   public void testFieldAccessRightNoThis(){
-       try {
-           App.launcher("src/test/examples/FieldAccessRightNoThis.java");
-       } catch (Exception e) {
-           assertTrue(e instanceof LatteException);
-           assertTrue(e.getMessage().contains("FREE but got UNIQUE"));
-       }
-   }
-
-
-   @Test
-   public void testReachabilityUnitTest(){
+   public void testReachabilityUnitTest() {
        Logger logger = Logger.getLogger(AppTest.class.getName());
        //test
        SymbolicEnvironment se = new SymbolicEnvironment();
@@ -179,6 +116,5 @@ public class AppTest {
        logger.info(v1.toString() + " can reach " +  v4.toString() + "? " + b1);
        assertTrue(b2);
    }
-
 
 }
