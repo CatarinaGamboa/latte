@@ -24,8 +24,8 @@ public class LatteClassFirstPass extends LatteAbstractChecker{
     public <T> void visitCtClass(CtClass<T> ctClass) {
 		logInfo("Visiting class: " + ctClass.getSimpleName());
 		// Add the class to the type reference and class map
-		CtTypeReference<?> typeRef = ctClass.getReference();
-		maps.addTypeClass(typeRef, ctClass);
+		CtTypeReference<?> typeRef1 = ctClass.getReference();
+		maps.addTypeClass(typeRef1, ctClass);
 		super.visitCtClass(ctClass);
 	}
 			
