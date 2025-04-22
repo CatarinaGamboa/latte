@@ -199,7 +199,7 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 			invocation.getArguments().size());
 
 		if (m == null){
-			logInfo("Cannot find method {"+ metName +"} for class {"+ klass.getSimpleName() +"} with {"+ paramSize +"} in the context");
+			logInfo("Cannot find method {" + metName + "} for {} in the context");
 			return;
 		}
 		List<SymbolicValue> paramSymbValues = new ArrayList<>();
