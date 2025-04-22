@@ -18,38 +18,50 @@ import typechecking.LatteException;
 
 public class AppTest {
 
-    // Provide the test cases: file path, should pass (boolean), and expected error message (if any)
-    private static Stream<Arguments> provideTestCases() {
+    // Provide the test cases for correct examples: file path and should pass (true)
+    private static Stream<Arguments> provideCorrectTestCases() {
         return Stream.of(
-            Arguments.of("src/test/examples/MyNodeCorrect.java", true, null),
-            Arguments.of("src/test/examples/MyNodePush.java", true, null),
-            Arguments.of("src/test/examples/MyNodePushPop.java", true, null),
-            Arguments.of("src/test/examples/MyNodeComplete.java", true, null),
-            Arguments.of("src/test/examples/MyStackFieldAssign.java", true, null),
-            Arguments.of("src/test/examples/BoxMain.java", true, null),
-            Arguments.of("src/test/examples/HttpEntityNoAnnotations.java", true, null),
-            Arguments.of("src/test/examples/searching_state_space/URLConnectionReuseConnection.java", true, null),
-            Arguments.of("src/test/examples/searching_state_space/URLConnectionSetProperty1.java", true, null),
-            Arguments.of("src/test/examples/searching_state_space/URLConnectionSetPropertyMultipleShort.java", true, null),
-            Arguments.of("src/test/examples/searching_state_space/TimerTaskCannotReschedule.java", true, null),
-            Arguments.of("src/test/examples/searching_state_space/ResultSetNoNext.java", true, null),
-            Arguments.of("src/test/examples/searching_state_space/ResultSetForwardOnly.java", true, null),
-            Arguments.of("src/test/examples/stack_overflow/MediaRecord.java", true, null),
-            Arguments.of("src/test/examples/MyNode.java", false, "UNIQUE but got BORROWED"),
-            Arguments.of("src/test/examples/MyNodePushPopIncorrect.java", false, "FREE but got BOTTOM"),
-            Arguments.of("src/test/examples/MyNodeNoDistinct.java", false, "Non-distinct parameters"),
-            Arguments.of("src/test/examples/MyNodeCallUniqueFree.java", false, "FREE but got UNIQUE"),
-            Arguments.of("src/test/examples/SmallestIncorrectExample.java", false, "UNIQUE but got BORROWED"),
-            Arguments.of("src/test/examples/MyStackFieldAssignMethod.java", false, "UNIQUE but got SHARED"),
-            Arguments.of("src/test/examples/FieldAccessNoThis.java", false, "UNIQUE but got SHARED"),
-            Arguments.of("src/test/examples/FieldAccessRightNoThis.java", false, "FREE but got UNIQUE")
+            Arguments.of("src/test/examples/MyNodeCorrect.java"),
+            Arguments.of("src/test/examples/MyNodePush.java"),
+            Arguments.of("src/test/examples/MyNodePushPop.java"),
+            Arguments.of("src/test/examples/MyNodeComplete.java"),
+            Arguments.of("src/test/examples/MyStackFieldAssign.java"),
+            Arguments.of("src/test/examples/BoxMain.java"),
+            Arguments.of("src/test/examples/HttpEntityNoAnnotations.java"),
+            Arguments.of("src/test/examples/searching_state_space/URLConnectionReuseConnection.java"),
+            Arguments.of("src/test/examples/searching_state_space/URLConnectionSetProperty1.java"),
+            Arguments.of("src/test/examples/searching_state_space/URLConnectionSetPropertyMultipleShort.java"),
+            Arguments.of("src/test/examples/searching_state_space/TimerTaskCannotReschedule.java"),
+            Arguments.of("src/test/examples/searching_state_space/ResultSetNoNext.java"),
+            Arguments.of("src/test/examples/searching_state_space/ResultSetForwardOnly.java"),
+            Arguments.of("src/test/examples/stack_overflow/MediaRecord.java")
+        );
+    }
+
+    // Provide the test cases for incorrect examples: file path, should pass (false), and expected error message
+    private static Stream<Arguments> provideIncorrectTestCases() {
+        return Stream.of(
+            Arguments.of("src/test/examples/MyNode.java", "UNIQUE but got BORROWED"),
+            Arguments.of("src/test/examples/MyNodePushPopIncorrect.java", "FREE but got BOTTOM"),
+            Arguments.of("src/test/examples/MyNodeNoDistinct.java", "Non-distinct parameters"),
+            Arguments.of("src/test/examples/MyNodeCallUniqueFree.java", "FREE but got UNIQUE"),
+            Arguments.of("src/test/examples/SmallestIncorrectExample.java", "UNIQUE but got BORROWED"),
+            Arguments.of("src/test/examples/MyStackFieldAssignMethod.java", "UNIQUE but got SHARED"),
+            Arguments.of("src/test/examples/FieldAccessNoThis.java", "UNIQUE but got SHARED"),
+            Arguments.of("src/test/examples/FieldAccessRightNoThis.java", "FREE but got UNIQUE")
         );
     }
 
     @ParameterizedTest
-    @MethodSource("provideTestCases")
-    public void testApp(String filePath, boolean shouldPass, String expectedErrorMessage) {
-        runTest(filePath, shouldPass, expectedErrorMessage);
+    @MethodSource("provideCorrectTestCases")
+    public void testCorrectApp(String filePath) {
+        runTest(filePath, true, null);
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideIncorrectTestCases")
+    public void testIncorrectApp(String filePath, String expectedErrorMessage) {
+        runTest(filePath, false, expectedErrorMessage);
     }
 
     // The shared method that handles the actual test logic
