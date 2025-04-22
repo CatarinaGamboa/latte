@@ -191,7 +191,7 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 		if (invocation.getTarget() == null){
 			logError("Invocation needs to have a target but found none -", invocation);
 		}
-		CtTypeReference<?> e = invocation.getTarget().getType();
+		CtTypeReference<?> e = invocation.getTarget().getType().getTypeErasure();
 		
 		// method(Γ(𝑥), 𝑓 ) = 𝛼 𝐶 𝑚(𝛼0 𝐶0 this, 𝛼1 𝐶1 𝑥1, · · · , 𝛼𝑛 𝐶𝑛 𝑥𝑛 )
 		CtClass<?> klass = maps.getClassFrom(e);
@@ -199,7 +199,7 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 			invocation.getArguments().size());
 
 		if (m == null){
-			logInfo(String.format("Cannot find method {} for {} in the context", metName, invocation.getType()));
+			logInfo("Cannot find method {" + metName + "} for {} in the context");
 			return;
 		}
 		List<SymbolicValue> paramSymbValues = new ArrayList<>();
