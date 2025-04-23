@@ -29,13 +29,28 @@ abstract class LatteAbstractChecker extends CtScanner{
             this.permEnv = permEnv;
             this.maps = maps;
     }
- 
-    /**
+
+	/**
 	 * Log info with indentation
 	 * @param text
 	 */
 	protected void logInfo(String text) {
 		logger.info(" ".repeat(4*loggingSpaces) + "|- " + text);
+	}
+ 
+    /**
+	 * Log info with indentation
+	 * @param text
+	 * @param ce The CtElement to which the Log relates to
+	 */
+	protected void logInfo(String text, CtElement ce) {
+		if(ce.getPosition().getFile() == null)
+			logger.info(" ".repeat(4*loggingSpaces) + "|- " + text + " " + ce.getPosition());
+		else{
+			String pos = ce.getPosition().getFile().getName() + ":" + ce.getPosition().getLine();
+			logger.info(" ".repeat(4*loggingSpaces) + "|- " + text + " (" + pos + ")");
+		}
+		
 	}
 
 	/**

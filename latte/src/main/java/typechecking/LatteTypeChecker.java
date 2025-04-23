@@ -48,7 +48,7 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 
 	@Override
 	public <T> void visitCtClass(CtClass<T> ctClass) {
-		logInfo("Visiting class: <" + ctClass.getSimpleName()+">");
+		logInfo("Visiting class: <" + ctClass.getSimpleName()+">", ctClass);
 		enterScopes();
 		super.visitCtClass(ctClass);
 		exitScopes();
@@ -57,7 +57,7 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 	
 	@Override
 	public <T> void visitCtConstructor(CtConstructor<T> c) {
-		logInfo("Visiting constructor <"+ c.getSimpleName()+">");
+		logInfo("Visiting constructor <"+ c.getSimpleName()+">", c);
 		enterScopes();
 
 		// Assume 'this' is a parameter always borrowed
@@ -71,7 +71,7 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 	
 	@Override
 	public <T> void visitCtMethod(CtMethod<T> m) {
-		logInfo("Visiting method <"+ m.getSimpleName()+">");
+		logInfo("Visiting method <"+ m.getSimpleName()+">", m);
 		enterScopes();
 
 		// Assume 'this' is a parameter always borrowed
@@ -85,7 +85,7 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 	
 	@Override
 	public <T> void visitCtParameter(CtParameter<T> parameter) {
-		logInfo("Visiting parameter <"+ parameter.getSimpleName()+">");
+		logInfo("Visiting parameter <"+ parameter.getSimpleName()+">", parameter);
 		loggingSpaces++;
 		super.visitCtParameter(parameter);
 		
@@ -125,7 +125,7 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 	 */
 	@Override
 	public <T> void visitCtLocalVariable(CtLocalVariable<T> localVariable) {
-		logInfo("Visiting local variable <"+ localVariable.getSimpleName() +">");
+		logInfo("Visiting local variable <"+ localVariable.getSimpleName() +">", localVariable);
 		loggingSpaces++;
 		// CheckVarDecl
 		// 1) Add the variable to the typing context
@@ -178,7 +178,7 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 	 */
 	@Override
 	public <T> void visitCtInvocation(CtInvocation<T> invocation) {
-		logInfo("Visiting invocation <"+ invocation.toStringDebug()+">");
+		logInfo("Visiting invocation <"+ invocation.toStringDebug()+">", invocation);
 		super.visitCtInvocation(invocation);
 
 		String metName = invocation.getExecutable().getSimpleName();
@@ -248,7 +248,7 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 	 */
 	@Override
 	public <T> void visitCtFieldRead(CtFieldRead<T> fieldRead) {
-		logInfo("Visiting field read <"+ fieldRead.toStringDebug()+">");
+		logInfo("Visiting field read <"+ fieldRead.toStringDebug()+">", fieldRead);
 		loggingSpaces++;
 
 		super.visitCtFieldRead(fieldRead);
@@ -335,7 +335,7 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 	 */
 	@Override
 	public <T> void visitCtFieldWrite(CtFieldWrite<T> fieldWrite) {
-		logInfo("Visiting field write <"+ fieldWrite.toStringDebug()+">");
+		logInfo("Visiting field write <"+ fieldWrite.toStringDebug()+">", fieldWrite);
 		super.visitCtFieldWrite(fieldWrite);
 		CtExpression<?> ce = fieldWrite.getTarget();
 		if (ce instanceof CtVariableReadImpl){
@@ -374,7 +374,7 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 	 */
 	@Override
 	public <T, A extends T> void visitCtAssignment(CtAssignment<T, A> assignment) {
-		logInfo("Visiting assignment <"+ assignment.toStringDebug()+">");
+		logInfo("Visiting assignment <"+ assignment.toStringDebug()+">", assignment);
 		loggingSpaces++;
 		super.visitCtAssignment(assignment);
 
@@ -439,7 +439,7 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 
 	@Override
 	public <T> void visitCtConstructorCall(CtConstructorCall<T> constCall) {
-		logInfo("Visiting constructor call <"+ constCall.toStringDebug()+">");
+		logInfo("Visiting constructor call <"+ constCall.toStringDebug()+">", constCall);
 		super.visitCtConstructorCall(constCall);
 
 		// Check if all arguments follow the restrictions
@@ -472,7 +472,7 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 		CtConstructor<?> c = maps.geCtConstructor(klass, paramSize);
 		List<SymbolicValue> paramSymbValues = new ArrayList<>();
 		if (klass == null || c == null){
-			logInfo(String.format("Cannot find the constructor for {} in the context", constCall.getType()));
+			logInfo(String.format("Cannot find the constructor for {} in the context", constCall.getType()), constCall);
 			return;
 		}
 		for (int i = 0; i < paramSize; i++){
@@ -488,7 +488,7 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 			if (!vvPerm.isGreaterEqualThan(Uniqueness.BORROWED)){
 				logError(String.format("Symbolic value %s:%s is not greater than BORROWED", vv, vvPerm), arg);
 			}
-			logInfo(String.format("Checking constructor argument %s:%s, %s <= %s", p.getSimpleName(), vv, vvPerm, expectedUA));
+			logInfo(String.format("Checking constructor argument %s:%s, %s <= %s", p.getSimpleName(), vv, vvPerm, expectedUA), constCall);
 			// Σ′ ⊢ 𝑒1, ... , 𝑒𝑛 : 𝛼1, ... , 𝛼𝑛 ⊣ Σ′′
 			if (!permEnv.usePermissionAs(vv, vvPerm, expectedUA))
 				logError(String.format("Expected %s but got %s", 
@@ -507,7 +507,7 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 
 	@Override
 	public void visitCtIf(CtIf ifElement) {
-		logInfo("Visiting if <"+ ifElement.toStringDebug()+">");
+		logInfo("Visiting if <"+ ifElement.toStringDebug()+">", ifElement);
 		// super.visitCtIf(ifElement);
 
 		// Evaluate the conditions
@@ -543,7 +543,7 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 
 	@Override
 	public <R> void visitCtReturn(CtReturn<R> returnStatement) {
-		logInfo("Visiting return <"+ returnStatement.toStringDebug()+">");
+		logInfo("Visiting return <"+ returnStatement.toStringDebug()+">", returnStatement);
 		super.visitCtReturn(returnStatement);
 
 		CtExpression<?> returned = returnStatement.getReturnedExpression();
@@ -567,7 +567,7 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 	 */
 	@Override
 	public <T> void visitCtBinaryOperator(CtBinaryOperator<T> operator) {
-		logInfo("Visiting binary operator <"+ operator.toStringDebug()+">");
+		logInfo("Visiting binary operator <"+ operator.toStringDebug()+">", operator);
 		loggingSpaces++;
 		super.visitCtBinaryOperator(operator);
 
@@ -589,7 +589,7 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 	 */
 	@Override
 	public <T> void visitCtUnaryOperator(CtUnaryOperator<T> operator) {
-		logInfo("Visiting unary operator <"+ operator.toStringDebug()+">");
+		logInfo("Visiting unary operator <"+ operator.toStringDebug()+">", operator);
 		loggingSpaces++;
 		super.visitCtUnaryOperator(operator);
 
@@ -611,7 +611,7 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 	 */
 	@Override
 	public <T> void visitCtLocalVariableReference(CtLocalVariableReference<T> reference) {
-		logInfo("Visiting local variable reference <"+ reference.toString()+">");
+		logInfo("Visiting local variable reference <"+ reference.toString()+">", reference);
 		loggingSpaces++;
 		super.visitCtLocalVariableReference(reference);
 		
@@ -634,7 +634,7 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 	@Override
 	public <T> void visitCtVariableRead(CtVariableRead<T> variableRead) {
 		loggingSpaces++;
-		logInfo("Visiting variable read <"+ variableRead.toString()+">");
+		logInfo("Visiting variable read <"+ variableRead.toString()+">", variableRead);
 		super.visitCtVariableRead(variableRead);
 
 		SymbolicValue sv = symbEnv.get(variableRead.getVariable().getSimpleName());
@@ -649,7 +649,7 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 	 */
 	@Override
 	public <T> void visitCtLiteral(CtLiteral<T> literal) {
-		logInfo("Visiting literal <"+ literal.toString()+">");
+		logInfo("Visiting literal <"+ literal.toString()+">", literal);
 		
 		super.visitCtLiteral(literal);
 
