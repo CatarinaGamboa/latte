@@ -22,7 +22,7 @@ public class LatteClassFirstPass extends LatteAbstractChecker{
 
     @Override
     public <T> void visitCtClass(CtClass<T> ctClass) {
-		logInfo("Visiting class: " + ctClass.getSimpleName());
+		logInfo("Visiting class: " + ctClass.getSimpleName(), ctClass);
 		// Add the class to the type reference and class map
 		CtTypeReference<?> typeRef1 = ctClass.getReference();
 		maps.addTypeClass(typeRef1, ctClass);
@@ -32,7 +32,7 @@ public class LatteClassFirstPass extends LatteAbstractChecker{
 			
 	@Override
 	public <T> void visitCtField(CtField<T> f) {
-		logInfo("Visiting field: " + f.getSimpleName());
+		logInfo("Visiting field: " + f.getSimpleName(), f);
 		loggingSpaces++;
 		CtElement k = f.getParent();
 		if (k instanceof CtClass){
@@ -54,14 +54,14 @@ public class LatteClassFirstPass extends LatteAbstractChecker{
 
 	@Override
 	public <T> void visitCtMethod(CtMethod<T> m) {
-		logInfo("Visiting method: " + m.getSimpleName());
+		logInfo("Visiting method: " + m.getSimpleName(), m);
 		maps.addMethod((CtClass<?>) m.getParent(), m);
 		super.visitCtMethod(m);
 	}
 
 	@Override
 	public <T> void visitCtConstructor(CtConstructor<T> c) {
-		logInfo("Visiting constructor: " + c.getSimpleName());
+		logInfo("Visiting constructor: " + c.getSimpleName(), c);
 		maps.addConstructor((CtClass<?>) c.getParent(), c);
 		super.visitCtConstructor(c);
 	}
