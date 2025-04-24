@@ -18,7 +18,13 @@ import typechecking.LatteException;
 
 public class AppTest {
 
-    // Provide the test cases for correct examples: file path and should pass (true)
+    /**
+     * Provides test cases for correct examples.
+     * Each test case contains the file path of a valid example.
+     * The expected outcome is that the test should pass (true).
+     * 
+     * @return Stream of Arguments, each containing a file path
+     */
     private static Stream<Arguments> provideCorrectTestCases() {
         return Stream.of(
             Arguments.of("src/test/examples/MyNodeCorrect.java"),
@@ -38,7 +44,13 @@ public class AppTest {
         );
     }
 
-    // Provide the test cases for incorrect examples: file path, should pass (false), and expected error message
+    /**
+     * Provides test cases for incorrect examples.
+     * Each test case contains the file path of an invalid example, the expected error message.
+     * The expected outcome is that the test should fail (false), and the error message should match the expected one.
+     * 
+     * @return Stream of Arguments, each containing a file path and expected error message
+     */
     private static Stream<Arguments> provideIncorrectTestCases() {
         return Stream.of(
             Arguments.of("src/test/examples/MyNode.java", "UNIQUE but got BORROWED"),
@@ -52,19 +64,42 @@ public class AppTest {
         );
     }
 
+    /**
+     * Tests the correct examples.
+     * Uses the {@link #provideCorrectTestCases} method to provide test data and verifies that the application
+     * behaves correctly for each valid input file.
+     * 
+     * @param filePath the file path to the correct example
+     */
     @ParameterizedTest
     @MethodSource("provideCorrectTestCases")
     public void testCorrectApp(String filePath) {
         runTest(filePath, true, null);
     }
 
+    /**
+     * Tests the incorrect examples.
+     * Uses the {@link #provideIncorrectTestCases} method to provide test data and verifies that the application
+     * fails with the expected error message for each invalid input file.
+     * 
+     * @param filePath the file path to the incorrect example
+     * @param expectedErrorMessage the expected error message to be thrown
+     */
     @ParameterizedTest
     @MethodSource("provideIncorrectTestCases")
     public void testIncorrectApp(String filePath, String expectedErrorMessage) {
         runTest(filePath, false, expectedErrorMessage);
     }
 
-    // The shared method that handles the actual test logic
+    /**
+     * Runs the actual test logic for both correct and incorrect test cases.
+     * For correct test cases, it ensures the application runs without errors.
+     * For incorrect test cases, it ensures the application throws the expected exception with the correct error message.
+     * 
+     * @param filePath the file path to the test file
+     * @param shouldPass true if the test should pass, false if it should fail
+     * @param expectedErrorMessage the expected error message (used only for incorrect test cases)
+     */
     private void runTest(String filePath, boolean shouldPass, String expectedErrorMessage) {
         try {
             App.launcher(filePath);
@@ -83,6 +118,10 @@ public class AppTest {
         }
     }
 
+    /**
+     * Unit test to check reachability between symbolic values in a symbolic environment.
+     * Creates a symbolic environment, adds variables and fields, and tests if one variable can reach another.
+     */
     @Test
     public void testReachabilityUnitTest() {
         Logger logger = Logger.getLogger(AppTest.class.getName());
