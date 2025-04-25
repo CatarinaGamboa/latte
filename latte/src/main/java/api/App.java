@@ -30,14 +30,14 @@ public class App {
 		if (args.length == 0) {
 			System.out.println("Please enter the path to the file you want to process");
 			String allPath = "latte/src/main/java/examples/MyStackTest.java";
-			launcher(allPath);
+			launcher(allPath, true);
 
 		} else if (args.length == 1 && args[0].equals("-multi")) {
 			// Analyze multiple files from command line
 			Scanner scanner = new Scanner(System.in);
 			while(scanner.hasNextLine()){
 				String filePath = scanner.nextLine();
-				launcher(filePath);
+				launcher(filePath, true);
 			}
 			scanner.close();
 		}
@@ -47,7 +47,7 @@ public class App {
 	 * 
 	 * @param filePath
 	 */
-    public static void launcher(String filePath) {
+    public static void launcher(String filePath, boolean justJson) {
     
 	    if (filePath == null) throw new InvalidParameterException("The path to the file is null");
 		
@@ -109,6 +109,9 @@ public class App {
 											sp.getEndLine(), sp.getEndColumn(), e.getMessage(), e.getFullMessage());
 			String json = new Gson().toJson(error); // using Gson to convert object to JSON
 			System.err.println(json);
+			if (!justJson)
+				throw e;
+			
 
 		} finally {
 			// Delete the output directory
