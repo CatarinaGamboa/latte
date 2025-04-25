@@ -6,7 +6,6 @@ import java.util.Scanner;
 
 import com.google.gson.Gson;
 
-import examples.MyStackTest;
 import spoon.Launcher;
 import spoon.processing.ProcessingManager;
 import spoon.reflect.cu.SourcePosition;
