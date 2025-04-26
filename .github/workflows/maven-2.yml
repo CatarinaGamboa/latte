@@ -30,7 +30,15 @@ jobs:
     - name: Build with Maven
       working-directory: latte
       run: mvn -B package --file pom.xml
-
+    - name: Run tests with Maven
+      working-directory: latte
+      run: mvn test --file pom.xml
+    - name: Upload test results
+      if: always()  # This ensures the test results are uploaded even if tests fail
+      uses: actions/upload-artifact@v2
+      with:
+        name: test-results
+        path: latte/latte/target/test-*.xml  # Maven Surefire generates the test result files here
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     - name: Update dependency graph
       run: |
