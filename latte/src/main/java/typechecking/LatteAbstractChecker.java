@@ -44,8 +44,8 @@ abstract class LatteAbstractChecker extends CtScanner{
 	 * @param ce The CtElement to which the Log relates to
 	 */
 	protected void logInfo(String text, CtElement ce) {
-		if(ce.getPosition().getFile() == null)
-			logger.info(" ".repeat(4*loggingSpaces) + "|- " + text + " " + ce.getPosition());
+		if(!ce.getPosition().isValidPosition())
+			logger.info(" ".repeat(4*loggingSpaces) + "|- " + text);
 		else{
 			String pos = ce.getPosition().getFile().getName() + ":" + ce.getPosition().getLine();
 			logger.info(" ".repeat(4*loggingSpaces) + "|- " + text + " (" + pos + ")");
