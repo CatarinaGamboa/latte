@@ -21,9 +21,10 @@ class MyNode {
         this.next = next;
     }
 
-    public void test(@Free Object v1, boolean c1){
+    public Object test(@Free Object v1, boolean c1){
         if (c1) {
             this.value = v1;
         }
+        return this.value;
     }
 }
