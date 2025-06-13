@@ -243,7 +243,7 @@ public class ClassLevelMaps {
         }
 	}
 
-    public void addExternalMethodPermissions(
+    public void addExternalMethodParamPermissions(
             CtTypeReference<?> typeRef,
             String methodName,
             int numParams,
@@ -256,6 +256,13 @@ public class ClassLevelMaps {
         externalMethodParamPermissions
                 .computeIfAbsent(typeRef, k -> new HashMap<>())
                 .put(methodSig, paramAnnotations);
+    }
+
+    public List<UniquenessAnnotation> getExternalMethodParamPermissions(
+            CtTypeReference<?> clazz, String methodName, int arity) {
+        Map<Pair<String, Integer>, List<UniquenessAnnotation>> methodMap = externalMethodParamPermissions.get(clazz);
+        if (methodMap == null) return null;
+        return methodMap.get(Pair.of(methodName, arity));
     }
 
 }
