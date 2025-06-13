@@ -20,6 +20,7 @@ public class ClassLevelMaps {
     Map<CtClass<?>, Map<String, CtField<?>>> classFields;
     Map<CtClass<?>, Map<Integer, CtConstructor<?>>> classConstructors;
     Map<CtClass<?>, Map<Pair<String, Integer>, CtMethod<?>>> classMethods;
+    Map<CtTypeReference<?>, Map<Pair<String, Integer>, List<UniquenessAnnotation>>> externalMethodParamPermissions;
     
 
 
@@ -28,6 +29,7 @@ public class ClassLevelMaps {
         classFields = new HashMap<CtClass<?>, Map<String, CtField<?>>>();
         classConstructors = new HashMap<>();
         classMethods = new HashMap<>();
+        externalMethodParamPermissions = new HashMap<>();
     }
 
     public CtClass<?> getClassFrom(CtTypeReference<?> type) {
@@ -241,6 +243,19 @@ public class ClassLevelMaps {
         }
 	}
 
+    public void addExternalMethodPermissions(
+            CtTypeReference<?> typeRef,
+            String methodName,
+            int numParams,
+            List<UniquenessAnnotation> paramAnnotations
+    ) {
+        if (externalMethodParamPermissions == null)
+            externalMethodParamPermissions = new HashMap<>();
 
+        Pair<String, Integer> methodSig = Pair.of(methodName, numParams);
+        externalMethodParamPermissions
+                .computeIfAbsent(typeRef, k -> new HashMap<>())
+                .put(methodSig, paramAnnotations);
+    }
 
 }
