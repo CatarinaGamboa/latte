@@ -275,4 +275,8 @@ public class ClassLevelMaps {
 
         return methodMap.containsKey(Pair.of(methodName, arity));
     }
+
+    public Object getExternaRefinementsMap() {
+        return externalMethodParamPermissions;
+    }
 }

@@ -67,6 +67,7 @@ public class ExternalRefinementFirstPass extends LatteAbstractChecker {
             logInfo("Processing external interface: " + ctInterface.getQualifiedName(), ctInterface);
             scan(ctInterface.getMethods());
         }
+        super.visitCtInterface(ctInterface);
     }
 
     @Override
@@ -91,5 +92,7 @@ public class ExternalRefinementFirstPass extends LatteAbstractChecker {
         maps.addExternalMethodParamPermissions(declaringClass, methodSig.getLeft(), methodSig.getRight(), paramAnnotations);
 
         logInfo("Collected annotations for method: " + methodSig + " => " + paramAnnotations, method);
+        super.visitCtMethod(method);
     }
+
 }
