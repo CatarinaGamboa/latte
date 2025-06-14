@@ -4,7 +4,10 @@ import context.ClassLevelMaps;
 import context.PermissionEnvironment;
 import context.SymbolicEnvironment;
 import context.UniquenessAnnotation;
+import specification.ExternalRefinementsFor;
 import spoon.reflect.code.CtBlock;
+import spoon.reflect.code.CtExpression;
+import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.*;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
@@ -39,7 +42,15 @@ public class ExternalRefinementFirstPass extends LatteAbstractChecker {
         CtTypeReference<?> targetRef = null;
         for (CtAnnotation<? extends Annotation> annotation : ctInterface.getAnnotations()) {
             if (annotation.getAnnotationType().getQualifiedName().equals("specification.ExternalRefinementsFor")) {
-                targetRef = (CtTypeReference<?>) annotation.getValues().values().iterator().next();
+                CtExpression<?> expr = annotation.getValues().get("value");
+
+                if (expr instanceof CtLiteral<?> && ((CtLiteral<?>) expr).getValue() instanceof String) {
+                    targetRef = ctInterface.getFactory().Type().createReference((String) ((CtLiteral<?>) expr).getValue());
+                } else {
+                    logWarning("Expected a string literal in @ExternalRefinementsFor");
+                    return;
+                }
+
                 break;
             }
         }

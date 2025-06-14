@@ -27,6 +27,7 @@ import spoon.reflect.declaration.CtConstructor;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtParameter;
+import spoon.reflect.reference.CtExecutableReference;
 import spoon.reflect.reference.CtFieldReference;
 import spoon.reflect.reference.CtLocalVariableReference;
 import spoon.reflect.reference.CtTypeReference;
@@ -199,8 +200,30 @@ public class LatteTypeChecker  extends LatteAbstractChecker {
 			invocation.getArguments().size());
 
 		if (m == null){
-			logInfo("Cannot find method {" + metName + "} for {} in the context");
-			return;
+			CtExecutableReference<?> execRef = invocation.getExecutable();
+			CtTypeReference<?> declaringType = execRef.getDeclaringType();
+
+			if (maps.hasExternalMethodParamPermissions(declaringType, execRef.getSimpleName(), invocation.getArguments().size())) {
+				List<UniquenessAnnotation> externalParams = maps.getExternalMethodParamPermissions(
+						declaringType, execRef.getSimpleName(), invocation.getArguments().size());
+
+				for (int i = 0; i < invocation.getArguments().size(); i++) {
+					CtExpression<?> arg = invocation.getArguments().get(i);
+
+					UniquenessAnnotation expectedUA = externalParams.get(i);
+
+					SymbolicValue vv = (SymbolicValue) arg.getMetadata(EVAL_KEY);
+					if (vv == null) logError("Symbolic value for constructor argument not found", invocation);
+
+					UniquenessAnnotation vvPerm = permEnv.get(vv);
+
+					if (!permEnv.usePermissionAs(vv, vvPerm, expectedUA))
+						logError(String.format("Expected %s but got %s in the external refinement", expectedUA, vvPerm), arg);
+				}
+			} else {
+				logInfo("Cannot find method {" + metName + "} for {} in the context");
+				return;
+			}
 		}
 		List<SymbolicValue> paramSymbValues = new ArrayList<>();
 

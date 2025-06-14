@@ -265,4 +265,14 @@ public class ClassLevelMaps {
         return methodMap.get(Pair.of(methodName, arity));
     }
 
+    public boolean hasExternalMethodParamPermissions(
+            CtTypeReference<?> clazz, String methodName, int arity) {
+
+        Map<Pair<String, Integer>, List<UniquenessAnnotation>> methodMap =
+                externalMethodParamPermissions.get(clazz);
+
+        if (methodMap == null) return false;
+
+        return methodMap.containsKey(Pair.of(methodName, arity));
+    }
 }
