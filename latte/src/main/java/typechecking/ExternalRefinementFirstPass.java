@@ -26,10 +26,13 @@ public class ExternalRefinementFirstPass extends LatteAbstractChecker {
                                        PermissionEnvironment permEnv,
                                        ClassLevelMaps maps) {
         super(symbEnv, permEnv, maps);
+        logInfo("[ External Refinements Pass started ]");
+        enterScopes();
     }
 
     @Override
     public <T> void visitCtInterface(CtInterface<T> ctInterface) {
+        logInfo("Visiting interface: " + ctInterface.getSimpleName(), ctInterface);
         // @ExternalRefinementsFor annotation check
         boolean hasAnnotation = ctInterface.getAnnotations().stream().anyMatch(ann ->
                 ann.getAnnotationType().getQualifiedName().equals("specification.ExternalRefinementsFor")
@@ -68,6 +71,7 @@ public class ExternalRefinementFirstPass extends LatteAbstractChecker {
 
     @Override
     public <T> void visitCtMethod(CtMethod<T> method) {
+        logInfo("Visiting method: " + method.getSimpleName(), method);
         CtTypeReference<?> declaringClass = method.getDeclaringType().getReference();
 
         // Skip if it has a body — it's not external
