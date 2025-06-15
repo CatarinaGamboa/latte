@@ -63,7 +63,8 @@ public class AppTest {
             Arguments.of("src/test/examples/SmallestIncorrectExample.java", "UNIQUE but got BORROWED"),
             Arguments.of("src/test/examples/MyStackFieldAssignMethod.java", "UNIQUE but got SHARED"),
             Arguments.of("src/test/examples/FieldAccessNoThis.java", "UNIQUE but got SHARED"),
-            Arguments.of("src/test/examples/FieldAccessRightNoThis.java", "FREE but got UNIQUE")
+            Arguments.of("src/test/examples/FieldAccessRightNoThis.java", "FREE but got UNIQUE"),
+            Arguments.of("src/test/examples/MyNodeIncorrectIfPermission.java", "Expected UNIQUE but got SHARED")
         );
     }
 
