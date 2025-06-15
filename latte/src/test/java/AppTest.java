@@ -40,7 +40,10 @@ public class AppTest {
             Arguments.of("src/test/examples/searching_state_space/TimerTaskCannotReschedule.java"),
             Arguments.of("src/test/examples/searching_state_space/ResultSetNoNext.java"),
             Arguments.of("src/test/examples/searching_state_space/ResultSetForwardOnly.java"),
-            Arguments.of("src/test/examples/stack_overflow/MediaRecord.java")
+            Arguments.of("src/test/examples/stack_overflow/MediaRecord.java"),
+            Arguments.of("src/test/examples/MyNodeAllKindsIfs.java"),
+            Arguments.of("src/test/examples/MyNodeIfNoElse.java"),
+            Arguments.of("src/test/examples/MyNodeIfPermissionCheck.java")
         );
     }
 
@@ -60,7 +63,8 @@ public class AppTest {
             Arguments.of("src/test/examples/SmallestIncorrectExample.java", "UNIQUE but got BORROWED"),
             Arguments.of("src/test/examples/MyStackFieldAssignMethod.java", "UNIQUE but got SHARED"),
             Arguments.of("src/test/examples/FieldAccessNoThis.java", "UNIQUE but got SHARED"),
-            Arguments.of("src/test/examples/FieldAccessRightNoThis.java", "FREE but got UNIQUE")
+            Arguments.of("src/test/examples/FieldAccessRightNoThis.java", "FREE but got UNIQUE"),
+            Arguments.of("src/test/examples/MyNodeIncorrectIfPermission.java", "Expected UNIQUE but got SHARED")
         );
     }
 
